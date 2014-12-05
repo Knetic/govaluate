@@ -1,13 +1,8 @@
 package govaluation
 
-import (
-
-	"fmt"
-)
-
 type EvaluableExpression struct {
 
-	Tokens []*ExpressionToken
+	Tokens []ExpressionToken
 	inputExpression string
 }
 
@@ -17,42 +12,51 @@ type EvaluableExpression struct {
 type ExpressionToken struct {
 
 	Kind TokenKind
-	Value string
+	Value interface{}
 }
 
 /*
 	Represents all valid types of tokens that a token can be.
 */
-type TokenKind int {
+type TokenKind int
+type ComparatorToken string
+type LogicalOperatorToken string
+type ModifierToken string
 
-	COMMENT iota
-	NUMBER
+const (
+
+	NUMERIC TokenKind = iota
+	BOOLEAN
 	STRING
-	LT
-	GT
-	LTE
-	GTE
-	EQ
-	NEQ
-	AND
-	OR
-	PLUS
-	MINUS
-	MULTIPLY
-	DIVIDE
-	MODULUS
-	EOF
-}
+	COMPARATOR
+	LOGICALOP
+	MODIFIER
+)
 
-/*
-	Represents a lexer state, which can parse a given set of TokenKinds and transition to a set of other lexer states
-*/
-type lexerState interface {
+const (
 
-	validKinds []TokenKind
-	nextStates []lexerState
-	evaluate (*func(*chan)(*lexerState))
-}
+	EQ  ComparatorToken = "=" 
+	NEQ ComparatorToken = "!="
+	GT  ComparatorToken = ">"
+	LT  ComparatorToken = "<"
+	GTE ComparatorToken = ">="
+	LTE ComparatorToken = "<="
+)
+
+const (
+
+	AND LogicalOperatorToken = "&&"
+	OR  LogicalOperatorToken = "||"
+)
+
+const (
+
+	PLUS ModifierToken 	= "+"
+	MINUS ModifierToken 	= "-"
+	MULTIPLY ModifierToken 	= "*"
+	DIVIDE ModifierToken 	= "/"
+	MODULUS ModifierToken 	= "%"
+)
 
 func NewEvaluableExpression(expression string) *EvaluableExpression {
 
@@ -65,12 +69,9 @@ func NewEvaluableExpression(expression string) *EvaluableExpression {
 	return ret
 }
 
-func parseTokens(expression string) []*ExpressionToken {
+func parseTokens(expression string) []ExpressionToken {
 
-	var ret []*ExpressionToken
-
-	ret = new([]*ExpressionToken)
-
+	var ret []ExpressionToken
 	return ret
 }
 
