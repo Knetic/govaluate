@@ -18,8 +18,14 @@ type EvaluationTest struct {
 
 	Name string
 	Input string
-	Parameters map[string]interface{}
+	Parameters []EvaluationParameter
 	Expected interface{}
+}
+
+type EvaluationParameter struct {
+
+	Name string
+	Value interface{}
 }
 
 func TestConstantParsing(test *testing.T) {
@@ -514,6 +520,42 @@ func TestNoParameterEvaluation(test *testing.T) {
 }
 
 func TestParameterizedEvaluation(test *testing.T) {
+
+	evaluationTests := []EvaluationTest {
+
+		EvaluationTest {
+
+			Name: "Single parameter modified by constant",
+			Input: "foo + 2",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: 2,
+				},
+			},
+			Expected: 4,
+		},
+		EvaluationTest {
+
+			Name: "Single parameter modified by constant",
+			Input: "foo * bar",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: 5,
+				},
+				EvaluationParameter {
+					Name: "bar",
+					Value: 2,
+				},
+			},
+			Expected: 10,
+		},
+	}
+
+	runEvaluationTests(evaluationTests, test)
 }
 
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
@@ -561,12 +603,19 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 	var expression *EvaluableExpression
 	var result interface{}
+	var parameters map[string]interface{}
 
 	// Run the test cases.
 	for _, evaluationTest := range evaluationTests {
 
 		expression = NewEvaluableExpression(evaluationTest.Input)
-		result = expression.Evaluate(evaluationTest.Parameters)
+		parameters = make(map[string]interface{}, 8)		
+		
+		for _, parameter := range evaluationTest.Parameters {
+			parameters[parameter.Name] = parameter.Value
+		}
+
+		result = expression.Evaluate(parameters)
 
 		if(result != evaluationTest.Expected) {
 
