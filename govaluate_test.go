@@ -14,6 +14,14 @@ type TokenParsingTest struct {
 	Expected []ExpressionToken
 }
 
+type EvaluationTest struct {
+
+	Name string
+	Input string
+	Parameters map[string]interface{}
+	Expected interface{}
+}
+
 func TestConstantParsing(test *testing.T) {
 
 	tokenParsingTests := []TokenParsingTest {
@@ -413,6 +421,96 @@ func TestModifierParsing(test *testing.T) {
 }
 
 func TestNoParameterEvaluation(test *testing.T) {
+
+	evaluationTests := []EvaluationTest {
+
+		EvaluationTest {
+
+			Name: "Single PLUS",
+			Input: "51 + 49",
+			Expected: 100,
+		},
+		EvaluationTest {
+
+			Name: "Single MINUS",
+			Input: "100 - 51",
+			Expected: 49,
+		},
+		EvaluationTest {
+
+			Name: "Single MULTIPLY",
+			Input: "5 * 20",
+			Expected: 100,
+		},
+		EvaluationTest {
+
+			Name: "Single DIVIDE",
+			Input: "100 / 20",
+			Expected: 5,
+		},
+		EvaluationTest {
+
+			Name: "Single MODULUS",
+			Input: "100 % 2",
+			Expected: 0,
+		},
+		EvaluationTest {
+
+			Name: "Compound PLUS",
+			Input: "20 + 30 + 50",
+			Expected: 100,
+		},
+		EvaluationTest {
+
+			Name: "Mutiple operators",
+			Input: "20 * 5 - 49",
+			Expected: 51,
+		},
+		EvaluationTest {
+
+			Name: "Paren usage",
+			Input: "100 - (5 * 10)",
+			Expected: 50,
+		},
+		EvaluationTest {
+
+			Name: "Nested parentheses",
+			Input: "50 + (5 * (5 - 3))",
+			Expected: 100,
+		},
+		EvaluationTest {
+
+			Name: "Implicit boolean",
+			Input: "2 > 1",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Compound boolean",
+			Input: "5 < 10 && 1 < 5",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Parenthesis boolean",
+			Input: "10 < 50 && (1 != 2 && 1 == 1)",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Comparison of string constants",
+			Input: "'foo' == 'foo'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "NEQ comparison of string constants",
+			Input: "'foo' != 'bar'",
+			Expected: true,
+		},
+	}
+
+	runEvaluationTests(evaluationTests, test)
 }
 
 func TestParameterizedEvaluation(test *testing.T) {
@@ -455,6 +553,26 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				test.Log("Expected token value '", expectedToken.Kind, "' does not match '", token.Kind, "'")
 				test.Fail()
 			}
+		}
+	}
+}
+
+func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
+
+	var expression *EvaluableExpression
+	var result interface{}
+
+	// Run the test cases.
+	for _, evaluationTest := range evaluationTests {
+
+		expression = NewEvaluableExpression(evaluationTest.Input)
+		result = expression.Evaluate(evaluationTest.Parameters)
+
+		if(result != evaluationTest.Expected) {
+
+			test.Log("Test '", evaluationTest.Name, "' failed:")
+			test.Log("Expected evaluation result '", evaluationTest.Expected, "' does not match '", result, "'")
+			test.Fail()
 		}
 	}
 }

@@ -75,7 +75,12 @@ func parseTokens(expression string) []ExpressionToken {
 	return ret
 }
 
-func (self EvaluableExpression) String() string {
+func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) interface{} {
 
-	return self.inputExpression;
+	return false
+}
+
+func (this EvaluableExpression) String() string {
+
+	return this.inputExpression;
 }
