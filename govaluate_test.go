@@ -5,7 +5,7 @@ import (
 )
 
 /*
-	Represents the contents of a test of token parsing
+	Represents a test of parsing all tokens correctly from a string
 */
 type TokenParsingTest struct {
 
@@ -14,6 +14,9 @@ type TokenParsingTest struct {
 	Expected []ExpressionToken
 }
 
+/*
+	Represents a test of expression evaluation
+*/
 type EvaluationTest struct {
 
 	Name string
@@ -26,6 +29,16 @@ type EvaluationParameter struct {
 
 	Name string
 	Value interface{}
+}
+
+/*
+	Represents a test for parsing failures
+*/
+type ParsingFailureTest struct {
+
+	Name string
+	Input string
+	Expected string
 }
 
 func TestConstantParsing(test *testing.T) {
@@ -62,17 +75,6 @@ func TestConstantParsing(test *testing.T) {
 					ExpressionToken {
 						Kind: BOOLEAN,
 						Value: true,
-					},
-			},
-		},
-		TokenParsingTest {
-
-			Name: "Single numeric",
-			Input: "1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1,
 					},
 			},
 		},
@@ -558,17 +560,69 @@ func TestParameterizedEvaluation(test *testing.T) {
 	runEvaluationTests(evaluationTests, test)
 }
 
+func TestParsingFailure(test *testing.T) {
+
+	parsingTests := []ParsingFailureTest {
+
+		ParsingFailureTest {
+
+			Name: "Invalid equality comparator",
+			Input: "1 = 1",
+			Expected: "",
+		},
+		ParsingFailureTest {
+
+			Name: "Invalid equality comparator",
+			Input: "1 === 1",
+			Expected: "",
+		},
+		ParsingFailureTest {
+
+			Name: "Half of a logical operator",
+			Input: "true & false",
+			Expected: "",
+		},
+		ParsingFailureTest {
+
+			Name: "Half of a logical operator",
+			Input: "true | false",
+			Expected: "",
+		},
+		ParsingFailureTest {
+
+			Name: "Too many characters for logical operator",
+			Input: "true &&& false",
+			Expected: "",
+		},
+		ParsingFailureTest {
+
+			Name: "Too many characters for logical operator",
+			Input: "true ||| false",
+			Expected: "",
+		},
+	}
+
+	runParsingFailureTests(parsingTests, test)
+}
+
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
 
 	var expression *EvaluableExpression
 	var expectedToken ExpressionToken
 	var expectedTokenLength, actualTokenLength int
+	var err error
 
 	// Run the test cases.
 	for _, parsingTest := range tokenParsingTests {
 
-		expression = NewEvaluableExpression(parsingTest.Input)
+		expression, err = NewEvaluableExpression(parsingTest.Input)
 
+		if(err != nil) {
+
+			test.Log("Test '",parsingTest.Name,"' failed to parse: ", err)
+			test.Fail()
+			continue
+		}
 		expectedTokenLength = len(parsingTest.Expected)
 		actualTokenLength = len(expression.Tokens)
 
@@ -577,6 +631,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			test.Log("Test '",parsingTest.Name,"' failed:")
 			test.Log("Expected ", expectedTokenLength, " tokens, actually found '", actualTokenLength, "'")
 			test.Fail()
+			continue
 		}
 
 		for i, token := range expression.Tokens {
@@ -587,6 +642,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				test.Log("Test '", parsingTest.Name, "' failed:")
 				test.Log("Expected token kind '", expectedToken.Kind, "' does not match '", token.Kind, "'")
 				test.Fail()
+				continue
 			}
 
 			if(token.Value != expectedToken.Value) {
@@ -594,6 +650,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				test.Log("Test '", parsingTest.Name, "' failed:")
 				test.Log("Expected token value '", expectedToken.Kind, "' does not match '", token.Kind, "'")
 				test.Fail()
+				continue
 			}
 		}
 	}
@@ -604,11 +661,20 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 	var expression *EvaluableExpression
 	var result interface{}
 	var parameters map[string]interface{}
+	var err error
 
 	// Run the test cases.
 	for _, evaluationTest := range evaluationTests {
 
-		expression = NewEvaluableExpression(evaluationTest.Input)
+		expression, err = NewEvaluableExpression(evaluationTest.Input)
+
+		if(err != nil) {
+
+			test.Log("Test '",evaluationTest.Name,"' failed to parse: ", err)
+			test.Fail()
+			continue
+		}
+
 		parameters = make(map[string]interface{}, 8)		
 		
 		for _, parameter := range evaluationTest.Parameters {
@@ -624,4 +690,9 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 			test.Fail()
 		}
 	}
+}
+
+func runParsingFailureTests(parsingTests []ParsingFailureTest, test *testing.T) {
+
+	
 }
