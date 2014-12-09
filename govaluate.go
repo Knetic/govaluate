@@ -283,9 +283,12 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			break;
 		}
 
-		if(isSingleQuote(character)) {
-			tokenValue = readUntilFalse(stream, isSingleQuote);
+		if(!isNotSingleQuote(character)) {
+			tokenValue = readUntilFalse(stream, isNotSingleQuote);
 			kind = STRING;
+
+			// advance the stream one position, since reading until false assumes the terminator is a real token
+			stream.rewind(-1)
 			break;
 		}
 
@@ -322,8 +325,8 @@ func readUntilFalse(stream *lexerStream, condition func(rune)(bool)) string {
 func isNumeric(character rune) bool {
 	return unicode.IsDigit(character) || character == '.'
 }
-func isSingleQuote(character rune) bool {
-	return character == '\''
+func isNotSingleQuote(character rune) bool {
+	return character != '\''
 }
 func isNotAlphaNumeric(character rune) bool {
 	return !(unicode.IsDigit(character) || unicode.IsLetter(character))
