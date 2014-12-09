@@ -96,6 +96,7 @@ var CLAUSESTATE lexerState = lexerState {
 	validNextKinds: []TokenKind {
 
 		NUMERIC,
+		BOOLEAN,
 		VARIABLE,
 		STRING,
 		CLAUSE,
@@ -156,6 +157,7 @@ var COMPARATORSTATE lexerState = lexerState {
 	validNextKinds: []TokenKind {
 
 		NUMERIC,
+		BOOLEAN,
 		VARIABLE,
 		STRING,
 	},
@@ -168,6 +170,7 @@ var LOGICALOPSTATE lexerState = lexerState {
 	validNextKinds: []TokenKind {
 
 		NUMERIC,
+		BOOLEAN,
 		VARIABLE,
 		STRING,
 	},
@@ -253,6 +256,19 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 			tokenValue = readUntilFalse(stream, unicode.IsLetter);
 			kind = VARIABLE;
+
+			if(tokenValue == "true") {
+
+				kind = BOOLEAN
+				tokenValue = true
+			} else {
+
+				if(tokenValue == "false") {
+
+					kind = BOOLEAN	
+					tokenValue = false
+				}
+			}
 			break;
 		}
 
