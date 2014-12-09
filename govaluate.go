@@ -1,6 +1,7 @@
 package govaluation
 
 import (
+	"fmt"
 	"errors"
 	"bytes"
 	"strconv"
@@ -28,9 +29,7 @@ type ExpressionToken struct {
 	Represents all valid types of tokens that a token can be.
 */
 type TokenKind int
-type ComparatorToken string
-type LogicalOperatorToken string
-type ModifierToken string
+type OperatorSymbol int
 
 const (
 
@@ -49,29 +48,45 @@ const (
 )
 
 const (
-
-	EQ  ComparatorToken = "==" 
-	NEQ ComparatorToken = "!="
-	GT  ComparatorToken = ">"
-	LT  ComparatorToken = "<"
-	GTE ComparatorToken = ">="
-	LTE ComparatorToken = "<="
+	EQ	OperatorSymbol = 1
+	NEQ	OperatorSymbol = iota
+	GT
+	LT
+	GTE
+	LTE
+	AND
+	OR
+	PLUS
+	MINUS
+	MULTIPLY
+	DIVIDE
+	MODULUS
 )
 
-const (
+// map of all valid symbols
+var COMPARATOR_SYMBOLS = map[string]OperatorSymbol {
 
-	AND LogicalOperatorToken = "&&"
-	OR  LogicalOperatorToken = "||"
-)
+	"==": EQ,
+	"!=": NEQ,
+	">": GT,
+	"<": LT,
+	"<=": LTE,
+};
 
-const (
+var LOGICAL_SYMBOLS = map[string]OperatorSymbol {
 
-	PLUS ModifierToken 	= "+"
-	MINUS ModifierToken 	= "-"
-	MULTIPLY ModifierToken 	= "*"
-	DIVIDE ModifierToken 	= "/"
-	MODULUS ModifierToken 	= "%"
-)
+	"&&": AND,
+	"||": OR,
+};
+
+var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
+	
+	"+": PLUS,
+	"-": MINUS,
+	"*": MULTIPLY,
+	"/": DIVIDE,
+	"%": MODULUS,
+};
 
 type lexerState struct {
 
@@ -88,6 +103,8 @@ type lexerStream struct {
 
 // lexer states.
 // Constant for all purposes except compiler.
+// TODO: make this an array, instead of named states
+// TODO: then iterate through all valid states to find state for kind.
 
 var CLAUSESTATE lexerState = lexerState {
 
@@ -254,7 +271,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 			stream.rewind(1)
 
-			tokenValue = readUntilFalse(stream, unicode.IsLetter);
+			tokenValue = readUntilFalse(stream, false, unicode.IsLetter);
 			kind = VARIABLE;
 
 			if(tokenValue == "true") {
@@ -277,14 +294,14 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 			stream.rewind(1)
 
-			tokenString = readUntilFalse(stream, isNumeric);
+			tokenString = readUntilFalse(stream, false, isNumeric);
 			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
 			kind = NUMERIC;
 			break;
 		}
 
 		if(!isNotSingleQuote(character)) {
-			tokenValue = readUntilFalse(stream, isNotSingleQuote);
+			tokenValue = readUntilFalse(stream, true, isNotSingleQuote);
 			kind = STRING;
 
 			// advance the stream one position, since reading until false assumes the terminator is a real token
@@ -293,7 +310,32 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		}
 
 		// must be a known symbol
-		
+		stream.rewind(1);
+		tokenString = readUntilFalse(stream, false, isNotAlphanumeric);
+		stream.rewind(1);
+
+		tokenValue = tokenString
+
+		if(MODIFIER_SYMBOLS[tokenString] != 0) {
+
+			kind = MODIFIER;
+			break;
+		}
+
+		if(LOGICAL_SYMBOLS[tokenString] != 0) {
+
+			kind = LOGICALOP;
+			break;
+		}
+
+		if(COMPARATOR_SYMBOLS[tokenString] != 0) {
+
+			kind = COMPARATOR;
+			break;
+		}
+
+		kind = UNKNOWN
+		stream.rewind(-1);
 	}
 
 	ret.Kind = kind;
@@ -302,14 +344,20 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 	return ret, nil, (kind != UNKNOWN);
 }
 
-func readUntilFalse(stream *lexerStream, condition func(rune)(bool)) string {
+func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(rune)(bool)) string {
 
+	//TODO: eliminate the "includewhitespace", build a separate function which handles whitespace and ends with single quotes
+	//TODO: then remove all the "rewind" cruft above.
 	var tokenBuffer bytes.Buffer
 	var character rune
 
 	for(stream.canRead()) {
 
 		character = stream.readCharacter()
+
+		if(!includeWhitespace && unicode.IsSpace(character)) {
+			continue;
+		}
 
 		if(condition(character)) {
 			tokenBuffer.WriteString(string(character));
@@ -328,7 +376,7 @@ func isNumeric(character rune) bool {
 func isNotSingleQuote(character rune) bool {
 	return character != '\''
 }
-func isNotAlphaNumeric(character rune) bool {
+func isNotAlphanumeric(character rune) bool {
 	return !(unicode.IsDigit(character) || unicode.IsLetter(character))
 }
 
