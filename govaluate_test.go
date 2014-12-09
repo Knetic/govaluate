@@ -52,7 +52,7 @@ func TestConstantParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -85,7 +85,7 @@ func TestConstantParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1234567890,
+						Value: 1234567890.0,
 					},
 			},
 		},
@@ -648,7 +648,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			if(token.Value != expectedToken.Value) {
 
 				test.Log("Test '", parsingTest.Name, "' failed:")
-				test.Log("Expected token value '", expectedToken.Kind, "' does not match '", token.Kind, "'")
+				test.Log("Expected token value '", expectedToken.Value, "' does not match '", token.Value, "'")
 				test.Fail()
 				continue
 			}

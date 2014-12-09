@@ -248,6 +248,9 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 		// variable
 		if(unicode.IsLetter(character)) {
+
+			stream.rewind(1)
+
 			tokenValue = readUntilFalse(stream, unicode.IsLetter);
 			kind = VARIABLE;
 			break;
@@ -255,8 +258,11 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 		// numeric constant
 		if(isNumeric(character)) {
-			tokenString = readUntilFalse(stream, isSingleQuote);
-			tokenValue, _ = strconv.Atoi(tokenString)
+
+			stream.rewind(1)
+
+			tokenString = readUntilFalse(stream, isNumeric);
+			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
 			kind = NUMERIC;
 			break;
 		}
