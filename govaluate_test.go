@@ -1,4 +1,4 @@
-package govaluation
+package govaluate
 
 import (
 	"testing"
