@@ -78,9 +78,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		// variable
 		if(unicode.IsLetter(character)) {
 
-			stream.rewind(1)
-
-			tokenValue = readUntilFalse(stream, false, unicode.IsLetter);
+			tokenValue = readTokenUntilFalse(stream, unicode.IsLetter);
 			kind = VARIABLE;
 
 			if(tokenValue == "true") {
@@ -101,9 +99,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		// numeric constant
 		if(isNumeric(character)) {
 
-			stream.rewind(1)
-
-			tokenString = readUntilFalse(stream, false, isNumeric);
+			tokenString = readTokenUntilFalse(stream, isNumeric);
 			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
 			kind = NUMERIC;
 			break;
@@ -119,8 +115,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		}
 
 		// must be a known symbol
-		stream.rewind(1);
-		tokenString = readUntilFalse(stream, false, isNotAlphanumeric);
+		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
 		stream.rewind(1);
 
 		tokenValue = tokenString
@@ -153,10 +148,17 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 	return ret, nil, (kind != UNKNOWN);
 }
 
+func readTokenUntilFalse(stream *lexerStream, condition func(rune)(bool)) string {
+
+	var ret string;
+
+	stream.rewind(1)
+	ret = readUntilFalse(stream, false, condition);
+	return ret;
+}
+
 func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(rune)(bool)) string {
 
-	//TODO: eliminate the "includewhitespace", build a separate function which handles whitespace and ends with single quotes
-	//TODO: then remove all the "rewind" cruft above.
 	var tokenBuffer bytes.Buffer
 	var character rune
 
