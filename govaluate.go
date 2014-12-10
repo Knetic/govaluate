@@ -68,6 +68,7 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol {
 	"==": EQ,
 	"!=": NEQ,
 	">": GT,
+	">=": GTE,
 	"<": LT,
 	"<=": LTE,
 };
@@ -134,7 +135,7 @@ var VALID_LEXER_STATES = []lexerState {
 	},
 	lexerState {
 
-		kind: NUMERIC,
+		kind: BOOLEAN,
 		isEOF: true,
 		validNextKinds: []TokenKind {
 

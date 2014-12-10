@@ -212,7 +212,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -220,7 +220,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -231,7 +231,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -239,7 +239,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 2,
+						Value: 2.0,
 					},
 			},
 		},
@@ -250,7 +250,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -258,7 +258,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 0,
+						Value: 0.0,
 					},
 			},
 		},
@@ -269,7 +269,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -277,7 +277,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 2,
+						Value: 2.0,
 					},
 			},
 		},
@@ -288,7 +288,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -296,7 +296,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -307,7 +307,7 @@ func TestComparatorParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: COMPARATOR,
@@ -315,7 +315,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -335,7 +335,7 @@ func TestModifierParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: MODIFIER,
@@ -343,7 +343,7 @@ func TestModifierParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -354,7 +354,7 @@ func TestModifierParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: MODIFIER,
@@ -362,7 +362,7 @@ func TestModifierParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -373,7 +373,7 @@ func TestModifierParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: MODIFIER,
@@ -381,7 +381,7 @@ func TestModifierParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -392,7 +392,7 @@ func TestModifierParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: MODIFIER,
@@ -400,7 +400,7 @@ func TestModifierParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -411,7 +411,7 @@ func TestModifierParsing(test *testing.T) {
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 					ExpressionToken {
 						Kind: MODIFIER,
@@ -419,7 +419,7 @@ func TestModifierParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1,
+						Value: 1.0,
 					},
 			},
 		},
@@ -436,13 +436,13 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name: "Single PLUS",
 			Input: "51 + 49",
-			Expected: 100,
+			Expected: 100.0,
 		},
 		EvaluationTest {
 
 			Name: "Single MINUS",
 			Input: "100 - 51",
-			Expected: 49,
+			Expected: 49.0,
 		},
 		EvaluationTest {
 
@@ -454,37 +454,37 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name: "Single DIVIDE",
 			Input: "100 / 20",
-			Expected: 5,
+			Expected: 5.0,
 		},
 		EvaluationTest {
 
 			Name: "Single MODULUS",
 			Input: "100 % 2",
-			Expected: 0,
+			Expected: 0.0,
 		},
 		EvaluationTest {
 
 			Name: "Compound PLUS",
 			Input: "20 + 30 + 50",
-			Expected: 100,
+			Expected: 100.0,
 		},
 		EvaluationTest {
 
 			Name: "Mutiple operators",
 			Input: "20 * 5 - 49",
-			Expected: 51,
+			Expected: 51.0,
 		},
 		EvaluationTest {
 
 			Name: "Paren usage",
 			Input: "100 - (5 * 10)",
-			Expected: 50,
+			Expected: 50.0,
 		},
 		EvaluationTest {
 
 			Name: "Nested parentheses",
 			Input: "50 + (5 * (5 - 3))",
-			Expected: 100,
+			Expected: 100.0,
 		},
 		EvaluationTest {
 
@@ -533,10 +533,10 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 				EvaluationParameter {
 					Name: "foo",
-					Value: 2,
+					Value: 2.0,
 				},
 			},
-			Expected: 4,
+			Expected: 4.0,
 		},
 		EvaluationTest {
 
@@ -546,14 +546,14 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 				EvaluationParameter {
 					Name: "foo",
-					Value: 5,
+					Value: 5.0,
 				},
 				EvaluationParameter {
 					Name: "bar",
-					Value: 2,
+					Value: 2.0,
 				},
 			},
-			Expected: 10,
+			Expected: 10.0,
 		},
 	}
 
