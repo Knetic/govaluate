@@ -1,7 +1,6 @@
 package govaluation
 
 import (
-	"fmt"
 	"errors"
 	"bytes"
 	"strconv"
@@ -106,90 +105,99 @@ type lexerStream struct {
 // TODO: make this an array, instead of named states
 // TODO: then iterate through all valid states to find state for kind.
 
-var CLAUSESTATE lexerState = lexerState {
+var VALID_LEXER_STATES = []lexerState {
 
-	kind: CLAUSE,
-	isEOF: false,
-	validNextKinds: []TokenKind {
+	lexerState {
 
-		NUMERIC,
-		BOOLEAN,
-		VARIABLE,
-		STRING,
-		CLAUSE,
+		kind: CLAUSE,
+		isEOF: false,
+		validNextKinds: []TokenKind {
+
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
+			STRING,
+			CLAUSE,
+		},
 	},
-}
 
-var NUMERICSTATE lexerState = lexerState {
+	lexerState {
 
-	kind: NUMERIC,
-	isEOF: true,
-	validNextKinds: []TokenKind {
+		kind: NUMERIC,
+		isEOF: true,
+		validNextKinds: []TokenKind {
 
-		MODIFIER,
-		COMPARATOR,
-		LOGICALOP,
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+		},
 	},
-}
+	lexerState {
 
-var STRINGSTATE lexerState = lexerState {
+		kind: NUMERIC,
+		isEOF: true,
+		validNextKinds: []TokenKind {
 
-	kind: STRING,
-	isEOF: true,
-	validNextKinds: []TokenKind {
-
-		MODIFIER,
-		COMPARATOR,
-		LOGICALOP,
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+		},
 	},
-}
+	lexerState {
 
-var VARIABLESTATE lexerState = lexerState {
+		kind: STRING,
+		isEOF: true,
+		validNextKinds: []TokenKind {
 
-	kind: VARIABLE,
-	isEOF: true,
-	validNextKinds: []TokenKind {
-
-		MODIFIER,
-		COMPARATOR,
-		LOGICALOP,
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+		},
 	},
-}
+	lexerState {
 
-var MODIFIERSTATE lexerState = lexerState {
+		kind: VARIABLE,
+		isEOF: true,
+		validNextKinds: []TokenKind {
 
-	kind: MODIFIER,
-	isEOF: false,
-	validNextKinds: []TokenKind {
-
-		NUMERIC,
-		VARIABLE,
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+		},
 	},
-}
+	lexerState {
 
-var COMPARATORSTATE lexerState = lexerState {
+		kind: MODIFIER,
+		isEOF: false,
+		validNextKinds: []TokenKind {
 
-	kind: COMPARATOR,
-	isEOF: false,
-	validNextKinds: []TokenKind {
-
-		NUMERIC,
-		BOOLEAN,
-		VARIABLE,
-		STRING,
+			NUMERIC,
+			VARIABLE,
+		},
 	},
-}
+	lexerState {
 
-var LOGICALOPSTATE lexerState = lexerState {
+		kind: COMPARATOR,
+		isEOF: false,
+		validNextKinds: []TokenKind {
 
-	kind: LOGICALOP,
-	isEOF: false,
-	validNextKinds: []TokenKind {
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
+			STRING,
+		},
+	},
+	lexerState {
 
-		NUMERIC,
-		BOOLEAN,
-		VARIABLE,
-		STRING,
+		kind: LOGICALOP,
+		isEOF: false,
+		validNextKinds: []TokenKind {
+
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
+			STRING,
+		},
 	},
 }
 
@@ -217,7 +225,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	var err error
 	var found bool
 
-	state = CLAUSESTATE;
+	state = VALID_LEXER_STATES[0];
 	stream = newLexerStream(expression);
 
 	for ;; {
@@ -232,11 +240,21 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 			break;
 		}
 
-		if(state.canTransitionTo(token.Kind)) {
+		if(!state.canTransitionTo(token.Kind)) {
 
-			ret = append(ret, token)
-		} else {
 			return ret, errors.New("Cannot transition token types") // TODO: make this more descriptive.
+		}
+
+		// append this valid token, find new lexer state.		
+		ret = append(ret, token)
+		
+		for _, possibleState := range VALID_LEXER_STATES {
+			
+			if(possibleState.kind == token.Kind) {
+				
+				state = possibleState
+				break;
+			}
 		}
 	}
 
