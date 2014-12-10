@@ -404,25 +404,6 @@ func TestModifierParsing(test *testing.T) {
 					},
 			},
 		},
-		TokenParsingTest {
-
-			Name: "Numeric MODULUS",
-			Input: "1 % 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "%",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-			},
-		},
 	}
 
 	runTokenParsingTest(tokenParsingTests, test)
@@ -448,19 +429,13 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name: "Single MULTIPLY",
 			Input: "5 * 20",
-			Expected: 100,
+			Expected: 100.0,
 		},
 		EvaluationTest {
 
 			Name: "Single DIVIDE",
 			Input: "100 / 20",
 			Expected: 5.0,
-		},
-		EvaluationTest {
-
-			Name: "Single MODULUS",
-			Input: "100 % 2",
-			Expected: 0.0,
 		},
 		EvaluationTest {
 
@@ -681,7 +656,15 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 			parameters[parameter.Name] = parameter.Value
 		}
 
-		result = expression.Evaluate(parameters)
+		result, err = expression.Evaluate(parameters)
+
+		if(err != nil) {
+
+			test.Log("Test '", evaluationTest.Name, "' failed:")
+			test.Log("Encountered error: " + err.Error())
+			test.Fail()
+			continue;
+		}
 
 		if(result != evaluationTest.Expected) {
 

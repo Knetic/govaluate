@@ -15,7 +15,6 @@ const (
 	MINUS
 	MULTIPLY
 	DIVIDE
-	MODULUS
 )
 
 // map of all valid symbols
@@ -41,5 +40,4 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
 	"-": MINUS,
 	"*": MULTIPLY,
 	"/": DIVIDE,
-	"%": MODULUS,
 };
