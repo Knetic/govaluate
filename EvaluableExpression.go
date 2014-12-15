@@ -1,16 +1,14 @@
 package govaluate
 
 import (
-
 	"errors"
 )
 
 type EvaluableExpression struct {
 
-	Tokens []ExpressionToken
+	tokens []ExpressionToken
 	inputExpression string
 }
-
 
 func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 
@@ -19,7 +17,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 
 	ret = new(EvaluableExpression)
 	ret.inputExpression = expression;
-	ret.Tokens, err = parseTokens(expression)
+	ret.tokens, err = parseTokens(expression)
 
 	if(err != nil) {
 		return nil, err
@@ -29,135 +27,225 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
 
-	var ret interface{};
-	var err error;
+	var stream *tokenStream;
 
-	ret, _, err = this.evaluateClause(nil, this.Tokens, parameters);
+	//if(this.tokens[len(this.tokens)-1].Kind != EOF) {
+	//	return nil, errors.New("Unexpected end of expression");
+	//}
 
-	return ret, err;
+	stream = newTokenStream(this.tokens);
+	return evaluateTokens(stream, parameters);
 }
 
-func (this EvaluableExpression) evaluateClause(leftValue interface{}, tokens []ExpressionToken, parameters map[string]interface{}) (interface{}, int, error) {
+func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	return evaluateLogical(stream, parameters);
+}
+
+func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
 	var token ExpressionToken;
-	var nextOperation func(interface{}, interface{})(interface{});
-	var variableName, errorMessage string;
-	var parameterValue interface{};
-	var tokensLength int;
+	var value interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
 
-	tokensLength = len(tokens);
+	value, err = evaluateComparator(stream, parameters);	
 
-	for i := 0; i < tokensLength; i++ {
+	if(err != nil) {
+		return nil, err;
+	}
 
-		token = tokens[i];
+	for token = stream.next(); token.Value != nil; {
 
-		if(nextOperation == nil) {
+		symbol, keyFound = LOGICAL_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break;
+		}
 
-			switch(token.Kind) {
-				case NUMERIC 		:	fallthrough
-				case STRING		:	fallthrough
-				case BOOLEAN		:	leftValue = token.Value
-				case VARIABLE		:	variableName = token.Value.(string);
-								leftValue = parameters[variableName];
+		switch(symbol) {
 
-								if(leftValue == nil) {
-									errorMessage = "No parameter '"+ variableName +"' found."
-									return nil, tokensLength, errors.New(errorMessage);
-								}
-				
-				case COMPARATOR	:	
-				case LOGICALOP	:	
-				case MODIFIER	:	nextOperation = determineOperator(token.Value.(string), MODIFIER_SYMBOLS);
-			}
-		} else { 
+			case OR		:	if(value != nil) {
+							return evaluateLogical(stream, parameters);
+						} else {
+							value, err = evaluateComparator(stream, parameters);
+						}
+			case AND	:	if(value == nil) {
+							return evaluateLogical(stream, parameters);
+						} else {
+							value, err = evaluateComparator(stream, parameters);
+						}
+		}
 
-			switch(token.Kind) {
-				case NUMERIC 		:	fallthrough
-				case STRING		:	fallthrough
-				case BOOLEAN		:	parameterValue = token.Value;
-				case VARIABLE		:	variableName = token.Value.(string);
-								parameterValue = parameters[variableName];
-						
-								if(parameterValue == nil) {
-									errorMessage = "No parameter '"+ variableName +"' found."
-									return nil, tokensLength, errors.New(errorMessage);
-								}
-			}
-
-			if(parameterValue == nil) {
-				errorMessage = "No right value for expression";
-				return nil, tokensLength, errors.New(errorMessage);
-			}
-
-			leftValue = nextOperation(leftValue, parameterValue);
-			nextOperation = nil;
+		if(err != nil) {
+			return nil, err;
 		}
 	}
-	return leftValue, tokensLength, nil;
+
+	stream.rewind();
+	return value, nil;
 }
 
-func determineOperator(operator string, operators map[string]OperatorSymbol) func(interface{}, interface{})interface{} {
+func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
-	var operatorKind OperatorSymbol;
+	var token ExpressionToken;
+	var value, rightValue interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
 
-	operatorKind = operators[operator];
+	value, err = evaluateAdditiveModifier(stream, parameters);
 
-	switch(operatorKind) {
-
-		case	EQ	:	return comparatorEq;
-		//case	NEQ	:	return comparatorNeq;
-		case	GT	:	return comparatorGt;
-		case	LT	:	return comparatorLt;
-		case	GTE	:	return comparatorGte;
-		case	LTE	:	return comparatorLte;
-
-		case	AND	:	return logicalAnd;
-		case	OR	:	return logicalOr;
-		
-		case	PLUS	:	return modifierPlus;
-		case	MINUS	:	return modifierMinus;
-		case	MULTIPLY:	return modifierMultiply;
-		case	DIVIDE	:	return modifierDivide;
+	if(err != nil) {
+		return nil, err;
 	}
 
-	return comparatorEq;
+	for token = stream.next(); token.Value != nil; {
+
+		symbol, keyFound = COMPARATOR_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break
+		}
+
+		rightValue, err = evaluateAdditiveModifier(stream, parameters);
+		if(err != nil) {
+			return nil, err;
+		}
+
+		switch(symbol) {
+
+			case LT		:	value  = (value.(float64) < rightValue.(float64));
+			case LTE	:	value  = (value.(float64) <= rightValue.(float64));
+			case GT		:	value  = (value.(float64) > rightValue.(float64));
+			case GTE	:	value  = (value.(float64) >= rightValue.(float64));
+			case EQ		:	value  = (value == rightValue);
+			case NEQ	:	value  = (value != rightValue);
+		}
+	}
+
+	stream.rewind();
+	return value, nil;
 }
 
-func comparatorEq(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue == rightValue;
+func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	var token ExpressionToken;
+	var value, rightValue interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
+
+	value, err = evaluateMultiplicativeModifier(stream, parameters);
+
+	if(err != nil) {
+		return nil, err;
+	}
+
+	for token = stream.next(); token.Value != nil; {
+		
+		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break;
+		}
+
+		rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
+		if(err != nil) {
+			return nil, err;
+		}
+
+		switch(symbol) {
+
+			case PLUS	:	value = value.(float64) + rightValue.(float64);
+			case MINUS	:	value = value.(float64) - rightValue.(float64);
+		}
+	}
+
+	stream.rewind();
+	return value, nil;
 }
-func comparatorNeq(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue != rightValue;
+
+func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	var token ExpressionToken;
+	var value, rightValue interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
+
+	value, err = evaluateValue(stream, parameters);
+
+	if(err != nil) {
+		return nil, err;
+	}
+
+	for token = stream.next(); token.Value != nil; {
+
+		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break;
+		}
+
+		rightValue, err = evaluateValue(stream, parameters);
+		if(err != nil) {
+			return nil, err;
+		}
+
+		switch(symbol) {
+
+			case MULTIPLY	:	value = value.(float64) * rightValue.(float64);
+			case DIVIDE	:	value = value.(float64) / rightValue.(float64);
+		}
+	}
+
+	stream.rewind();
+	return value, nil;
 }
-func comparatorGt(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) > rightValue.(float64);
+
+func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	var token ExpressionToken;
+	var value, parameterValue interface{};
+	var errorMessage, variableName string;
+	var err error;
+
+	token = stream.next();
+
+	switch(token.Kind) {
+
+		case CLAUSE	:	value, err = evaluateTokens(stream, parameters);
+					if(err != nil) {
+						return nil, err;
+					}
+
+					token = stream.next();
+					if(token.Kind != CLAUSE_CLOSE) {
+
+						return nil, errors.New("Unbalanced parenthesis");
+					}
+
+					return value, nil;
+
+		case VARIABLE	:	variableName = token.Value.(string);
+					parameterValue = parameters[variableName];
+
+					if(parameterValue == nil) {
+						errorMessage = "No parameter '"+ variableName +"' found."
+						return nil, errors.New(errorMessage);
+					}
+
+		case NUMERIC	:	fallthrough
+		case STRING	:	fallthrough
+		case BOOLEAN	:	return token.Value, nil;
+		default		:	break;
+	}
+
+	stream.rewind();
+	return value, nil;
 }
-func comparatorLt(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) < rightValue.(float64);
-}
-func comparatorGte(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) >= rightValue.(float64);
-}
-func comparatorLte(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) <= rightValue.(float64);
-}
-func logicalAnd(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(bool) && rightValue.(bool);
-}
-func logicalOr(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(bool) || rightValue.(bool);
-}
-func modifierPlus(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) + rightValue.(float64);
-}
-func modifierMinus(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) - rightValue.(float64);
-}
-func modifierMultiply(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) * rightValue.(float64);
-}
-func modifierDivide(leftValue interface{}, rightValue interface{}) interface{} {
-	return leftValue.(float64) / rightValue.(float64);
+
+func (this EvaluableExpression) Tokens() []ExpressionToken {
+
+	return this.tokens;
 }
 
 func (this EvaluableExpression) String() string {

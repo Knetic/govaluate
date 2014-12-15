@@ -21,4 +21,5 @@ const (
 	MODIFIER
 
 	CLAUSE
+	CLAUSE_CLOSE
 )

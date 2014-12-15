@@ -114,6 +114,18 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			break;
 		}
 
+		if(character == '(') {
+			tokenValue = character
+			kind = CLAUSE
+			break;
+		}
+
+		if(character == ')') {
+			tokenValue = character
+			kind = CLAUSE_CLOSE
+			break;
+		}
+
 		// must be a known symbol
 		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
 		stream.rewind(1);
@@ -182,11 +194,11 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(
 }
 
 func isNumeric(character rune) bool {
-	return unicode.IsDigit(character) || character == '.'
+	return unicode.IsDigit(character) || character == '.';
 }
 func isNotSingleQuote(character rune) bool {
-	return character != '\''
+	return character != '\'';
 }
 func isNotAlphanumeric(character rune) bool {
-	return !(unicode.IsDigit(character) || unicode.IsLetter(character))
+	return !(unicode.IsDigit(character) || unicode.IsLetter(character) || character == '(' || character == ')');
 }

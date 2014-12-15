@@ -3,8 +3,8 @@ package govaluate
 type OperatorSymbol int
 
 const (
-	EQ	OperatorSymbol = 1
-	NEQ	OperatorSymbol = iota
+	EQ	OperatorSymbol = iota
+	NEQ
 	GT
 	LT
 	GTE

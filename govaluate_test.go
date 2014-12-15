@@ -583,7 +583,8 @@ func TestParsingFailure(test *testing.T) {
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
 
 	var expression *EvaluableExpression
-	var expectedToken ExpressionToken
+	var actualTokens []ExpressionToken;
+	var actualToken ExpressionToken
 	var expectedTokenLength, actualTokenLength int
 	var err error
 
@@ -598,8 +599,11 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			test.Fail()
 			continue
 		}
-		expectedTokenLength = len(parsingTest.Expected)
-		actualTokenLength = len(expression.Tokens)
+
+		actualTokens = expression.Tokens();
+
+		expectedTokenLength = len(parsingTest.Expected);
+		actualTokenLength = len(actualTokens);
 
 		if(actualTokenLength != expectedTokenLength) {
 
@@ -609,21 +613,21 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			continue
 		}
 
-		for i, token := range expression.Tokens {
+		for i, expectedToken := range parsingTest.Expected {
 
-			expectedToken = parsingTest.Expected[i]
-			if(token.Kind != expectedToken.Kind) {
+			actualToken = actualTokens[i]
+			if(actualToken.Kind != expectedToken.Kind) {
 
 				test.Log("Test '", parsingTest.Name, "' failed:")
-				test.Log("Expected token kind '", expectedToken.Kind, "' does not match '", token.Kind, "'")
+				test.Log("Expected token kind '", expectedToken.Kind, "' does not match '", actualToken.Kind, "'")
 				test.Fail()
 				continue
 			}
 
-			if(token.Value != expectedToken.Value) {
+			if(actualToken.Value != expectedToken.Value) {
 
 				test.Log("Test '", parsingTest.Name, "' failed:")
-				test.Log("Expected token value '", expectedToken.Value, "' does not match '", token.Value, "'")
+				test.Log("Expected token value '", expectedToken.Value, "' does not match '", actualToken.Value, "'")
 				test.Fail()
 				continue
 			}
