@@ -39,7 +39,10 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 
 func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
-	return evaluateLogical(stream, parameters);
+	if(stream.hasNext()) {
+		return evaluateLogical(stream, parameters);
+	}
+	return nil, nil;
 }
 
 func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
@@ -56,7 +59,9 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 		return nil, err;
 	}
 
-	for token = stream.next(); token.Value != nil; {
+	for stream.hasNext() {
+
+		token = stream.next();
 
 		symbol, keyFound = LOGICAL_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
@@ -100,7 +105,9 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		return nil, err;
 	}
 
-	for token = stream.next(); token.Value != nil; {
+	for stream.hasNext() {
+
+		token = stream.next();
 
 		symbol, keyFound = COMPARATOR_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
@@ -141,8 +148,10 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 		return nil, err;
 	}
 
-	for token = stream.next(); token.Value != nil; {
+	for stream.hasNext() {
 		
+		token = stream.next();
+
 		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
 			break;
@@ -178,7 +187,9 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 		return nil, err;
 	}
 
-	for token = stream.next(); token.Value != nil; {
+	for stream.hasNext() {
+
+		token = stream.next();
 
 		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
