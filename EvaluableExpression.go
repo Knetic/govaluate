@@ -29,10 +29,6 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 
 	var stream *tokenStream;
 
-	//if(this.tokens[len(this.tokens)-1].Kind != EOF) {
-	//	return nil, errors.New("Unexpected end of expression");
-	//}
-
 	stream = newTokenStream(this.tokens);
 	return evaluateTokens(stream, parameters);
 }
@@ -62,6 +58,10 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 	for stream.hasNext() {
 
 		token = stream.next();
+
+		if(!isString(token.Value)) {
+			break;
+		}
 
 		symbol, keyFound = LOGICAL_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
@@ -109,6 +109,10 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 
 		token = stream.next();
 
+		if(!isString(token.Value)) {
+			break;
+		}
+
 		symbol, keyFound = COMPARATOR_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
 			break
@@ -152,6 +156,10 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 		
 		token = stream.next();
 
+		if(!isString(token.Value)) {
+			break;
+		}
+
 		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
 			break;
@@ -190,6 +198,10 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 	for stream.hasNext() {
 
 		token = stream.next();
+
+		if(!isString(token.Value)) {
+			break;
+		}
 
 		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
 		if(!keyFound) {
@@ -262,4 +274,12 @@ func (this EvaluableExpression) Tokens() []ExpressionToken {
 func (this EvaluableExpression) String() string {
 
 	return this.inputExpression;
+}
+
+func isString(value interface{}) bool {
+
+	switch value.(type) {
+		case string	:	return true;
+		default		:	return false;
+	}
 }
