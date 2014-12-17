@@ -227,7 +227,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
 	var token ExpressionToken;
-	var value, parameterValue interface{};
+	var value interface{};
 	var errorMessage, variableName string;
 	var err error;
 
@@ -249,12 +249,14 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 					return value, nil;
 
 		case VARIABLE	:	variableName = token.Value.(string);
-					parameterValue = parameters[variableName];
+					value = parameters[variableName];
 
-					if(parameterValue == nil) {
+					if(value == nil) {
 						errorMessage = "No parameter '"+ variableName +"' found."
 						return nil, errors.New(errorMessage);
 					}
+
+					return value, nil;
 
 		case NUMERIC	:	fallthrough
 		case STRING	:	fallthrough
