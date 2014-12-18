@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"fmt"
 	"errors"
 	"bytes"
 	"strconv"
@@ -35,7 +36,8 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 
 			firstStateName := GetTokenKindString(state.kind);
 			nextStateName := GetTokenKindString(token.Kind);
-			return ret, errors.New("Cannot transition token types between " + firstStateName + " - " + nextStateName);
+			tokenValueString := fmt.Sprintf("%v", token.Value);
+			return ret, errors.New("Cannot transition token types between " + firstStateName + " to " + nextStateName + "[" + tokenValueString + "]");
 		}
 
 		// append this valid token, find new lexer state.		
@@ -81,6 +83,15 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			continue
 		}
 
+		// numeric constant
+		if(isNumeric(character)) {
+
+			tokenString = readTokenUntilFalse(stream, isNumeric);
+			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
+			kind = NUMERIC;
+			break;
+		}
+		
 		// variable
 		if(unicode.IsLetter(character)) {
 
@@ -102,17 +113,8 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			break;
 		}
 
-		// numeric constant
-		if(isNumeric(character)) {
-
-			tokenString = readTokenUntilFalse(stream, isNumeric);
-			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
-			kind = NUMERIC;
-			break;
-		}
-
-		if(!isNotSingleQuote(character)) {
-			tokenValue = readUntilFalse(stream, true, isNotSingleQuote);
+		if(!isNotQuote(character)) {
+			tokenValue = readUntilFalse(stream, true, isNotQuote);
 			kind = STRING;
 
 			// advance the stream one position, since reading until false assumes the terminator is a real token
@@ -202,9 +204,13 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(
 func isNumeric(character rune) bool {
 	return unicode.IsDigit(character) || character == '.';
 }
-func isNotSingleQuote(character rune) bool {
-	return character != '\'';
+func isNotQuote(character rune) bool {
+	return character != '\'' && character != '"';
 }
 func isNotAlphanumeric(character rune) bool {
-	return !(unicode.IsDigit(character) || unicode.IsLetter(character) || character == '(' || character == ')');
+	return !(unicode.IsDigit(character) || 
+		unicode.IsLetter(character) || 
+		character == '(' || 
+		character == ')' ||
+		!isNotQuote(character));
 }

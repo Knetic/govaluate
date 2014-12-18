@@ -88,7 +88,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 		EvaluationTest {
 
 			Name: "Parenthesis boolean",
-			Input: "10 < 50 && (1 != 2 && 1 == 1)",
+			Input: "10 < 50 && (1 != 2 && 1 > 0)",
 			Expected: true,
 		},
 		EvaluationTest {

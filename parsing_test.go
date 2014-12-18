@@ -31,6 +31,17 @@ func TestConstantParsing(test *testing.T) {
 		},
 		TokenParsingTest {
 
+			Name: "Single two-digit numeric",
+			Input: "50",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: NUMERIC,
+						Value: 50.0,
+					},
+			},
+		},
+		TokenParsingTest {
+
 			Name: "Single string",
 			Input: "'foo'",
 			Expected: []ExpressionToken {
@@ -181,7 +192,7 @@ func TestComparatorParsing(test *testing.T) {
 		TokenParsingTest {
 
 			Name: "Numeric EQ",
-			Input: "1 == 1",
+			Input: "1 == 2",
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
@@ -193,7 +204,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1.0,
+						Value: 2.0,
 					},
 			},
 		},
