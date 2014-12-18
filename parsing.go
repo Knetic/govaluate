@@ -11,7 +11,7 @@ import (
 func parseTokens(expression string) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
-	var token ExpressionToken
+	var token, lastToken ExpressionToken
 	var state lexerState
 	var stream *lexerStream
 	var err error
@@ -34,10 +34,10 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 
 		if(!state.canTransitionTo(token.Kind)) {
 
-			firstStateName := GetTokenKindString(state.kind);
-			nextStateName := GetTokenKindString(token.Kind);
-			tokenValueString := fmt.Sprintf("%v", token.Value);
-			return ret, errors.New("Cannot transition token types between " + firstStateName + " to " + nextStateName + "[" + tokenValueString + "]");
+			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value);
+			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value);
+
+			return ret, errors.New("Cannot transition token types between " + firstStateName + " to " + nextStateName);
 		}
 
 		// append this valid token, find new lexer state.		
@@ -51,6 +51,8 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 				break;
 			}
 		}
+
+		lastToken = token;
 	}
 
 	if(!state.isEOF) {
@@ -158,7 +160,6 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			break;
 		}
 
-		kind = UNKNOWN
 		stream.rewind(-1);
 	}
 
