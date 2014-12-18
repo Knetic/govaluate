@@ -22,6 +22,22 @@ var VALID_LEXER_STATES = []lexerState {
 			VARIABLE,
 			STRING,
 			CLAUSE,
+			CLAUSE_CLOSE,
+		},
+	},
+
+	lexerState {
+
+		kind: CLAUSE_CLOSE,
+		isEOF: true,
+		validNextKinds: []TokenKind {
+
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
+			STRING,
+			CLAUSE,			
+			CLAUSE_CLOSE,
 		},
 	},
 
@@ -34,6 +50,7 @@ var VALID_LEXER_STATES = []lexerState {
 			MODIFIER,
 			COMPARATOR,
 			LOGICALOP,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -45,6 +62,7 @@ var VALID_LEXER_STATES = []lexerState {
 			MODIFIER,
 			COMPARATOR,
 			LOGICALOP,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -56,6 +74,7 @@ var VALID_LEXER_STATES = []lexerState {
 			MODIFIER,
 			COMPARATOR,
 			LOGICALOP,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -67,6 +86,7 @@ var VALID_LEXER_STATES = []lexerState {
 			MODIFIER,
 			COMPARATOR,
 			LOGICALOP,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -77,6 +97,8 @@ var VALID_LEXER_STATES = []lexerState {
 
 			NUMERIC,
 			VARIABLE,
+			CLAUSE,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -89,6 +111,8 @@ var VALID_LEXER_STATES = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			CLAUSE,
+			CLAUSE_CLOSE,
 		},
 	},
 	lexerState {
@@ -101,6 +125,8 @@ var VALID_LEXER_STATES = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			CLAUSE,
+			CLAUSE_CLOSE,
 		},
 	},
 }

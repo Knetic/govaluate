@@ -33,7 +33,9 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 
 		if(!state.canTransitionTo(token.Kind)) {
 
-			return ret, errors.New("Cannot transition token types") // TODO: make this more descriptive.
+			firstStateName := GetTokenKindString(state.kind);
+			nextStateName := GetTokenKindString(token.Kind);
+			return ret, errors.New("Cannot transition token types between " + firstStateName + " - " + nextStateName);
 		}
 
 		// append this valid token, find new lexer state.		
@@ -47,6 +49,10 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 				break;
 			}
 		}
+	}
+
+	if(!state.isEOF) {
+		return ret, errors.New("Unexpected end of expression");
 	}
 
 	return ret, nil

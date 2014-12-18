@@ -23,3 +23,21 @@ const (
 	CLAUSE
 	CLAUSE_CLOSE
 )
+
+func GetTokenKindString(kind TokenKind) string {
+
+	switch(kind) {
+
+		case	NUMERIC		:	return "NUMERIC";
+		case	BOOLEAN		:	return "BOOLEAN";
+		case	STRING		:	return "STRING";
+		case	VARIABLE	:	return "VARIABLE";
+		case	COMPARATOR	:	return "COMPARATOR";
+		case	LOGICALOP	:	return "LOGICALOP";
+		case	MODIFIER	:	return "MODIFIER";
+		case	CLAUSE		:	return "CLAUSE";
+		case	CLAUSE_CLOSE	:	return "CLAUSE_CLOSE";
+	}
+
+	return "UNKNOWN";
+}
