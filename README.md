@@ -70,11 +70,17 @@ What operators and types does this support?
 --
 
 Modifiers: + - / *
+
 Comparators: > >= < <= == !=
+
 Logical ops: || &&
+
 Numeric constants, including 64-bit floating point (12345)
+
 String constants (single quotes: 'foobar')
+
 Boolean constants: true false
+
 Parenthesis to control order of evaluation
 
 Future Goals
