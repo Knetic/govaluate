@@ -70,7 +70,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 		EvaluationTest {
 
 			Name: "Nested parentheses",
-			Input: "50 + (5 * (5 - 3))",
+			Input: "50 + (5 * (15 - 5))",
 			Expected: 100.0,
 		},
 		EvaluationTest {

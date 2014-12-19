@@ -125,12 +125,12 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 
 		switch(symbol) {
 
-			case LT		:	value  = (value.(float64) < rightValue.(float64));
-			case LTE	:	value  = (value.(float64) <= rightValue.(float64));
-			case GT		:	value  = (value.(float64) > rightValue.(float64));
-			case GTE	:	value  = (value.(float64) >= rightValue.(float64));
-			case EQ		:	value  = (value == rightValue);
-			case NEQ	:	value  = (value != rightValue);
+			case LT		:	return (value.(float64) < rightValue.(float64)), nil;
+			case LTE	:	return (value.(float64) <= rightValue.(float64)), nil;
+			case GT		:	return (value.(float64) > rightValue.(float64)), nil;
+			case GTE	:	return (value.(float64) >= rightValue.(float64)), nil;
+			case EQ		:	return (value == rightValue), nil;
+			case NEQ	:	return (value != rightValue), nil;
 		}
 	}
 
@@ -165,15 +165,23 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 			break;
 		}
 
-		rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
-		if(err != nil) {
-			return nil, err;
-		}
-
 		switch(symbol) {
 
-			case PLUS	:	value = value.(float64) + rightValue.(float64);
-			case MINUS	:	value = value.(float64) - rightValue.(float64);
+			case PLUS	:	rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+						value = value.(float64) + rightValue.(float64);
+
+			case MINUS	:	rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+
+						return value.(float64) - rightValue.(float64), nil;
+
+			default		:	stream.rewind();
+						return value, nil;
 		}
 	}
 
@@ -208,19 +216,26 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 			break;
 		}
 
-		rightValue, err = evaluateValue(stream, parameters);
-		if(err != nil) {
-			return nil, err;
-		}
-
 		switch(symbol) {
 
-			case MULTIPLY	:	value = value.(float64) * rightValue.(float64);
-			case DIVIDE	:	value = value.(float64) / rightValue.(float64);
+			case MULTIPLY	:	rightValue, err = evaluateValue(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+						return value.(float64) * rightValue.(float64), nil;
+
+			case DIVIDE	:	rightValue, err = evaluateValue(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+						return value.(float64) / rightValue.(float64), nil;
+
+			default		:	stream.rewind();
+						return value, nil;
 		}
 	}
 
-	stream.rewind();
+	stream.rewind();	
 	return value, nil;
 }
 
@@ -265,7 +280,7 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 	}
 
 	stream.rewind();
-	return value, nil;
+	return nil, errors.New("Unable to evaluate token kind: " + GetTokenKindString(token.Kind));
 }
 
 func (this EvaluableExpression) Tokens() []ExpressionToken {
