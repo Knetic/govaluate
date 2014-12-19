@@ -69,6 +69,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 	var tokenString string
 	var kind TokenKind
 	var character rune
+	var found bool
 
 	kind = UNKNOWN;
 
@@ -142,19 +143,22 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 		tokenValue = tokenString
 
-		if(MODIFIER_SYMBOLS[tokenString] != 0) {
+		_, found = MODIFIER_SYMBOLS[tokenString];
+		if(found) {
 
 			kind = MODIFIER;
 			break;
 		}
 
-		if(LOGICAL_SYMBOLS[tokenString] != 0) {
+		_, found = LOGICAL_SYMBOLS[tokenString];
+		if(found) {
 
 			kind = LOGICALOP;
 			break;
 		}
 
-		if(COMPARATOR_SYMBOLS[tokenString] != 0) {
+		_, found = COMPARATOR_SYMBOLS[tokenString];
+		if(found) {
 
 			kind = COMPARATOR;
 			break;

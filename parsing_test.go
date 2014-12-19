@@ -268,7 +268,7 @@ func TestComparatorParsing(test *testing.T) {
 		TokenParsingTest {
 
 			Name: "Numeric GTE",
-			Input: "1 >= 1",
+			Input: "1 >= 2",
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
@@ -280,14 +280,14 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1.0,
+						Value: 2.0,
 					},
 			},
 		},
 		TokenParsingTest {
 
 			Name: "Numeric LTE",
-			Input: "1 <= 1",
+			Input: "1 <= 2",
 			Expected: []ExpressionToken {
 					ExpressionToken {
 						Kind: NUMERIC,
@@ -299,7 +299,7 @@ func TestComparatorParsing(test *testing.T) {
 					},
 					ExpressionToken {
 						Kind: NUMERIC,
-						Value: 1.0,
+						Value: 2.0,
 					},
 			},
 		},
