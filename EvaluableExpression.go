@@ -297,6 +297,7 @@ func isString(value interface{}) bool {
 
 	switch value.(type) {
 		case string	:	return true;
-		default		:	return false;
+		default		:	break;
 	}
+	return false;
 }
