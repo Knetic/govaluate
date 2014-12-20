@@ -37,7 +37,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value);
 			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value);
 
-			return ret, errors.New("Cannot transition token types between " + firstStateName + " to " + nextStateName);
+			return ret, errors.New("Cannot transition token types from " + firstStateName + " to " + nextStateName);
 		}
 
 		// append this valid token, find new lexer state.		
@@ -71,8 +71,6 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 	var character rune
 	var found bool
 
-	kind = UNKNOWN;
-
 	// numeric is 0-9, or .
 	// string starts with '
 	// variable is alphanumeric, always starts with a letter
@@ -85,6 +83,8 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		if(unicode.IsSpace(character)) {
 			continue
 		}
+
+		kind = UNKNOWN;
 
 		// numeric constant
 		if(isNumeric(character)) {

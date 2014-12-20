@@ -127,7 +127,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest {
 
-			Name: "Single parameter modified by constant",
+			Name: "Single parameter modified by variable",
 			Input: "foo * bar",
 			Parameters: []EvaluationParameter {
 
@@ -141,6 +141,40 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: 10.0,
+		},
+		EvaluationTest {
+
+			Name: "Multiple uses of the same parameter",
+			Input: "foo * foo * foo",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: 10.0,
+				},
+			},
+			Expected: 1000.0,
+		},
+		EvaluationTest {
+
+			Name: "Parameter name sensitivity",
+			Input: "foo + FoO + FOO",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: 8.0,
+				},
+				EvaluationParameter {
+					Name: "FoO",
+					Value: 4.0,
+				},
+				EvaluationParameter {
+					Name: "FOO",
+					Value: 2.0,
+				},
+			},
+			Expected: 14.0,
 		},
 	}
 
@@ -161,7 +195,7 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 		if(err != nil) {
 
-			test.Log("Test '",evaluationTest.Name,"' failed to parse: ", err)
+			test.Logf("Test '%s' failed to parse: '%s'", evaluationTest.Name, err)
 			test.Fail()
 			continue
 		}
@@ -176,16 +210,16 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 		if(err != nil) {
 
-			test.Log("Test '", evaluationTest.Name, "' failed:")
-			test.Log("Encountered error: " + err.Error())
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Encountered error: %s", err.Error())
 			test.Fail()
 			continue;
 		}
 
 		if(result != evaluationTest.Expected) {
 
-			test.Log("Test '", evaluationTest.Name, "' failed:")
-			test.Log("Expected evaluation result '", evaluationTest.Expected, "' does not match '", result, "'")
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
 			test.Fail()
 		}
 	}

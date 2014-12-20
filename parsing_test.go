@@ -408,7 +408,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 		if(err != nil) {
 
-			test.Log("Test '",parsingTest.Name,"' failed to parse: ", err)
+			test.Logf("Test '",parsingTest.Name,"' failed to parse: ", err)
 			test.Fail()
 			continue
 		}
@@ -420,8 +420,8 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 		if(actualTokenLength != expectedTokenLength) {
 
-			test.Log("Test '",parsingTest.Name,"' failed:")
-			test.Log("Expected ", expectedTokenLength, " tokens, actually found '", actualTokenLength, "'")
+			test.Logf("Test '%s' failed:", parsingTest.Name)
+			test.Logf("Expected %d tokens, actually found %d", expectedTokenLength, actualTokenLength)
 			test.Fail()
 			continue
 		}
@@ -431,16 +431,16 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			actualToken = actualTokens[i]
 			if(actualToken.Kind != expectedToken.Kind) {
 
-				test.Log("Test '", parsingTest.Name, "' failed:")
-				test.Log("Expected token kind '", expectedToken.Kind, "' does not match '", actualToken.Kind, "'")
+				test.Logf("Test '" + parsingTest.Name + "' failed:")
+				test.Logf("Expected token kind '%v' does not match '%v'", expectedToken.Kind, actualToken.Kind)
 				test.Fail()
 				continue
 			}
 
 			if(actualToken.Value != expectedToken.Value) {
 
-				test.Log("Test '", parsingTest.Name, "' failed:")
-				test.Log("Expected token value '", expectedToken.Value, "' does not match '", actualToken.Value, "'")
+				test.Logf("Test '", parsingTest.Name, "' failed:")
+				test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
 				test.Fail()
 				continue
 			}
