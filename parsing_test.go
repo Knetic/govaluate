@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -108,6 +109,7 @@ func TestConstantParsing(test *testing.T) {
 		},
 	}
 
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
@@ -182,6 +184,7 @@ func TestLogicalOperatorParsing(test *testing.T) {
 		},
 	}
 
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
@@ -305,6 +308,7 @@ func TestComparatorParsing(test *testing.T) {
 		},
 	}
 
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
@@ -388,9 +392,33 @@ func TestModifierParsing(test *testing.T) {
 					},
 			},
 		},
+	};
+
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
+	runTokenParsingTest(tokenParsingTests, test)
+}
+
+func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
+
+	var currentCase, strippedCase TokenParsingTest;
+	var caseLength int;
+
+	caseLength = len(testCases);
+
+	for i := 0; i < caseLength; i++ {
+
+		currentCase = testCases[i];
+		strippedCase = TokenParsingTest {
+
+			Name: (currentCase.Name + " (without whitespace)"),
+			Input: strings.Replace(currentCase.Input, " ", "", -1),
+			Expected: currentCase.Expected,
+		}
+
+		testCases = append(testCases, strippedCase, currentCase);
 	}
 
-	runTokenParsingTest(tokenParsingTests, test)
+	return testCases;
 }
 
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
@@ -408,7 +436,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 		if(err != nil) {
 
-			test.Logf("Test '",parsingTest.Name,"' failed to parse: ", err)
+			test.Logf("Test '%s' failed to parse: %s", parsingTest.Name, err)
 			test.Fail()
 			continue
 		}
@@ -431,7 +459,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			actualToken = actualTokens[i]
 			if(actualToken.Kind != expectedToken.Kind) {
 
-				test.Logf("Test '" + parsingTest.Name + "' failed:")
+				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token kind '%v' does not match '%v'", expectedToken.Kind, actualToken.Kind)
 				test.Fail()
 				continue
@@ -439,7 +467,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 			if(actualToken.Value != expectedToken.Value) {
 
-				test.Logf("Test '", parsingTest.Name, "' failed:")
+				test.Logf("Test '%s' failed:",  parsingTest.Name)
 				test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
 				test.Fail()
 				continue
