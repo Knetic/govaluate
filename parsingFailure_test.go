@@ -98,18 +98,6 @@ func TestParsingFailure(test *testing.T) {
 			Input: "&& 5 < 10",
 			Expected: "",
 		},
-		ParsingFailureTest {
-
-			Name: "Non-equality comparison (>) with string",
-			Input: "100 > 'foo'",
-			Expected: "",
-		},
-		ParsingFailureTest {
-
-			Name: "Non-equality comparison (<) with string",
-			Input: "100 < 'foo'",
-			Expected: "",
-		},
 	}
 
 	runParsingFailureTests(parsingTests, test)
