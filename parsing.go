@@ -161,8 +161,6 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			kind = COMPARATOR;
 			break;
 		}
-
-		stream.rewind(-1);
 	}
 
 	ret.Kind = kind;
