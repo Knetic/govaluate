@@ -103,6 +103,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input: "'foo' != 'bar'",
 			Expected: true,
 		},
+		EvaluationTest {
+
+			Name: "Multiplicative/additive order",
+			Input: "5 + 10 * 2",
+			Expected: 25.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -144,7 +150,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest {
 
-			Name: "Multiple uses of the same parameter",
+			Name: "Multiple multiplications of the same parameter",
 			Input: "foo * foo * foo",
 			Parameters: []EvaluationParameter {
 
@@ -154,6 +160,19 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: 1000.0,
+		},
+		EvaluationTest {
+
+			Name: "Multiple additions of the same parameter",
+			Input: "foo + foo + foo",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: 10.0,
+				},
+			},
+			Expected: 30.0,
 		},
 		EvaluationTest {
 
