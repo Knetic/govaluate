@@ -139,8 +139,6 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 		// must be a known symbol
 		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
-		stream.rewind(1);
-
 		tokenValue = tokenString
 
 		_, found = MODIFIER_SYMBOLS[tokenString];

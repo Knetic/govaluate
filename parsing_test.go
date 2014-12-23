@@ -437,6 +437,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 		if(err != nil) {
 
 			test.Logf("Test '%s' failed to parse: %s", parsingTest.Name, err)
+			test.Logf("Expression: '%s'", parsingTest.Input);
 			test.Fail()
 			continue
 		}
