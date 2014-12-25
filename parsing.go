@@ -17,7 +17,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	var err error
 	var found bool
 
-	state = VALID_LEXER_STATES[0];
+	state = validLexerStates[0];
 	stream = newLexerStream(expression);
 
 	for stream.canRead() {
@@ -43,7 +43,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 		// append this valid token, find new lexer state.		
 		ret = append(ret, token)
 		
-		for _, possibleState := range VALID_LEXER_STATES {
+		for _, possibleState := range validLexerStates {
 			
 			if(possibleState.kind == token.Kind) {
 				

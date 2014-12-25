@@ -9,7 +9,7 @@ type lexerState struct {
 
 // lexer states.
 // Constant for all purposes except compiler.
-var VALID_LEXER_STATES = []lexerState {
+var validLexerStates = []lexerState {
 
 	lexerState {
 
