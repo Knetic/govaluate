@@ -218,13 +218,13 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 
 		switch(symbol) {
 
-			case MULTIPLY	:	rightValue, err = evaluateValue(stream, parameters);
+			case MULTIPLY	:	rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
 						if(err != nil) {
 							return nil, err;
 						}
 						return value.(float64) * rightValue.(float64), nil;
 
-			case DIVIDE	:	rightValue, err = evaluateValue(stream, parameters);
+			case DIVIDE	:	rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
 						if(err != nil) {
 							return nil, err;
 						}

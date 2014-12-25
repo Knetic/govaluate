@@ -109,6 +109,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input: "5 + 10 * 2",
 			Expected: 25.0,
 		},
+		EvaluationTest {
+
+			Name: "Multiple constant multiplications",
+			Input: "10 * 10 * 10",
+			Expected: 1000.0,
+		},
+		EvaluationTest {
+
+			Name: "Multiple adds/multiplications",
+			Input: "10 * 10 * 10 + 1 * 10 * 10",
+			Expected: 1100.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
