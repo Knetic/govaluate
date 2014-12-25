@@ -4,12 +4,20 @@ import (
 	"errors"
 )
 
+/*
+	EvaluableExpression represents a set of ExpressionTokens which, taken together,
+	represent an arbitrary expression that can be evaluated down into a single value.
+*/
 type EvaluableExpression struct {
 
 	tokens []ExpressionToken
 	inputExpression string
 }
 
+/*
+	Creates a new EvaluableExpression from the given [expression] string.
+	Returns an error if the given expression has invalid syntax.
+*/
 func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 
 	var ret *EvaluableExpression;
@@ -25,6 +33,22 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	return ret, nil
 }
 
+/*
+	Evaluate runs the entire expression using the given [parameters]. 
+	Each parameter is mapped from a string to a value, such as "foo" = 1.0. 
+	If the expression contains a reference to the variable "foo", it will be taken from parameters["foo"].
+
+	This function returns errors if the combination of expression and parameters cannot be run,
+	such as if a string parameter is given in an expression that expects it to be a boolean. 
+	e.g., "foo == true", where foo is any string.
+	These errors are almost exclusively returned for parameters not being present, or being of the wrong type.
+	Structural problems with the expression (unexpected tokens, unexpected end of expression, etc) are discovered
+	during parsing of the expression in NewEvaluableExpression.
+
+	In all non-error circumstances, this returns the single value result of the expression and parameters given.
+	e.g., if the expression is "1 + 1", Evaluate will return 2.0.
+	e.g., if the expression is "foo + 1" and parameters contains "foo" = 2, Evaluate will return 3.0
+*/
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
 
 	var stream *tokenStream;
@@ -283,11 +307,17 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 	return nil, errors.New("Unable to evaluate token kind: " + GetTokenKindString(token.Kind));
 }
 
+/*
+	Returns an array representing the ExpressionTokens that make up this expression.
+*/
 func (this EvaluableExpression) Tokens() []ExpressionToken {
 
 	return this.tokens;
 }
 
+/*
+	Returns the original expression used to create this EvaluableExpression.
+*/
 func (this EvaluableExpression) String() string {
 
 	return this.inputExpression;

@@ -1,5 +1,9 @@
 package govaluate
 
+/*
+	Represents the valid symbols for operators.
+	
+*/
 type OperatorSymbol int
 
 const (
@@ -17,7 +21,11 @@ const (
 	DIVIDE
 )
 
-// map of all valid symbols
+/*
+	Map of all valid comparators, and their string equivalents.
+	Used during parsing of expressions to determine if a symbol is, in fact, a comparator.
+	Also used during evaluation to determine exactly which comparator is being used.
+*/
 var COMPARATOR_SYMBOLS = map[string]OperatorSymbol {
 
 	"==": EQ,
@@ -28,12 +36,22 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol {
 	"<=": LTE,
 };
 
+/*
+	Map of all valid logical operators, and their string equivalents.
+	Used during parsing of expressions to determine if a symbol is, in fact, a logical operator.
+	Also used during evaluation to determine exactly which logical operator is being used.
+*/
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol {
 
 	"&&": AND,
 	"||": OR,
 };
 
+/*
+	Map of all valid modifiers, and their string equivalents.
+	Used during parsing of expressions to determine if a symbol is, in fact, a modifier.
+	Also used during evaluation to determine exactly which modifier is being used.
+*/
 var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
 	
 	"+": PLUS,
