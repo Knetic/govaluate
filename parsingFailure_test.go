@@ -98,6 +98,24 @@ func TestParsingFailure(test *testing.T) {
 			Input: "&& 5 < 10",
 			Expected: INVALID_TOKEN_TRANSITION,
 		},
+		ParsingFailureTest {
+
+			Name: "Invalid NUMERIC transition",
+			Input: "10 10",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest {
+
+			Name: "Invalid STRING transition",
+			Input: "'foo' 'foo'",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest {
+
+			Name: "Invalid operator transition",
+			Input: "10 > < 10",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
 	}
 
 	runParsingFailureTests(parsingTests, test)

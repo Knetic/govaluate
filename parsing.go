@@ -117,7 +117,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		}
 
 		if(!isNotQuote(character)) {
-			tokenValue = readUntilFalse(stream, true, isNotQuote);
+			tokenValue = readUntilFalse(stream, true, false, isNotQuote);
 			kind = STRING;
 
 			// advance the stream one position, since reading until false assumes the terminator is a real token
@@ -177,11 +177,11 @@ func readTokenUntilFalse(stream *lexerStream, condition func(rune)(bool)) string
 	var ret string;
 
 	stream.rewind(1)
-	ret = readUntilFalse(stream, false, condition);
+	ret = readUntilFalse(stream, false, true, condition);
 	return ret;
 }
 
-func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(rune)(bool)) string {
+func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, condition func(rune)(bool)) string {
 
 	var tokenBuffer bytes.Buffer
 	var character rune
@@ -190,8 +190,14 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, condition func(
 
 		character = stream.readCharacter()
 
-		if(!includeWhitespace && unicode.IsSpace(character)) {
-			continue;
+		if(unicode.IsSpace(character)) {
+
+			if(breakWhitespace && tokenBuffer.Len() > 0) {
+				break;
+			}
+			if(!includeWhitespace) {
+				continue;
+			}
 		}
 
 		if(condition(character)) {
