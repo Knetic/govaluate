@@ -30,73 +30,73 @@ func TestParsingFailure(test *testing.T) {
 
 			Name: "Invalid equality comparator",
 			Input: "1 = 1",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Invalid equality comparator",
 			Input: "1 === 1",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Half of a logical operator",
 			Input: "true & false",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Half of a logical operator",
 			Input: "true | false",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Too many characters for logical operator",
 			Input: "true &&& false",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Too many characters for logical operator",
 			Input: "true ||| false",
-			Expected: "",
+			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest {
 
 			Name: "Premature end to expression, via modifier",
 			Input: "10 > 5 +",
-			Expected: "",
+			Expected: UNEXPECTED_END,
 		},
 		ParsingFailureTest {
 
 			Name: "Premature end to expression, via comparator",
 			Input: "10 + 5 >",
-			Expected: "",
+			Expected: UNEXPECTED_END,
 		},
 		ParsingFailureTest {
 
 			Name: "Premature end to expression, via logical operator",
 			Input: "10 > 5 &&",
-			Expected: "",
+			Expected: UNEXPECTED_END,
 		},
 		ParsingFailureTest {
 
 			Name: "Invalid starting token, comparator",
 			Input: "> 10",
-			Expected: "",
+			Expected: INVALID_TOKEN_TRANSITION,
 		},
 		ParsingFailureTest {
 
 			Name: "Invalid starting token, modifier",
 			Input: "+ 5",
-			Expected: "",
+			Expected: INVALID_TOKEN_TRANSITION,
 		},
 		ParsingFailureTest {
 
 			Name: "Invalid starting token, logical operator",
 			Input: "&& 5 < 10",
-			Expected: "",
+			Expected: INVALID_TOKEN_TRANSITION,
 		},
 	}
 

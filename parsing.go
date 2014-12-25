@@ -20,7 +20,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	state = VALID_LEXER_STATES[0];
 	stream = newLexerStream(expression);
 
-	for ;; {
+	for stream.canRead() {
 
 		token, err, found = readToken(stream);
 
@@ -161,6 +161,9 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 			kind = COMPARATOR;
 			break;
 		}
+
+		errorMessage := fmt.Sprintf("Invalid token: %v", tokenValue);
+		return ret, errors.New(errorMessage), false;
 	}
 
 	ret.Kind = kind;
