@@ -93,10 +93,10 @@ Boolean constants: true false
 
 Parenthesis to control order of evaluation
 
-Future Goals
+Branching
 --
 
-See the Issues page for details. The biggest goal that interests me is currently [implementing unified DB queries](https://github.com/Knetic/govaluate/issues/1). But feel free to suggest other features!
+I use green masters, and heavily develop with private feature branches. Full releases are pinned and unchangeable, representing the best available version with the best documentation and test coverage. Master branch, however, should always have all tests pass and implementations considered "working", even if it's just a first pass. Master should never panic.
 
 License
 --
