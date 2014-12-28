@@ -3,6 +3,7 @@ package govaluate
 import (
 	"errors"
 	"math"
+	"time"
 )
 
 /*
@@ -351,6 +352,7 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 		case NUMERIC	:	fallthrough
 		case STRING	:	fallthrough
 		case BOOLEAN	:	return token.Value, nil;
+		case TIME	:	return float64(token.Value.(time.Time).Unix()), nil;
 		default		:	break;
 	}
 

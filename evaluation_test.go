@@ -145,6 +145,60 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input: "1 + 5 ^ 3 % 2 * 5",
 			Expected: 6.0,
 		},
+		EvaluationTest {
+
+			Name: "Identical date equivalence",
+			Input: "'2014-01-02 14:12:22' == '2014-01-02 14:12:22'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Positive date GT",
+			Input: "'2014-01-02 14:12:22' > '2014-01-02 12:12:22'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Negative date GT",
+			Input: "'2014-01-02 14:12:22' > '2014-01-02 16:12:22'",
+			Expected: false,
+		},
+		EvaluationTest {
+
+			Name: "Positive date GTE",
+			Input: "'2014-01-02 14:12:22' >= '2014-01-02 12:12:22'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Negative date GTE",
+			Input: "'2014-01-02 14:12:22' >= '2014-01-02 16:12:22'",
+			Expected: false,
+		},
+		EvaluationTest {
+
+			Name: "Positive date LT",
+			Input: "'2014-01-02 14:12:22' < '2014-01-02 16:12:22'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Negative date LT",
+			Input: "'2014-01-02 14:12:22' < '2014-01-02 11:12:22'",
+			Expected: false,
+		},
+		EvaluationTest {
+
+			Name: "Positive date LTE",
+			Input: "'2014-01-02 09:12:22' <= '2014-01-02 12:12:22'",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Negative date LTE",
+			Input: "'2014-01-02 14:12:22' <= '2014-01-02 11:12:22'",
+			Expected: false,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
