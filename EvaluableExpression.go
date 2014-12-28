@@ -1,7 +1,9 @@
 package govaluate
 
 import (
+	"fmt"
 	"errors"
+	"bytes"
 	"math"
 	"time"
 )
@@ -11,6 +13,12 @@ import (
 	represent an arbitrary expression that can be evaluated down into a single value.
 */
 type EvaluableExpression struct {
+
+	/*
+		Represents the query format used to output dates. Typically only used when creating SQL or Mongo queries from an expression.
+		Defaults to the complete ISO8601 format, including nanoseconds.
+	*/
+	QueryDateFormat string;
 
 	tokens []ExpressionToken
 	inputExpression string
@@ -26,6 +34,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	var err error
 
 	ret = new(EvaluableExpression)
+	ret.QueryDateFormat = "2006-01-02T15:04:05.999999999Z0700";
 	ret.inputExpression = expression;
 	ret.tokens, err = parseTokens(expression)
 
@@ -358,6 +367,64 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 
 	stream.rewind();
 	return nil, errors.New("Unable to evaluate token kind: " + GetTokenKindString(token.Kind));
+}
+
+/*
+	Returns a string representing this expression as if it were written in SQL.
+	This function assumes that all parameters exist within the same table, and that the table essentially represents
+	a serialized object of some sort (e.g., hibernate).
+	If your data model is more normalized, you may need to consider iterating through each actual token given by `Tokens()`
+	to create your query.
+
+	Boolean values are considered to be "1" for true, "0" for false.
+
+	Times are formatted according to this.QueryDateFormat.
+*/
+func (this EvaluableExpression) ToSqlQuery() (string, error) {
+
+	var stream *tokenStream;
+	var token ExpressionToken;
+	var retBuffer bytes.Buffer;
+	var toWrite string;
+
+	stream = newTokenStream(this.tokens);
+
+	for(stream.hasNext()) {
+
+		token = stream.next();
+
+		switch(token.Kind) {
+
+			case STRING		:	toWrite = fmt.Sprintf("'%s'", token.Value);
+			case TIME		:	toWrite = fmt.Sprintf("'%s'", token.Value.(time.Time).Format(this.QueryDateFormat));
+			
+			case LOGICALOP		:	switch(LOGICAL_SYMBOLS[token.Value.(string)]) {
+
+								case AND	:	toWrite = " AND ";
+								case OR		:	toWrite = " OR ";
+							}
+
+			case BOOLEAN		:	if(token.Value.(bool)) {
+								toWrite = "1";
+							} else {
+								toWrite = "0";
+							}
+
+			case VARIABLE		:	fallthrough
+			case COMPARATOR		:	fallthrough	
+			case MODIFIER		:	fallthrough
+			case NUMERIC 		:	fallthrough
+			case CLAUSE		:	fallthrough
+			case CLAUSE_CLOSE	:	toWrite = token.Value.(string);	
+
+			default			:	toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind);
+							return "", errors.New(toWrite);
+		}
+
+		retBuffer.WriteString(toWrite);
+	}
+
+	return retBuffer.String(), nil;
 }
 
 /*
