@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"strings"
+	"time"
 	"testing"
 )
 
@@ -49,6 +50,39 @@ func TestConstantParsing(test *testing.T) {
 					ExpressionToken {
 						Kind: STRING,
 						Value: "foo",
+					},
+			},
+		},
+		TokenParsingTest {
+
+			Name: "Single time, RFC3339, only date",
+			Input: "'2014-01-02'",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: TIME,
+						Value: time.Date(2014, time.January, 2, 0, 0, 0, 0, time.UTC),
+					},
+			},
+		},
+		TokenParsingTest {
+
+			Name: "Single time, RFC3339, with hh:mm",
+			Input: "'2014-01-02 14:12'",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: TIME,
+						Value: time.Date(2014, time.January, 2, 14, 12, 0, 0, time.UTC),
+					},
+			},
+		},
+		TokenParsingTest {
+
+			Name: "Single time, RFC3339, with hh:mm:ss",
+			Input: "'2014-01-02 14:12:22'",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: TIME,
+						Value: time.Date(2014, time.January, 2, 14, 12, 22, 0, time.UTC),
 					},
 			},
 		},
@@ -445,6 +479,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	var expression *EvaluableExpression
 	var actualTokens []ExpressionToken;
 	var actualToken ExpressionToken
+	var expectedTokenKindString, actualTokenKindString string;
 	var expectedTokenLength, actualTokenLength int
 	var err error
 
@@ -479,8 +514,11 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			actualToken = actualTokens[i]
 			if(actualToken.Kind != expectedToken.Kind) {
 
+				actualTokenKindString = GetTokenKindString(actualToken.Kind);
+				expectedTokenKindString = GetTokenKindString(expectedToken.Kind);
+
 				test.Logf("Test '%s' failed:", parsingTest.Name)
-				test.Logf("Expected token kind '%v' does not match '%v'", expectedToken.Kind, actualToken.Kind)
+				test.Logf("Expected token kind '%v' does not match '%v'", expectedTokenKindString, actualTokenKindString)
 				test.Fail()
 				continue
 			}

@@ -3,6 +3,7 @@ package govaluate
 import (
 	"fmt"
 	"errors"
+	"time"
 	"bytes"
 	"strconv"
 	"unicode"
@@ -66,6 +67,7 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 	var ret ExpressionToken
 	var tokenValue interface{}
+	var tokenTime time.Time;
 	var tokenString string
 	var kind TokenKind
 	var character rune
@@ -118,10 +120,18 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 
 		if(!isNotQuote(character)) {
 			tokenValue = readUntilFalse(stream, true, false, isNotQuote);
-			kind = STRING;
-
+			
 			// advance the stream one position, since reading until false assumes the terminator is a real token
 			stream.rewind(-1)
+
+			// check to see if this can be parsed as a time.
+			tokenTime, found = tryParseTime(tokenValue.(string));
+			if(found) {
+				kind = TIME;
+				tokenValue = tokenTime;
+			} else {
+				kind = STRING;
+			}
 			break;
 		}
 
@@ -223,4 +233,55 @@ func isNotAlphanumeric(character rune) bool {
 		character == '(' || 
 		character == ')' ||
 		!isNotQuote(character));
+}
+
+/*
+	Attempts to parse the [candidate] as a Time.
+	Tries a series of standardized date formats, returns the Time if one applies,
+	otherwise returns false through the second return.
+*/
+func tryParseTime(candidate string) (time.Time, bool) {
+
+	var ret time.Time;
+	var found bool;
+	
+	timeFormats := [...]string {
+		time.ANSIC,
+		time.UnixDate,
+		time.RubyDate,
+		time.Kitchen,
+		time.RFC3339,
+		time.RFC3339Nano,
+		"2006-01-02",				// RFC 3339
+		"2006-01-02 15:04",	 		// RFC 3339 with minutes
+		"2006-01-02 15:04:05",	 		// RFC 3339 with seconds
+		"2006-01-02 15:04:05-07:00", 		// RFC 3339 with seconds and timezone
+		"2006-01-02T15Z0700",			// ISO8601 with hour
+		"2006-01-02T15:04Z0700",		// ISO8601 with minutes
+		"2006-01-02T15:04:05Z0700",		// ISO8601 with seconds
+		"2006-01-02T15:04:05.999999999Z0700", 	// ISO8601 with nanoseconds
+	};
+
+	for _, format := range timeFormats {
+		
+		ret, found = tryParseExactTime(candidate, format);
+		if(found) {
+			return ret, true;
+		}
+	}
+
+	return time.Now(), false;
+}
+
+func tryParseExactTime(candidate string, format string) (time.Time, bool) {
+
+	var ret time.Time;
+	var err error;
+
+	ret, err = time.Parse(format, candidate);
+	if(err != nil) {
+		return time.Now(), false;
+	}
+
+	return ret, true;
 }

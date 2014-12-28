@@ -21,6 +21,7 @@ var validLexerStates = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},
@@ -36,6 +37,7 @@ var validLexerStates = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			TIME,
 			CLAUSE,			
 			CLAUSE_CLOSE,
 		},
@@ -79,6 +81,18 @@ var validLexerStates = []lexerState {
 	},
 	lexerState {
 
+		kind: TIME,
+		isEOF: true,
+		validNextKinds: []TokenKind {
+
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+			CLAUSE_CLOSE,
+		},
+	},
+	lexerState {
+
 		kind: VARIABLE,
 		isEOF: true,
 		validNextKinds: []TokenKind {
@@ -111,6 +125,7 @@ var validLexerStates = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},
@@ -125,6 +140,7 @@ var validLexerStates = []lexerState {
 			BOOLEAN,
 			VARIABLE,
 			STRING,
+			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},

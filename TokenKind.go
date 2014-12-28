@@ -14,6 +14,7 @@ const (
 	NUMERIC 
 	BOOLEAN
 	STRING
+	TIME
 	VARIABLE
 
 	COMPARATOR
@@ -35,6 +36,7 @@ func GetTokenKindString(kind TokenKind) string {
 		case	NUMERIC		:	return "NUMERIC";
 		case	BOOLEAN		:	return "BOOLEAN";
 		case	STRING		:	return "STRING";
+		case	TIME		:	return "TIME";
 		case	VARIABLE	:	return "VARIABLE";
 		case	COMPARATOR	:	return "COMPARATOR";
 		case	LOGICALOP	:	return "LOGICALOP";
