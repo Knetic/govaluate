@@ -380,12 +380,12 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 
 	Times are formatted according to this.QueryDateFormat.
 */
-func (this EvaluableExpression) ToSqlQuery() (string, error) {
+func (this EvaluableExpression) ToSQLQuery() (string, error) {
 
 	var stream *tokenStream;
 	var token ExpressionToken;
 	var retBuffer bytes.Buffer;
-	var toWrite string;
+	var toWrite, ret string;
 
 	stream = newTokenStream(this.tokens);
 
@@ -395,27 +395,35 @@ func (this EvaluableExpression) ToSqlQuery() (string, error) {
 
 		switch(token.Kind) {
 
-			case STRING		:	toWrite = fmt.Sprintf("'%s'", token.Value);
-			case TIME		:	toWrite = fmt.Sprintf("'%s'", token.Value.(time.Time).Format(this.QueryDateFormat));
+			case STRING		:	toWrite = fmt.Sprintf("'%v' ", token.Value);
+			case TIME		:	toWrite = fmt.Sprintf("'%s' ", token.Value.(time.Time).Format(this.QueryDateFormat));
 			
 			case LOGICALOP		:	switch(LOGICAL_SYMBOLS[token.Value.(string)]) {
 
-								case AND	:	toWrite = " AND ";
-								case OR		:	toWrite = " OR ";
+								case AND	:	toWrite = "AND ";
+								case OR		:	toWrite = "OR ";
 							}
 
 			case BOOLEAN		:	if(token.Value.(bool)) {
-								toWrite = "1";
+								toWrite = "1 ";
 							} else {
-								toWrite = "0";
+								toWrite = "0 ";
 							}
 
-			case VARIABLE		:	fallthrough
-			case COMPARATOR		:	fallthrough	
+			case VARIABLE		:	toWrite = fmt.Sprintf("[%s] ", token.Value.(string));
+
+			case NUMERIC 		:	toWrite = fmt.Sprintf("%g ", token.Value.(float64));
+
+			case COMPARATOR		:	switch(COMPARATOR_SYMBOLS[token.Value.(string)]) {
+
+								case EQ		:	toWrite = "= ";
+								case NEQ	:	toWrite = "<> ";
+								default		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
+							}
+	
 			case MODIFIER		:	fallthrough
-			case NUMERIC 		:	fallthrough
 			case CLAUSE		:	fallthrough
-			case CLAUSE_CLOSE	:	toWrite = token.Value.(string);	
+			case CLAUSE_CLOSE	:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
 
 			default			:	toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind);
 							return "", errors.New(toWrite);
@@ -424,7 +432,11 @@ func (this EvaluableExpression) ToSqlQuery() (string, error) {
 		retBuffer.WriteString(toWrite);
 	}
 
-	return retBuffer.String(), nil;
+	// trim last space.
+	ret = retBuffer.String();
+	ret = ret[:len(ret)-1];
+
+	return ret, nil;
 }
 
 /*
