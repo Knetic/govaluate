@@ -12,14 +12,14 @@ How do I use it?
 
 You create a new EvaluableExpression, then call "Evaluate" on it.
 
-	expression, err = NewEvaluableExpression("10 > 0");
+	expression, err := govaluate.NewEvaluableExpression("10 > 0");
 	result := expression.Evaluate(nil);
 
 	// result is now set to "true", the bool value.
 
 Cool, but how about with parameters?
 
-	expression, err = NewEvaluableExpression("foo > 0");
+	expression, err := govaluate.NewEvaluableExpression("foo > 0");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["foo"] = -1;
@@ -29,7 +29,7 @@ Cool, but how about with parameters?
 
 That's cool, but we can almost certainly have done all that in code. What about a complex use case that involves some math?
 
-	expression, err = NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90");
+	expression, err := govaluate.NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["requests_made"] = 100;
@@ -40,7 +40,7 @@ That's cool, but we can almost certainly have done all that in code. What about 
 
 Or maybe you want to check the status of an alive check ("smoketest") page, which will be a string?
 
-	expression, err = NewEvaluableExpression("http_response_body == 'service is ok'");
+	expression, err := govaluate.NewEvaluableExpression("http_response_body == 'service is ok'");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["http_response_body"] = "service is ok";
@@ -50,7 +50,7 @@ Or maybe you want to check the status of an alive check ("smoketest") page, whic
 
 These examples have all returned boolean values, but it's equally possible to return numeric ones. 
 
-	expression, err = NewEvaluableExpression("total_mem * mem_used / 100");
+	expression, err := govaluate.NewEvaluableExpression("total_mem * mem_used / 100");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["total_mem"] = 1024;
@@ -58,6 +58,14 @@ These examples have all returned boolean values, but it's equally possible to re
 
 	result := expression.Evaluate(parameters);
 	// result is now set to "50.0", the float64 value.
+
+You can also do date parsing, though the formats are somewhat limited. Stick to RF3339, ISO8061, unix date, or ruby date formats. If you're having trouble getting a date string to parse, check the list of formats actually used: [parsing.go:248](https://github.com/Knetic/govaluate/blob/master/parsing.go#L248).
+
+	expression, err := govaluate.NewEvaluableExpression("'2014-01-02' > '2014-01-01 23:59:59'");
+	result := expression.Evaluate(nil);
+
+	// result is now set to true
+
 
 Why can't you just write these expressions in code?
 --
@@ -78,6 +86,8 @@ Logical ops: || &&
 Numeric constants, including 64-bit floating point (12345)
 
 String constants (single quotes: 'foobar')
+
+Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date)
 
 Boolean constants: true false
 
