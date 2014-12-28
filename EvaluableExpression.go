@@ -421,9 +421,9 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 								default		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
 							}
 	
-			case MODIFIER		:	fallthrough
-			case CLAUSE		:	fallthrough
-			case CLAUSE_CLOSE	:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
+			case MODIFIER		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
+			case CLAUSE		:	toWrite = "( "
+			case CLAUSE_CLOSE	:	toWrite = ") "
 
 			default			:	toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind);
 							return "", errors.New(toWrite);

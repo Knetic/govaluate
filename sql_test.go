@@ -73,6 +73,12 @@ func TestSQLSerialization(test *testing.T) {
 			Input: "'2014-07-04'",
 			Expected: "'2014-07-04T00:00:00Z'",
 		},
+		QueryTest {
+
+			Name: "Clauses",
+			Input: "10 + (foo + bar)",
+			Expected: "10 + ( [foo] + [bar] )",
+		},
 	}
 
 	runQueryTests(testCases, test);
