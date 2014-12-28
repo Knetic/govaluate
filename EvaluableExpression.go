@@ -222,7 +222,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 	var err error;
 	var keyFound bool;
 
-	value, err = evaluateValue(stream, parameters);
+	value, err = evaluateExponentialModifier(stream, parameters);
 
 	if(err != nil) {
 		return nil, err;
@@ -260,6 +260,50 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 							return nil, err;
 						}
 						return math.Mod(value.(float64), rightValue.(float64)), nil;
+
+			default		:	stream.rewind();
+						return value, nil;
+		}
+	}
+
+	stream.rewind();	
+	return value, nil;
+}
+
+func evaluateExponentialModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	var token ExpressionToken;
+	var value, rightValue interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
+
+	value, err = evaluateValue(stream, parameters);
+
+	if(err != nil) {
+		return nil, err;
+	}
+
+	for stream.hasNext() {
+
+		token = stream.next();
+
+		if(!isString(token.Value)) {
+			break;
+		}
+
+		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break;
+		}
+
+		switch(symbol) {
+
+			case EXPONENT	:	rightValue, err = evaluateExponentialModifier(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+						return math.Pow(value.(float64), rightValue.(float64)), nil;
 
 			default		:	stream.rewind();
 						return value, nil;

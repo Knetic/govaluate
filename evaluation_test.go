@@ -139,6 +139,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input: "1 + 101 % 2 * 5",
 			Expected: 2.0,
 		},
+		EvaluationTest {
+
+			Name: "Exponent precedence",
+			Input: "1 + 5 ^ 3 % 2 * 5",
+			Expected: 6.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)

@@ -20,6 +20,7 @@ const (
 	MULTIPLY
 	DIVIDE
 	MODULUS
+	EXPONENT
 )
 
 /*
@@ -60,4 +61,5 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
 	"*": MULTIPLY,
 	"/": DIVIDE,
 	"%": MODULUS,
+	"^": EXPONENT,
 };
