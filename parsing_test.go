@@ -1,7 +1,9 @@
 package govaluate
 
 import (
-	"strings"
+	"bytes"
+	"unicode"
+	"unicode/utf8"
 	"time"
 	"testing"
 )
@@ -461,10 +463,11 @@ func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTe
 	for i := 0; i < caseLength; i++ {
 
 		currentCase = testCases[i];
+		
 		strippedCase = TokenParsingTest {
 
 			Name: (currentCase.Name + " (without whitespace)"),
-			Input: strings.Replace(currentCase.Input, " ", "", -1),
+			Input: stripUnquotedWhitespace(currentCase.Input),
 			Expected: currentCase.Expected,
 		}
 
@@ -472,6 +475,30 @@ func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTe
 	}
 
 	return testCases;
+}
+
+func stripUnquotedWhitespace(expression string) string {
+
+	var expressionBuffer bytes.Buffer;
+	var character rune;
+	var quoted bool;
+
+	for i := 0; i < len(expression); i++ {
+
+		character, _ = utf8.DecodeRuneInString(expression[i:]);
+
+		if(!quoted && unicode.IsSpace(character)) {
+			continue;
+		}
+
+		if(character == '\'') {
+			quoted = !quoted;
+		}
+
+		expressionBuffer.WriteString(string(character));
+	}
+
+	return expressionBuffer.String();
 }
 
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
