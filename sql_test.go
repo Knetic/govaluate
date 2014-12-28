@@ -75,6 +75,54 @@ func TestSQLSerialization(test *testing.T) {
 		},
 		QueryTest {
 
+			Name: "Single PLUS",
+			Input: "10 + 10",
+			Expected: "10 + 10",
+		},
+		QueryTest {
+
+			Name: "Single MINUS",
+			Input: "10 - 10",
+			Expected: "10 - 10",
+		},
+		QueryTest {
+
+			Name: "Single MULTIPLY",
+			Input: "10 * 10",
+			Expected: "10 * 10",
+		},
+		QueryTest {
+
+			Name: "Single DIVIDE",
+			Input: "10 / 10",
+			Expected: "10 / 10",
+		},
+		QueryTest {
+
+			Name: "Single true bool",
+			Input: "true",
+			Expected: "1",
+		},
+		QueryTest {
+
+			Name: "Single false bool",
+			Input: "false",
+			Expected: "0",
+		},
+		QueryTest {
+
+			Name: "Single AND",
+			Input: "true && true",
+			Expected: "1 AND 1",
+		},
+		QueryTest {
+
+			Name: "Single OR",
+			Input: "true || true",
+			Expected: "1 OR 1",
+		},
+		QueryTest {
+
 			Name: "Clauses",
 			Input: "10 + (foo + bar)",
 			Expected: "10 + ( [foo] + [bar] )",
