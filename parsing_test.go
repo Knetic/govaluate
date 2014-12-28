@@ -392,6 +392,25 @@ func TestModifierParsing(test *testing.T) {
 					},
 			},
 		},
+		TokenParsingTest {
+
+			Name: "Numeric MODULUS",
+			Input: "1 % 1",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: NUMERIC,
+						Value: 1.0,
+					},
+					ExpressionToken {
+						Kind: MODIFIER,
+						Value: "%",
+					},
+					ExpressionToken {
+						Kind: NUMERIC,
+						Value: 1.0,
+					},
+			},
+		},
 	};
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);

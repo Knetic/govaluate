@@ -51,6 +51,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest {
 
+			Name: "Single even MODULUS",
+			Input: "100 % 2",
+			Expected: 0.0,
+		},
+		EvaluationTest {
+
+			Name: "Single odd MODULUS",
+			Input: "101 % 2",
+			Expected: 1.0,
+		},
+		EvaluationTest {
+
 			Name: "Compound PLUS",
 			Input: "20 + 30 + 50",
 			Expected: 100.0,
@@ -120,6 +132,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name: "Multiple adds/multiplications",
 			Input: "10 * 10 * 10 + 1 * 10 * 10",
 			Expected: 1100.0,
+		},
+		EvaluationTest {
+
+			Name: "Modulus precedence",
+			Input: "1 + 101 % 2 * 5",
+			Expected: 2.0,
 		},
 	}
 

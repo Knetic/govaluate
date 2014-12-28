@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"errors"
+	"math"
 )
 
 /*
@@ -253,6 +254,12 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 							return nil, err;
 						}
 						return value.(float64) / rightValue.(float64), nil;
+
+			case MODULUS	:	rightValue, err = evaluateMultiplicativeModifier(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+						return math.Mod(value.(float64), rightValue.(float64)), nil;
 
 			default		:	stream.rewind();
 						return value, nil;
