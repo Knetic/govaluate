@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700";
+
 /*
 	EvaluableExpression represents a set of ExpressionTokens which, taken together,
 	represent an arbitrary expression that can be evaluated down into a single value.
@@ -34,7 +36,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	var err error
 
 	ret = new(EvaluableExpression)
-	ret.QueryDateFormat = "2006-01-02T15:04:05.999999999Z0700";
+	ret.QueryDateFormat = isoDateFormat;
 	ret.inputExpression = expression;
 	ret.tokens, err = parseTokens(expression)
 
@@ -424,6 +426,55 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 			case MODIFIER		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
 			case CLAUSE		:	toWrite = "( "
 			case CLAUSE_CLOSE	:	toWrite = ") "
+
+			default			:	toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind);
+							return "", errors.New(toWrite);
+		}
+
+		retBuffer.WriteString(toWrite);
+	}
+
+	// trim last space.
+	ret = retBuffer.String();
+	ret = ret[:len(ret)-1];
+
+	return ret, nil;
+}
+
+/*
+	Returns a string representing this expression as if it were written as a Mongo query.
+*/
+func (this EvaluableExpression) ToMongoQuery() (string, error) {
+
+	var stream *tokenStream;
+	var token ExpressionToken;
+	var retBuffer bytes.Buffer;
+	var toWrite, ret string;
+
+	stream = newTokenStream(this.tokens);
+
+	for(stream.hasNext()) {
+
+		token = stream.next();
+
+		switch(token.Kind) {
+
+			case STRING		:	toWrite = fmt.Sprintf("\"%s\" ", token.Value.(string));
+			case TIME		:	toWrite = fmt.Sprintf("ISODate(\"%s\") ", token.Value.(time.Time).Format(isoDateFormat));
+			case LOGICALOP		:	
+			case BOOLEAN		:	if(token.Value.(bool)) {
+								toWrite = "true ";
+							} else {
+								toWrite = "false ";
+							}
+			case VARIABLE		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
+			case NUMERIC 		:	toWrite = fmt.Sprintf("%g ", token.Value.(float64));
+			case COMPARATOR		:	
+			case CLAUSE		:	fallthrough;
+			case CLAUSE_CLOSE	:	continue;
+
+			case MODIFIER		:	toWrite = fmt.Sprintf("Unable to use modifiers in Mongo queries (found '%s')", token.Kind);
+							return "", errors.New(toWrite);
 
 			default			:	toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind);
 							return "", errors.New(toWrite);
