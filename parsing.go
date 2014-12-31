@@ -23,7 +23,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 
 	for stream.canRead() {
 
-		token, err, found = readToken(stream);
+		token, err, found = readToken(stream, state);
 
 		if(err != nil) {
 			return ret, err	
@@ -63,7 +63,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	return ret, nil
 }
 
-func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
+func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, bool) {
 
 	var ret ExpressionToken
 	var tokenValue interface{}
@@ -151,13 +151,16 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
 		tokenValue = tokenString
 
-		_, found = PREFIX_SYMBOLS[tokenString];
-		if(found) {
+		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
+		// very differently.
+		if(state.canTransitionTo(PREFIX)) {
+			_, found = PREFIX_SYMBOLS[tokenString];
+			if(found) {
 
-			kind = PREFIX;
-			break;
+				kind = PREFIX;
+				break;
+			}
 		}
-
 		_, found = MODIFIER_SYMBOLS[tokenString];
 		if(found) {
 

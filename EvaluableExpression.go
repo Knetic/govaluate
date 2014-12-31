@@ -356,6 +356,13 @@ func evaluatePrefix(stream *tokenStream, parameters map[string]interface{}) (int
 
 						return !value.(bool), nil;
 
+			case NEGATE	:	value, err = evaluateValue(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+
+						return -value.(float64), nil;
+
 			default		:	stream.rewind();
 						return value, nil;
 		}

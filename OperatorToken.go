@@ -24,7 +24,7 @@ const (
 	MODULUS
 	EXPONENT
 
-	NEGATIVE
+	NEGATE
 	INVERT
 )
 
@@ -71,6 +71,6 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
 
 var PREFIX_SYMBOLS = map[string]OperatorSymbol {
 
-	//"-": NEGATIVE,
+	"-": NEGATE,
 	"!": INVERT,
 }
