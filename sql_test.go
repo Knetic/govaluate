@@ -127,6 +127,12 @@ func TestSQLSerialization(test *testing.T) {
 			Input: "10 + (foo + bar)",
 			Expected: "10 + ( [foo] + [bar] )",
 		},
+		QueryTest {
+
+			Name: "Negate prefix",
+			Input: "foo < -1",
+			Expected: "[foo] < -1",
+		},
 	}
 
 	runQueryTests(testCases, test);

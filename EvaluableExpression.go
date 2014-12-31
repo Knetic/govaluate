@@ -481,6 +481,7 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 								default		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
 							}
 	
+			case PREFIX		:	toWrite = fmt.Sprintf("%s", token.Value.(string));
 			case MODIFIER		:	toWrite = fmt.Sprintf("%s ", token.Value.(string));
 			case CLAUSE		:	toWrite = "( "
 			case CLAUSE_CLOSE	:	toWrite = ") "
