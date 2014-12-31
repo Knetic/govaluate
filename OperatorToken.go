@@ -13,14 +13,19 @@ const (
 	LT
 	GTE
 	LTE
+
 	AND
 	OR
+
 	PLUS
 	MINUS
 	MULTIPLY
 	DIVIDE
 	MODULUS
 	EXPONENT
+
+	NEGATIVE
+	INVERT
 )
 
 /*
@@ -63,3 +68,9 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol {
 	"%": MODULUS,
 	"^": EXPONENT,
 };
+
+var PREFIX_SYMBOLS = map[string]OperatorSymbol {
+
+	//"-": NEGATIVE,
+	"!": INVERT,
+}

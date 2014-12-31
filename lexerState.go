@@ -17,6 +17,7 @@ var validLexerStates = []lexerState {
 		isEOF: false,
 		validNextKinds: []TokenKind {
 
+			PREFIX,
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
@@ -33,6 +34,7 @@ var validLexerStates = []lexerState {
 		isEOF: true,
 		validNextKinds: []TokenKind {
 
+			PREFIX,
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
@@ -109,6 +111,7 @@ var validLexerStates = []lexerState {
 		isEOF: false,
 		validNextKinds: []TokenKind {
 
+			PREFIX,
 			NUMERIC,
 			VARIABLE,
 			CLAUSE,
@@ -121,6 +124,7 @@ var validLexerStates = []lexerState {
 		isEOF: false,
 		validNextKinds: []TokenKind {
 
+			PREFIX,
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
@@ -136,11 +140,25 @@ var validLexerStates = []lexerState {
 		isEOF: false,
 		validNextKinds: []TokenKind {
 
+			PREFIX,
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
 			STRING,
 			TIME,
+			CLAUSE,
+			CLAUSE_CLOSE,
+		},
+	},
+	lexerState {
+
+		kind: PREFIX,
+		isEOF: false,
+		validNextKinds: []TokenKind {
+
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},

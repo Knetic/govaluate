@@ -151,6 +151,13 @@ func readToken(stream *lexerStream) (ExpressionToken, error, bool) {
 		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
 		tokenValue = tokenString
 
+		_, found = PREFIX_SYMBOLS[tokenString];
+		if(found) {
+
+			kind = PREFIX;
+			break;
+		}
+
 		_, found = MODIFIER_SYMBOLS[tokenString];
 		if(found) {
 

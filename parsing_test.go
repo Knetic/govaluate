@@ -453,6 +453,76 @@ func TestModifierParsing(test *testing.T) {
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
+func TestPrefixParsing(test *testing.T) {
+
+	testCases := []TokenParsingTest {
+
+		/*TokenParsingTest {
+
+			Name: "Sign prefix",
+			Input: "-1",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: PREFIX,
+						Value: "-",
+					},
+					ExpressionToken {
+						Kind: NUMERIC,
+						Value: 1.0,
+					},
+			},
+		},
+		TokenParsingTest {
+
+			Name: "Sign prefix on variable",
+			Input: "-foo",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: PREFIX,
+						Value: "-",
+					},
+					ExpressionToken {
+						Kind: VARIABLE,
+						Value: "foo",
+					},
+			},
+		},*/
+		TokenParsingTest {
+
+			Name: "Boolean prefix",
+			Input: "!true",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: PREFIX,
+						Value: "!",
+					},
+					ExpressionToken {
+						Kind: BOOLEAN,
+						Value: true,
+					},
+			},
+		},
+		TokenParsingTest {
+
+			Name: "Boolean prefix on variable",
+			Input: "!foo",
+			Expected: []ExpressionToken {
+					ExpressionToken {
+						Kind: PREFIX,
+						Value: "!",
+					},
+					ExpressionToken {
+						Kind: VARIABLE,
+						Value: "foo",
+					},
+			},
+		},
+	}
+
+	testCases = combineWhitespaceExpressions(testCases);
+	runTokenParsingTest(testCases, test)
+}
+
 func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
 
 	var currentCase, strippedCase TokenParsingTest;

@@ -199,6 +199,26 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input: "'2014-01-02 14:12:22' <= '2014-01-02 11:12:22'",
 			Expected: false,
 		},
+		/*
+		EvaluationTest {
+
+			Name: "Sign prefix comparison",
+			Input: "-1 < 0",
+			Expected: true,
+		},
+		*/
+		EvaluationTest {
+
+			Name: "Boolean sign prefix comparison",
+			Input: "!true == false",
+			Expected: true,
+		},
+		EvaluationTest {
+
+			Name: "Inversion of clause",
+			Input: "5 > 0 && !(10 < 0)",
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -285,6 +305,19 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Expected: 14.0,
 		},
+		/*EvaluationTest {
+
+			Name: "Sign prefix comparison against prefixed variable",
+			Input: "-1 < -foo",
+			Parameters: []EvaluationParameter {
+
+				EvaluationParameter {
+					Name: "foo",
+					Value: -8.0,
+				},
+			},
+			Expected: true,
+		},*/
 	}
 
 	runEvaluationTests(evaluationTests, test)

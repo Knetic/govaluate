@@ -11,6 +11,7 @@ const (
 
 	UNKNOWN TokenKind = iota
 
+	PREFIX
 	NUMERIC 
 	BOOLEAN
 	STRING
@@ -33,6 +34,7 @@ func GetTokenKindString(kind TokenKind) string {
 
 	switch(kind) {
 
+		case	PREFIX		:	return "PREFIX";
 		case	NUMERIC		:	return "NUMERIC";
 		case	BOOLEAN		:	return "BOOLEAN";
 		case	STRING		:	return "STRING";

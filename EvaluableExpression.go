@@ -326,6 +326,45 @@ func evaluateExponentialModifier(stream *tokenStream, parameters map[string]inte
 	return value, nil;
 }
 
+func evaluatePrefix(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+
+	var token ExpressionToken;
+	var value interface{};
+	var symbol OperatorSymbol;
+	var err error;
+	var keyFound bool;
+
+	for stream.hasNext() {
+
+		token = stream.next();
+
+		if(token.Kind != PREFIX || !isString(token.Value)) {
+			break;
+		}
+
+		symbol, keyFound = PREFIX_SYMBOLS[token.Value.(string)];
+		if(!keyFound) {
+			break;
+		}
+
+		switch(symbol) {
+
+			case INVERT	:	value, err = evaluateValue(stream, parameters);
+						if(err != nil) {
+							return nil, err;
+						}
+
+						return !value.(bool), nil;
+
+			default		:	stream.rewind();
+						return value, nil;
+		}
+	}
+
+	stream.rewind();	
+	return nil, nil;
+}
+
 func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
 	var token ExpressionToken;
@@ -364,6 +403,18 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 		case STRING	:	fallthrough
 		case BOOLEAN	:	return token.Value, nil;
 		case TIME	:	return float64(token.Value.(time.Time).Unix()), nil;
+
+		case PREFIX	:	stream.rewind();
+
+					value, err = evaluatePrefix(stream, parameters);
+					if(err  != nil) {
+						return nil, err;
+					}
+					if(value == nil) {
+						break;
+					}
+
+					return value, nil;
 		default		:	break;
 	}
 
