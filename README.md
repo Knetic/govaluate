@@ -59,7 +59,7 @@ These examples have all returned boolean values, but it's equally possible to re
 	result := expression.Evaluate(parameters);
 	// result is now set to "50.0", the float64 value.
 
-You can also do date parsing, though the formats are somewhat limited. Stick to RF3339, ISO8061, unix date, or ruby date formats. If you're having trouble getting a date string to parse, check the list of formats actually used: [parsing.go:248](https://github.com/Knetic/govaluate/blob/master/parsing.go#L248).
+You can also do date parsing, though the formats are somewhat limited. Stick to RF3339, ISO8061, unix date, or ruby date formats. If you're having trouble getting a date string to parse, check the list of formats actually used: [parsing.go:248](https://github.com/Knetic/govaluate/blob/0580e9b47a69125afa0e4ebd1cf93c49eb5a43ec/parsing.go#L258).
 
 	expression, err := govaluate.NewEvaluableExpression("'2014-01-02' > '2014-01-01 23:59:59'");
 	result := expression.Evaluate(nil);
@@ -70,9 +70,9 @@ You can also do date parsing, though the formats are somewhat limited. Stick to 
 Why can't you just write these expressions in code?
 --
 
-Sometimes, you can't know ahead-of-time what an expression looks like. Commonly, you'll have written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon. Or perhaps you've got a set of data running through your application, and you want to allow your DBA's to run some validations on it before committing it to a database, but neither of you can predict what those validations will be.
+Sometimes, you can't know ahead-of-time what an expression looks like. Maybe you've have written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon. Or perhaps you've got a set of data running through your application, and you want to allow your DBA's to run some validations on it before committing it to a database, but neither of you can predict what those validations will be.
 
-A lot of people (myself included, for a long time) wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking their monitor logic into the actual monitor executable. This library is meant to cover all the normal ALGOL and C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
+A lot of people (myself included, for a long time) wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking their monitor logic into the actual monitor executable. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
 
 What operators and types does this support?
 --
@@ -83,7 +83,7 @@ Comparators: > >= < <= == !=
 
 Logical ops: || &&
 
-Numeric constants, including 64-bit floating point (12345)
+Numeric constants, as 64-bit floating point (12345.678)
 
 String constants (single quotes: 'foobar')
 
@@ -92,6 +92,8 @@ Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby d
 Boolean constants: true false
 
 Parenthesis to control order of evaluation
+
+Prefixes: ! -
 
 Branching
 --
