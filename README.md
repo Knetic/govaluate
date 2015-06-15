@@ -65,7 +65,16 @@ You can also do date parsing, though the formats are somewhat limited. Stick to 
 	result := expression.Evaluate(nil);
 
 	// result is now set to true
+	
+Expressions are parsed once, and can be re-used multiple times. Parsing is the compute-intensive phase of the process, so if you intend to use the same expression with different parameters, just parse it once. Like so;
 
+	expression, err := govaluate.NewEvaluableExpression("response_time <= 100");
+	parameters := make(map[string]interface{}, 8)
+	
+	for {
+		parameters["response_time"] = pingSomething();
+		result := expression.Evaluate(parameters)
+	}
 
 Why can't you just write these expressions in code?
 --
