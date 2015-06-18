@@ -5,9 +5,9 @@ import (
 )
 
 type lexerStream struct {
-	source string
+	source   string
 	position int
-	length int
+	length   int
 }
 
 func newLexerStream(source string) *lexerStream {
@@ -34,6 +34,5 @@ func (this *lexerStream) rewind(amount int) {
 }
 
 func (this lexerStream) canRead() bool {
-	return this.position < this.length;
+	return this.position < this.length
 }
-
