@@ -79,22 +79,22 @@ Expressions are parsed once, and can be re-used multiple times. Parsing is the c
 Escaping characters
 --
 
-Sometimes you'll have parameters that have spaces, slashes, pluses, ampersnads or some other character
+Sometimes you'll have parameters that have spaces, slashes, pluses, ampersands or some other character
 that this library interprets as something special. For example, the following expression will not
 act as one might expect:
 
-  "response-time < 100"
+	"response-time < 100"
 
 As written, the library will parse it as "[response] minus [time] is less than 100". In reality,
 "response-time" is meant to be one variable that just happens to have a dash in it.
 
 There are two ways to work around this. First, you can escape the entire parameter name:
 
-  "[response-time] < 100"
+ 	"[response-time] < 100"
 
 Or you can use backslashes to escape only the minus sign.
 
-  "response\\-time < 100"
+	"response\\-time < 100"
 
 Backslashes can be used anywhere in an expression to escape the very next character.
 Square bracketed parameter names can be used instead of plain parameter names at any time.
