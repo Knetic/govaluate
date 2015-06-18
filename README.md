@@ -94,7 +94,7 @@ There are two ways to work around this. First, you can escape the entire paramet
 
 Or you can use backslashes to escape only the minus sign.
 
-  "response\\time < 100"
+  "response\\-time < 100"
 
 Backslashes can be used anywhere in an expression to escape the very next character.
 Square bracketed parameter names can be used instead of plain parameter names at any time.
