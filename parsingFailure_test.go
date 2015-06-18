@@ -9,8 +9,8 @@ const (
 	UNEXPECTED_END           string = "Unexpected end of expression"
 	INVALID_TOKEN_TRANSITION        = "Cannot transition token types"
 	INVALID_TOKEN_KIND              = "Invalid token"
-	UNCLOSED_QUOTES									= "Unclosed string literal"
-	UNCLOSED_BRACKETS								= "Unclosed parameter bracket"
+	UNCLOSED_QUOTES                 = "Unclosed string literal"
+	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
 )
 
 /*

@@ -105,7 +105,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			tokenValue, completed = readUntilFalse(stream, true, false, isNotClosingBracket)
 			kind = VARIABLE
 
-			if(!completed) {
+			if !completed {
 				return ExpressionToken{}, errors.New("Unclosed parameter bracket"), false
 			}
 
@@ -138,7 +138,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 		if !isNotQuote(character) {
 			tokenValue, completed = readUntilFalse(stream, true, false, isNotQuote)
 
-			if(!completed) {
+			if !completed {
 				return ExpressionToken{}, errors.New("Unclosed string literal"), false
 			}
 
@@ -239,7 +239,7 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 		character = stream.readCharacter()
 
 		// Use backslashes to escape anything
-		if(character == '\\') {
+		if character == '\\' {
 
 			character = stream.readCharacter()
 			tokenBuffer.WriteString(string(character))
