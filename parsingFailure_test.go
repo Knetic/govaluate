@@ -9,6 +9,8 @@ const (
 	UNEXPECTED_END           string = "Unexpected end of expression"
 	INVALID_TOKEN_TRANSITION        = "Cannot transition token types"
 	INVALID_TOKEN_KIND              = "Invalid token"
+	UNCLOSED_QUOTES									= "Unclosed string literal"
+	UNCLOSED_BRACKETS								= "Unclosed parameter bracket"
 )
 
 /*
@@ -113,6 +115,18 @@ func TestParsingFailure(test *testing.T) {
 			Name:     "Invalid operator transition",
 			Input:    "10 > < 10",
 			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+
+			Name:     "Unclosed bracket",
+			Input:    "[foo bar",
+			Expected: UNCLOSED_BRACKETS,
+		},
+		ParsingFailureTest{
+
+			Name:     "Unclosed quote",
+			Input:    "foo == 'responseTime",
+			Expected: UNCLOSED_QUOTES,
 		},
 	}
 

@@ -5,7 +5,7 @@ govaluation
 [![Godoc](https://godoc.org/github.com/Knetic/govaluate?status.png)](https://godoc.org/github.com/Knetic/govaluate)
 
 
-Provides support for evaluating arbitrary artithmetic/string expressions. 
+Provides support for evaluating arbitrary artithmetic/string expressions.
 
 How do I use it?
 --
@@ -48,7 +48,7 @@ Or maybe you want to check the status of an alive check ("smoketest") page, whic
 	result := expression.Evaluate(parameters);
 	// result is now set to "true", the bool value.
 
-These examples have all returned boolean values, but it's equally possible to return numeric ones. 
+These examples have all returned boolean values, but it's equally possible to return numeric ones.
 
 	expression, err := govaluate.NewEvaluableExpression("total_mem * mem_used / 100");
 
@@ -65,16 +65,40 @@ You can also do date parsing, though the formats are somewhat limited. Stick to 
 	result := expression.Evaluate(nil);
 
 	// result is now set to true
-	
+
 Expressions are parsed once, and can be re-used multiple times. Parsing is the compute-intensive phase of the process, so if you intend to use the same expression with different parameters, just parse it once. Like so;
 
 	expression, err := govaluate.NewEvaluableExpression("response_time <= 100");
 	parameters := make(map[string]interface{}, 8)
-	
+
 	for {
 		parameters["response_time"] = pingSomething();
 		result := expression.Evaluate(parameters)
 	}
+
+Escaping characters
+--
+
+Sometimes you'll have parameters that have spaces, slashes, pluses, ampersnads or some other character
+that this library interprets as something special. For example, the following expression will not
+act as one might expect:
+
+  "response-time < 100"
+
+As written, the library will parse it as "[response] minus [time] is less than 100". In reality,
+"response-time" is meant to be one variable that just happens to have a dash in it.
+
+There are two ways to work around this. First, you can escape the entire parameter name:
+
+  "[response-time] < 100"
+
+Or you can use backslashes to escape only the minus sign.
+
+  "response\\time < 100"
+
+Backslashes can be used anywhere in an expression to escape the very next character.
+Square bracketed parameter names can be used instead of plain parameter names at any time.
+
 
 Why can't you just write these expressions in code?
 --
@@ -112,7 +136,7 @@ I use green masters, and heavily develop with private feature branches. Full rel
 License
 --
 
-This project is licensed under the MIT general use license. You're free to integrate, fork, and play with this code as you feel fit without consulting the author, as long as you provide proper credit to the author in your works. 
+This project is licensed under the MIT general use license. You're free to integrate, fork, and play with this code as you feel fit without consulting the author, as long as you provide proper credit to the author in your works.
 
 
 Activity
