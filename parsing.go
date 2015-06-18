@@ -1,11 +1,11 @@
 package govaluate
 
 import (
-	"fmt"
-	"errors"
-	"time"
 	"bytes"
+	"errors"
+	"fmt"
 	"strconv"
+	"time"
 	"unicode"
 )
 
@@ -18,46 +18,46 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	var err error
 	var found bool
 
-	state = validLexerStates[0];
-	stream = newLexerStream(expression);
+	state = validLexerStates[0]
+	stream = newLexerStream(expression)
 
 	for stream.canRead() {
 
-		token, err, found = readToken(stream, state);
+		token, err, found = readToken(stream, state)
 
-		if(err != nil) {
-			return ret, err	
+		if err != nil {
+			return ret, err
 		}
 
-		if(!found) {
-			break;
+		if !found {
+			break
 		}
 
-		if(!state.canTransitionTo(token.Kind)) {
+		if !state.canTransitionTo(token.Kind) {
 
-			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value);
-			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value);
+			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value)
+			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value)
 
-			return ret, errors.New("Cannot transition token types from " + firstStateName + " to " + nextStateName);
+			return ret, errors.New("Cannot transition token types from " + firstStateName + " to " + nextStateName)
 		}
 
-		// append this valid token, find new lexer state.		
+		// append this valid token, find new lexer state.
 		ret = append(ret, token)
-		
+
 		for _, possibleState := range validLexerStates {
-			
-			if(possibleState.kind == token.Kind) {
-				
+
+			if possibleState.kind == token.Kind {
+
 				state = possibleState
-				break;
+				break
 			}
 		}
 
-		lastToken = token;
+		lastToken = token
 	}
 
-	if(!state.isEOF) {
-		return ret, errors.New("Unexpected end of expression");
+	if !state.isEOF {
+		return ret, errors.New("Unexpected end of expression")
 	}
 
 	return ret, nil
@@ -67,7 +67,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 	var ret ExpressionToken
 	var tokenValue interface{}
-	var tokenTime time.Time;
+	var tokenTime time.Time
 	var tokenString string
 	var kind TokenKind
 	var character rune
@@ -78,171 +78,171 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 	// variable is alphanumeric, always starts with a letter
 	// symbols are anything non-alphanumeric
 	// all others read into a buffer until they reach the end of the stream
-	for(stream.canRead()) {
+	for stream.canRead() {
 
 		character = stream.readCharacter()
 
-		if(unicode.IsSpace(character)) {
+		if unicode.IsSpace(character) {
 			continue
 		}
 
-		kind = UNKNOWN;
+		kind = UNKNOWN
 
 		// numeric constant
-		if(isNumeric(character)) {
+		if isNumeric(character) {
 
-			tokenString = readTokenUntilFalse(stream, isNumeric);
+			tokenString = readTokenUntilFalse(stream, isNumeric)
 			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
-			kind = NUMERIC;
-			break;
+			kind = NUMERIC
+			break
 		}
-		
+
 		// variable
-		if(unicode.IsLetter(character)) {
+		if unicode.IsLetter(character) {
 
-			tokenValue = readTokenUntilFalse(stream, unicode.IsLetter);
-			kind = VARIABLE;
+			tokenValue = readTokenUntilFalse(stream, unicode.IsLetter)
+			kind = VARIABLE
 
-			if(tokenValue == "true") {
+			if tokenValue == "true" {
 
 				kind = BOOLEAN
 				tokenValue = true
 			} else {
 
-				if(tokenValue == "false") {
+				if tokenValue == "false" {
 
-					kind = BOOLEAN	
+					kind = BOOLEAN
 					tokenValue = false
 				}
 			}
-			break;
+			break
 		}
 
-		if(!isNotQuote(character)) {
-			tokenValue = readUntilFalse(stream, true, false, isNotQuote);
-			
+		if !isNotQuote(character) {
+			tokenValue = readUntilFalse(stream, true, false, isNotQuote)
+
 			// advance the stream one position, since reading until false assumes the terminator is a real token
 			stream.rewind(-1)
 
 			// check to see if this can be parsed as a time.
-			tokenTime, found = tryParseTime(tokenValue.(string));
-			if(found) {
-				kind = TIME;
-				tokenValue = tokenTime;
+			tokenTime, found = tryParseTime(tokenValue.(string))
+			if found {
+				kind = TIME
+				tokenValue = tokenTime
 			} else {
-				kind = STRING;
+				kind = STRING
 			}
-			break;
+			break
 		}
 
-		if(character == '(') {
+		if character == '(' {
 			tokenValue = character
 			kind = CLAUSE
-			break;
+			break
 		}
 
-		if(character == ')') {
+		if character == ')' {
 			tokenValue = character
 			kind = CLAUSE_CLOSE
-			break;
+			break
 		}
 
 		// must be a known symbol
-		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric);
+		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric)
 		tokenValue = tokenString
 
 		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
 		// very differently.
-		if(state.canTransitionTo(PREFIX)) {
-			_, found = PREFIX_SYMBOLS[tokenString];
-			if(found) {
+		if state.canTransitionTo(PREFIX) {
+			_, found = PREFIX_SYMBOLS[tokenString]
+			if found {
 
-				kind = PREFIX;
-				break;
+				kind = PREFIX
+				break
 			}
 		}
-		_, found = MODIFIER_SYMBOLS[tokenString];
-		if(found) {
+		_, found = MODIFIER_SYMBOLS[tokenString]
+		if found {
 
-			kind = MODIFIER;
-			break;
+			kind = MODIFIER
+			break
 		}
 
-		_, found = LOGICAL_SYMBOLS[tokenString];
-		if(found) {
+		_, found = LOGICAL_SYMBOLS[tokenString]
+		if found {
 
-			kind = LOGICALOP;
-			break;
+			kind = LOGICALOP
+			break
 		}
 
-		_, found = COMPARATOR_SYMBOLS[tokenString];
-		if(found) {
+		_, found = COMPARATOR_SYMBOLS[tokenString]
+		if found {
 
-			kind = COMPARATOR;
-			break;
+			kind = COMPARATOR
+			break
 		}
 
-		errorMessage := fmt.Sprintf("Invalid token: %v", tokenValue);
-		return ret, errors.New(errorMessage), false;
+		errorMessage := fmt.Sprintf("Invalid token: %v", tokenValue)
+		return ret, errors.New(errorMessage), false
 	}
 
-	ret.Kind = kind;
-	ret.Value = tokenValue;
+	ret.Kind = kind
+	ret.Value = tokenValue
 
-	return ret, nil, (kind != UNKNOWN);
+	return ret, nil, (kind != UNKNOWN)
 }
 
-func readTokenUntilFalse(stream *lexerStream, condition func(rune)(bool)) string {
+func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
 
-	var ret string;
+	var ret string
 
 	stream.rewind(1)
-	ret = readUntilFalse(stream, false, true, condition);
-	return ret;
+	ret = readUntilFalse(stream, false, true, condition)
+	return ret
 }
 
-func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, condition func(rune)(bool)) string {
+func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, condition func(rune) bool) string {
 
 	var tokenBuffer bytes.Buffer
 	var character rune
 
-	for(stream.canRead()) {
+	for stream.canRead() {
 
 		character = stream.readCharacter()
 
-		if(unicode.IsSpace(character)) {
+		if unicode.IsSpace(character) {
 
-			if(breakWhitespace && tokenBuffer.Len() > 0) {
-				break;
+			if breakWhitespace && tokenBuffer.Len() > 0 {
+				break
 			}
-			if(!includeWhitespace) {
-				continue;
+			if !includeWhitespace {
+				continue
 			}
 		}
 
-		if(condition(character)) {
-			tokenBuffer.WriteString(string(character));
+		if condition(character) {
+			tokenBuffer.WriteString(string(character))
 		} else {
 			stream.rewind(1)
-			break;
+			break
 		}
 	}
 
-	return tokenBuffer.String();
+	return tokenBuffer.String()
 }
 
 func isNumeric(character rune) bool {
-	return unicode.IsDigit(character) || character == '.';
+	return unicode.IsDigit(character) || character == '.'
 }
 func isNotQuote(character rune) bool {
-	return character != '\'' && character != '"';
+	return character != '\'' && character != '"'
 }
 func isNotAlphanumeric(character rune) bool {
-	return !(unicode.IsDigit(character) || 
-		unicode.IsLetter(character) || 
-		character == '(' || 
+	return !(unicode.IsDigit(character) ||
+		unicode.IsLetter(character) ||
+		character == '(' ||
 		character == ')' ||
-		!isNotQuote(character));
+		!isNotQuote(character))
 }
 
 /*
@@ -252,46 +252,46 @@ func isNotAlphanumeric(character rune) bool {
 */
 func tryParseTime(candidate string) (time.Time, bool) {
 
-	var ret time.Time;
-	var found bool;
-	
-	timeFormats := [...]string {
+	var ret time.Time
+	var found bool
+
+	timeFormats := [...]string{
 		time.ANSIC,
 		time.UnixDate,
 		time.RubyDate,
 		time.Kitchen,
 		time.RFC3339,
 		time.RFC3339Nano,
-		"2006-01-02",				// RFC 3339
-		"2006-01-02 15:04",	 		// RFC 3339 with minutes
-		"2006-01-02 15:04:05",	 		// RFC 3339 with seconds
-		"2006-01-02 15:04:05-07:00", 		// RFC 3339 with seconds and timezone
-		"2006-01-02T15Z0700",			// ISO8601 with hour
-		"2006-01-02T15:04Z0700",		// ISO8601 with minutes
-		"2006-01-02T15:04:05Z0700",		// ISO8601 with seconds
-		"2006-01-02T15:04:05.999999999Z0700", 	// ISO8601 with nanoseconds
-	};
+		"2006-01-02",                         // RFC 3339
+		"2006-01-02 15:04",                   // RFC 3339 with minutes
+		"2006-01-02 15:04:05",                // RFC 3339 with seconds
+		"2006-01-02 15:04:05-07:00",          // RFC 3339 with seconds and timezone
+		"2006-01-02T15Z0700",                 // ISO8601 with hour
+		"2006-01-02T15:04Z0700",              // ISO8601 with minutes
+		"2006-01-02T15:04:05Z0700",           // ISO8601 with seconds
+		"2006-01-02T15:04:05.999999999Z0700", // ISO8601 with nanoseconds
+	}
 
 	for _, format := range timeFormats {
-		
-		ret, found = tryParseExactTime(candidate, format);
-		if(found) {
-			return ret, true;
+
+		ret, found = tryParseExactTime(candidate, format)
+		if found {
+			return ret, true
 		}
 	}
 
-	return time.Now(), false;
+	return time.Now(), false
 }
 
 func tryParseExactTime(candidate string, format string) (time.Time, bool) {
 
-	var ret time.Time;
-	var err error;
+	var ret time.Time
+	var err error
 
-	ret, err = time.Parse(format, candidate);
-	if(err != nil) {
-		return time.Now(), false;
+	ret, err = time.Parse(format, candidate)
+	if err != nil {
+		return time.Now(), false
 	}
 
-	return ret, true;
+	return ret, true
 }

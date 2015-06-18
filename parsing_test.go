@@ -2,460 +2,459 @@ package govaluate
 
 import (
 	"bytes"
+	"testing"
+	"time"
 	"unicode"
 	"unicode/utf8"
-	"time"
-	"testing"
 )
 
 /*
 	Represents a test of parsing all tokens correctly from a string
 */
 type TokenParsingTest struct {
-
-	Name string
-	Input string
+	Name     string
+	Input    string
 	Expected []ExpressionToken
 }
 
 func TestConstantParsing(test *testing.T) {
 
-	tokenParsingTests := []TokenParsingTest {
+	tokenParsingTests := []TokenParsingTest{
 
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single numeric",
+			Name:  "Single numeric",
 			Input: "1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single two-digit numeric",
+			Name:  "Single two-digit numeric",
 			Input: "50",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 50.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 50.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single string",
+			Name:  "Single string",
 			Input: "'foo'",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: STRING,
-						Value: "foo",
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single time, RFC3339, only date",
+			Name:  "Single time, RFC3339, only date",
 			Input: "'2014-01-02'",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: TIME,
-						Value: time.Date(2014, time.January, 2, 0, 0, 0, 0, time.UTC),
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  TIME,
+					Value: time.Date(2014, time.January, 2, 0, 0, 0, 0, time.UTC),
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single time, RFC3339, with hh:mm",
+			Name:  "Single time, RFC3339, with hh:mm",
 			Input: "'2014-01-02 14:12'",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: TIME,
-						Value: time.Date(2014, time.January, 2, 14, 12, 0, 0, time.UTC),
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  TIME,
+					Value: time.Date(2014, time.January, 2, 14, 12, 0, 0, time.UTC),
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single time, RFC3339, with hh:mm:ss",
+			Name:  "Single time, RFC3339, with hh:mm:ss",
 			Input: "'2014-01-02 14:12:22'",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: TIME,
-						Value: time.Date(2014, time.January, 2, 14, 12, 22, 0, time.UTC),
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  TIME,
+					Value: time.Date(2014, time.January, 2, 14, 12, 22, 0, time.UTC),
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single boolean",
+			Name:  "Single boolean",
 			Input: "true",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single large numeric",
+			Name:  "Single large numeric",
 			Input: "1234567890",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1234567890.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1234567890.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single floating-point",
+			Name:  "Single floating-point",
 			Input: "0.5",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 0.5,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 0.5,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single large floating point",
+			Name:  "Single large floating point",
 			Input: "3.14567471",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 3.14567471,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 3.14567471,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Single false boolean",
+			Name:  "Single false boolean",
 			Input: "false",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: false,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
 			},
 		},
 	}
 
-	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
 func TestLogicalOperatorParsing(test *testing.T) {
 
-	tokenParsingTests := []TokenParsingTest {
+	tokenParsingTests := []TokenParsingTest{
 
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Boolean AND",
+			Name:  "Boolean AND",
 			Input: "true && false",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
-					ExpressionToken {
-						Kind: LOGICALOP,
-						Value: "&&",
-					},
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: false,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "&&",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Boolean OR",
+			Name:  "Boolean OR",
 			Input: "true || false",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
-					ExpressionToken {
-						Kind: LOGICALOP,
-						Value: "||",
-					},
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: false,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "||",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Multiple logical operators",
+			Name:  "Multiple logical operators",
 			Input: "true || false && true",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
-					ExpressionToken {
-						Kind: LOGICALOP,
-						Value: "||",
-					},
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: false,
-					},
-					ExpressionToken {
-						Kind: LOGICALOP,
-						Value: "&&",
-					},
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "||",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "&&",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
 			},
 		},
 	}
 
-	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
 func TestComparatorParsing(test *testing.T) {
 
-	tokenParsingTests := []TokenParsingTest {
+	tokenParsingTests := []TokenParsingTest{
 
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric EQ",
+			Name:  "Numeric EQ",
 			Input: "1 == 2",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: "==",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 2.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric NEQ",
+			Name:  "Numeric NEQ",
 			Input: "1 != 2",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: "!=",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 2.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "!=",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric GT",
+			Name:  "Numeric GT",
 			Input: "1 > 0",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: ">",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 0.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 0.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric LT",
+			Name:  "Numeric LT",
 			Input: "1 < 2",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: "<",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 2.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "<",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric GTE",
+			Name:  "Numeric GTE",
 			Input: "1 >= 2",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: ">=",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 2.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">=",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric LTE",
+			Name:  "Numeric LTE",
 			Input: "1 <= 2",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: COMPARATOR,
-						Value: "<=",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 2.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "<=",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
 			},
 		},
 	}
 
-	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
 func TestModifierParsing(test *testing.T) {
 
-	tokenParsingTests := []TokenParsingTest {
+	tokenParsingTests := []TokenParsingTest{
 
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric PLUS",
+			Name:  "Numeric PLUS",
 			Input: "1 + 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "+",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "+",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric MINUS",
+			Name:  "Numeric MINUS",
 			Input: "1 - 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "-",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "-",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric MULTIPLY",
+			Name:  "Numeric MULTIPLY",
 			Input: "1 * 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "*",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "*",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric DIVIDE",
+			Name:  "Numeric DIVIDE",
 			Input: "1 / 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "/",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "/",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Numeric MODULUS",
+			Name:  "Numeric MODULUS",
 			Input: "1 % 1",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
-					ExpressionToken {
-						Kind: MODIFIER,
-						Value: "%",
-					},
-					ExpressionToken {
-						Kind: NUMERIC,
-						Value: 1.0,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "%",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
 			},
 		},
-	};
+	}
 
-	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests);
+	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
 func TestPrefixParsing(test *testing.T) {
 
-	testCases := []TokenParsingTest {
+	testCases := []TokenParsingTest{
 
 		/*TokenParsingTest {
 
@@ -487,96 +486,96 @@ func TestPrefixParsing(test *testing.T) {
 					},
 			},
 		},*/
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Boolean prefix",
+			Name:  "Boolean prefix",
 			Input: "!true",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: PREFIX,
-						Value: "!",
-					},
-					ExpressionToken {
-						Kind: BOOLEAN,
-						Value: true,
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  PREFIX,
+					Value: "!",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
 			},
 		},
-		TokenParsingTest {
+		TokenParsingTest{
 
-			Name: "Boolean prefix on variable",
+			Name:  "Boolean prefix on variable",
 			Input: "!foo",
-			Expected: []ExpressionToken {
-					ExpressionToken {
-						Kind: PREFIX,
-						Value: "!",
-					},
-					ExpressionToken {
-						Kind: VARIABLE,
-						Value: "foo",
-					},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  PREFIX,
+					Value: "!",
+				},
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "foo",
+				},
 			},
 		},
 	}
 
-	testCases = combineWhitespaceExpressions(testCases);
+	testCases = combineWhitespaceExpressions(testCases)
 	runTokenParsingTest(testCases, test)
 }
 
 func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
 
-	var currentCase, strippedCase TokenParsingTest;
-	var caseLength int;
+	var currentCase, strippedCase TokenParsingTest
+	var caseLength int
 
-	caseLength = len(testCases);
+	caseLength = len(testCases)
 
 	for i := 0; i < caseLength; i++ {
 
-		currentCase = testCases[i];
-		
-		strippedCase = TokenParsingTest {
+		currentCase = testCases[i]
 
-			Name: (currentCase.Name + " (without whitespace)"),
-			Input: stripUnquotedWhitespace(currentCase.Input),
+		strippedCase = TokenParsingTest{
+
+			Name:     (currentCase.Name + " (without whitespace)"),
+			Input:    stripUnquotedWhitespace(currentCase.Input),
 			Expected: currentCase.Expected,
 		}
 
-		testCases = append(testCases, strippedCase, currentCase);
+		testCases = append(testCases, strippedCase, currentCase)
 	}
 
-	return testCases;
+	return testCases
 }
 
 func stripUnquotedWhitespace(expression string) string {
 
-	var expressionBuffer bytes.Buffer;
-	var character rune;
-	var quoted bool;
+	var expressionBuffer bytes.Buffer
+	var character rune
+	var quoted bool
 
 	for i := 0; i < len(expression); i++ {
 
-		character, _ = utf8.DecodeRuneInString(expression[i:]);
+		character, _ = utf8.DecodeRuneInString(expression[i:])
 
-		if(!quoted && unicode.IsSpace(character)) {
-			continue;
+		if !quoted && unicode.IsSpace(character) {
+			continue
 		}
 
-		if(character == '\'') {
-			quoted = !quoted;
+		if character == '\'' {
+			quoted = !quoted
 		}
 
-		expressionBuffer.WriteString(string(character));
+		expressionBuffer.WriteString(string(character))
 	}
 
-	return expressionBuffer.String();
+	return expressionBuffer.String()
 }
 
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
 
 	var expression *EvaluableExpression
-	var actualTokens []ExpressionToken;
+	var actualTokens []ExpressionToken
 	var actualToken ExpressionToken
-	var expectedTokenKindString, actualTokenKindString string;
+	var expectedTokenKindString, actualTokenKindString string
 	var expectedTokenLength, actualTokenLength int
 	var err error
 
@@ -585,20 +584,20 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 		expression, err = NewEvaluableExpression(parsingTest.Input)
 
-		if(err != nil) {
+		if err != nil {
 
 			test.Logf("Test '%s' failed to parse: %s", parsingTest.Name, err)
-			test.Logf("Expression: '%s'", parsingTest.Input);
+			test.Logf("Expression: '%s'", parsingTest.Input)
 			test.Fail()
 			continue
 		}
 
-		actualTokens = expression.Tokens();
+		actualTokens = expression.Tokens()
 
-		expectedTokenLength = len(parsingTest.Expected);
-		actualTokenLength = len(actualTokens);
+		expectedTokenLength = len(parsingTest.Expected)
+		actualTokenLength = len(actualTokens)
 
-		if(actualTokenLength != expectedTokenLength) {
+		if actualTokenLength != expectedTokenLength {
 
 			test.Logf("Test '%s' failed:", parsingTest.Name)
 			test.Logf("Expected %d tokens, actually found %d", expectedTokenLength, actualTokenLength)
@@ -609,10 +608,10 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 		for i, expectedToken := range parsingTest.Expected {
 
 			actualToken = actualTokens[i]
-			if(actualToken.Kind != expectedToken.Kind) {
+			if actualToken.Kind != expectedToken.Kind {
 
-				actualTokenKindString = GetTokenKindString(actualToken.Kind);
-				expectedTokenKindString = GetTokenKindString(expectedToken.Kind);
+				actualTokenKindString = GetTokenKindString(actualToken.Kind)
+				expectedTokenKindString = GetTokenKindString(expectedToken.Kind)
 
 				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token kind '%v' does not match '%v'", expectedTokenKindString, actualTokenKindString)
@@ -620,9 +619,9 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				continue
 			}
 
-			if(actualToken.Value != expectedToken.Value) {
+			if actualToken.Value != expectedToken.Value {
 
-				test.Logf("Test '%s' failed:",  parsingTest.Name)
+				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
 				test.Fail()
 				continue

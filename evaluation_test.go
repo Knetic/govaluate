@@ -8,219 +8,217 @@ import (
 	Represents a test of expression evaluation
 */
 type EvaluationTest struct {
-
-	Name string
-	Input string
+	Name       string
+	Input      string
 	Parameters []EvaluationParameter
-	Expected interface{}
+	Expected   interface{}
 }
 
 type EvaluationParameter struct {
-
-	Name string
+	Name  string
 	Value interface{}
 }
 
 func TestNoParameterEvaluation(test *testing.T) {
 
-	evaluationTests := []EvaluationTest {
+	evaluationTests := []EvaluationTest{
 
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single PLUS",
-			Input: "51 + 49",
+			Name:     "Single PLUS",
+			Input:    "51 + 49",
 			Expected: 100.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single MINUS",
-			Input: "100 - 51",
+			Name:     "Single MINUS",
+			Input:    "100 - 51",
 			Expected: 49.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single MULTIPLY",
-			Input: "5 * 20",
+			Name:     "Single MULTIPLY",
+			Input:    "5 * 20",
 			Expected: 100.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single DIVIDE",
-			Input: "100 / 20",
+			Name:     "Single DIVIDE",
+			Input:    "100 / 20",
 			Expected: 5.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single even MODULUS",
-			Input: "100 % 2",
+			Name:     "Single even MODULUS",
+			Input:    "100 % 2",
 			Expected: 0.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single odd MODULUS",
-			Input: "101 % 2",
+			Name:     "Single odd MODULUS",
+			Input:    "101 % 2",
 			Expected: 1.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Compound PLUS",
-			Input: "20 + 30 + 50",
+			Name:     "Compound PLUS",
+			Input:    "20 + 30 + 50",
 			Expected: 100.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Mutiple operators",
-			Input: "20 * 5 - 49",
+			Name:     "Mutiple operators",
+			Input:    "20 * 5 - 49",
 			Expected: 51.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Paren usage",
-			Input: "100 - (5 * 10)",
+			Name:     "Paren usage",
+			Input:    "100 - (5 * 10)",
 			Expected: 50.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Nested parentheses",
-			Input: "50 + (5 * (15 - 5))",
+			Name:     "Nested parentheses",
+			Input:    "50 + (5 * (15 - 5))",
 			Expected: 100.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Implicit boolean",
-			Input: "2 > 1",
+			Name:     "Implicit boolean",
+			Input:    "2 > 1",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Compound boolean",
-			Input: "5 < 10 && 1 < 5",
+			Name:     "Compound boolean",
+			Input:    "5 < 10 && 1 < 5",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Parenthesis boolean",
-			Input: "10 < 50 && (1 != 2 && 1 > 0)",
+			Name:     "Parenthesis boolean",
+			Input:    "10 < 50 && (1 != 2 && 1 > 0)",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Comparison of string constants",
-			Input: "'foo' == 'foo'",
+			Name:     "Comparison of string constants",
+			Input:    "'foo' == 'foo'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "NEQ comparison of string constants",
-			Input: "'foo' != 'bar'",
+			Name:     "NEQ comparison of string constants",
+			Input:    "'foo' != 'bar'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Multiplicative/additive order",
-			Input: "5 + 10 * 2",
+			Name:     "Multiplicative/additive order",
+			Input:    "5 + 10 * 2",
 			Expected: 25.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Multiple constant multiplications",
-			Input: "10 * 10 * 10",
+			Name:     "Multiple constant multiplications",
+			Input:    "10 * 10 * 10",
 			Expected: 1000.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Multiple adds/multiplications",
-			Input: "10 * 10 * 10 + 1 * 10 * 10",
+			Name:     "Multiple adds/multiplications",
+			Input:    "10 * 10 * 10 + 1 * 10 * 10",
 			Expected: 1100.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Modulus precedence",
-			Input: "1 + 101 % 2 * 5",
+			Name:     "Modulus precedence",
+			Input:    "1 + 101 % 2 * 5",
 			Expected: 2.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Exponent precedence",
-			Input: "1 + 5 ^ 3 % 2 * 5",
+			Name:     "Exponent precedence",
+			Input:    "1 + 5 ^ 3 % 2 * 5",
 			Expected: 6.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Identical date equivalence",
-			Input: "'2014-01-02 14:12:22' == '2014-01-02 14:12:22'",
+			Name:     "Identical date equivalence",
+			Input:    "'2014-01-02 14:12:22' == '2014-01-02 14:12:22'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Positive date GT",
-			Input: "'2014-01-02 14:12:22' > '2014-01-02 12:12:22'",
+			Name:     "Positive date GT",
+			Input:    "'2014-01-02 14:12:22' > '2014-01-02 12:12:22'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Negative date GT",
-			Input: "'2014-01-02 14:12:22' > '2014-01-02 16:12:22'",
+			Name:     "Negative date GT",
+			Input:    "'2014-01-02 14:12:22' > '2014-01-02 16:12:22'",
 			Expected: false,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Positive date GTE",
-			Input: "'2014-01-02 14:12:22' >= '2014-01-02 12:12:22'",
+			Name:     "Positive date GTE",
+			Input:    "'2014-01-02 14:12:22' >= '2014-01-02 12:12:22'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Negative date GTE",
-			Input: "'2014-01-02 14:12:22' >= '2014-01-02 16:12:22'",
+			Name:     "Negative date GTE",
+			Input:    "'2014-01-02 14:12:22' >= '2014-01-02 16:12:22'",
 			Expected: false,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Positive date LT",
-			Input: "'2014-01-02 14:12:22' < '2014-01-02 16:12:22'",
+			Name:     "Positive date LT",
+			Input:    "'2014-01-02 14:12:22' < '2014-01-02 16:12:22'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Negative date LT",
-			Input: "'2014-01-02 14:12:22' < '2014-01-02 11:12:22'",
+			Name:     "Negative date LT",
+			Input:    "'2014-01-02 14:12:22' < '2014-01-02 11:12:22'",
 			Expected: false,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Positive date LTE",
-			Input: "'2014-01-02 09:12:22' <= '2014-01-02 12:12:22'",
+			Name:     "Positive date LTE",
+			Input:    "'2014-01-02 09:12:22' <= '2014-01-02 12:12:22'",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Negative date LTE",
-			Input: "'2014-01-02 14:12:22' <= '2014-01-02 11:12:22'",
+			Name:     "Negative date LTE",
+			Input:    "'2014-01-02 14:12:22' <= '2014-01-02 11:12:22'",
 			Expected: false,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Sign prefix comparison",
-			Input: "-1 < 0",
+			Name:     "Sign prefix comparison",
+			Input:    "-1 < 0",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Boolean sign prefix comparison",
-			Input: "!true == false",
+			Name:     "Boolean sign prefix comparison",
+			Input:    "!true == false",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Inversion of clause",
-			Input: "!(10 < 0)",
+			Name:     "Inversion of clause",
+			Input:    "!(10 < 0)",
 			Expected: true,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Negation after modifier",
-			Input: "10 * -10",
+			Name:     "Negation after modifier",
+			Input:    "10 * -10",
 			Expected: -100.0,
 		},
 	}
@@ -230,93 +228,93 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 func TestParameterizedEvaluation(test *testing.T) {
 
-	evaluationTests := []EvaluationTest {
+	evaluationTests := []EvaluationTest{
 
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single parameter modified by constant",
+			Name:  "Single parameter modified by constant",
 			Input: "foo + 2",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: 2.0,
 				},
 			},
 			Expected: 4.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Single parameter modified by variable",
+			Name:  "Single parameter modified by variable",
 			Input: "foo * bar",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: 5.0,
 				},
-				EvaluationParameter {
-					Name: "bar",
+				EvaluationParameter{
+					Name:  "bar",
 					Value: 2.0,
 				},
 			},
 			Expected: 10.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Multiple multiplications of the same parameter",
+			Name:  "Multiple multiplications of the same parameter",
 			Input: "foo * foo * foo",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: 10.0,
 				},
 			},
 			Expected: 1000.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Multiple additions of the same parameter",
+			Name:  "Multiple additions of the same parameter",
 			Input: "foo + foo + foo",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: 10.0,
 				},
 			},
 			Expected: 30.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Parameter name sensitivity",
+			Name:  "Parameter name sensitivity",
 			Input: "foo + FoO + FOO",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: 8.0,
 				},
-				EvaluationParameter {
-					Name: "FoO",
+				EvaluationParameter{
+					Name:  "FoO",
 					Value: 4.0,
 				},
-				EvaluationParameter {
-					Name: "FOO",
+				EvaluationParameter{
+					Name:  "FOO",
 					Value: 2.0,
 				},
 			},
 			Expected: 14.0,
 		},
-		EvaluationTest {
+		EvaluationTest{
 
-			Name: "Sign prefix comparison against prefixed variable",
+			Name:  "Sign prefix comparison against prefixed variable",
 			Input: "-1 < -foo",
-			Parameters: []EvaluationParameter {
+			Parameters: []EvaluationParameter{
 
-				EvaluationParameter {
-					Name: "foo",
+				EvaluationParameter{
+					Name:  "foo",
 					Value: -8.0,
 				},
 			},
@@ -339,30 +337,30 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 		expression, err = NewEvaluableExpression(evaluationTest.Input)
 
-		if(err != nil) {
+		if err != nil {
 
 			test.Logf("Test '%s' failed to parse: '%s'", evaluationTest.Name, err)
 			test.Fail()
 			continue
 		}
 
-		parameters = make(map[string]interface{}, 8)		
-		
+		parameters = make(map[string]interface{}, 8)
+
 		for _, parameter := range evaluationTest.Parameters {
 			parameters[parameter.Name] = parameter.Value
 		}
 
 		result, err = expression.Evaluate(parameters)
 
-		if(err != nil) {
+		if err != nil {
 
 			test.Logf("Test '%s' failed", evaluationTest.Name)
 			test.Logf("Encountered error: %s", err.Error())
 			test.Fail()
-			continue;
+			continue
 		}
 
-		if(result != evaluationTest.Expected) {
+		if result != evaluationTest.Expected {
 
 			test.Logf("Test '%s' failed", evaluationTest.Name)
 			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
@@ -370,4 +368,3 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 		}
 	}
 }
-
