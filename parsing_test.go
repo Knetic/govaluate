@@ -456,7 +456,7 @@ func TestPrefixParsing(test *testing.T) {
 
 	testCases := []TokenParsingTest{
 
-		/*TokenParsingTest {
+		TokenParsingTest {
 
 			Name: "Sign prefix",
 			Input: "-1",
@@ -485,7 +485,7 @@ func TestPrefixParsing(test *testing.T) {
 						Value: "foo",
 					},
 			},
-		},*/
+		},
 		TokenParsingTest{
 
 			Name:  "Boolean prefix",
@@ -520,6 +520,86 @@ func TestPrefixParsing(test *testing.T) {
 
 	testCases = combineWhitespaceExpressions(testCases)
 	runTokenParsingTest(testCases, test)
+}
+
+func TestEscapedParameters(test *testing.T) {
+
+		testCases := []TokenParsingTest{
+
+			TokenParsingTest {
+
+				Name: "Single escaped parameter",
+				Input: "[foo]",
+				Expected: []ExpressionToken {
+						ExpressionToken {
+							Kind: VARIABLE,
+							Value: "foo",
+						},
+				},
+			},
+			TokenParsingTest {
+
+				Name: "Single escaped parameter with whitespace",
+				Input: "[foo bar]",
+				Expected: []ExpressionToken {
+						ExpressionToken {
+							Kind: VARIABLE,
+							Value: "foo bar",
+						},
+				},
+			},
+			TokenParsingTest {
+
+				Name: "Single escaped parameter with escaped closing bracket",
+				Input: "[foo[bar\\]]",
+				Expected: []ExpressionToken {
+						ExpressionToken {
+							Kind: VARIABLE,
+							Value: "foo[bar]",
+						},
+				},
+			},
+			TokenParsingTest {
+
+				Name: "Escaped parameters and unescaped parameters",
+				Input: "[foo] > bar",
+				Expected: []ExpressionToken {
+						ExpressionToken {
+							Kind: VARIABLE,
+							Value: "foo",
+						},
+						ExpressionToken{
+							Kind:  COMPARATOR,
+							Value: ">",
+						},
+						ExpressionToken{
+							Kind:  VARIABLE,
+							Value: "bar",
+						},
+				},
+			},
+			TokenParsingTest {
+
+				Name: "Unescaped parameter with space",
+				Input: "foo\\ bar > bar",
+				Expected: []ExpressionToken {
+						ExpressionToken {
+							Kind: VARIABLE,
+							Value: "foo bar",
+						},
+						ExpressionToken{
+							Kind:  COMPARATOR,
+							Value: ">",
+						},
+						ExpressionToken{
+							Kind:  VARIABLE,
+							Value: "bar",
+						},
+				},
+			},
+		}
+
+		runTokenParsingTest(testCases, test)
 }
 
 func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
