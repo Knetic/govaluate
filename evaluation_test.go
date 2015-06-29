@@ -332,6 +332,8 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 	var parameters map[string]interface{}
 	var err error
 
+	test.Logf("Running %d evaluation test cases", len(evaluationTests))
+
 	// Run the test cases.
 	for _, evaluationTest := range evaluationTests {
 
