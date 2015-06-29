@@ -143,6 +143,8 @@ func runQueryTests(testCases []QueryTest, test *testing.T) {
 	var actualQuery string
 	var err error
 
+	test.Logf("Running %d SQL translation test cases", len(testCases))
+
 	// Run the test cases.
 	for _, testCase := range testCases {
 
