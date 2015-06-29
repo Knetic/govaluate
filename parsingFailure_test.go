@@ -137,6 +137,8 @@ func runParsingFailureTests(parsingTests []ParsingFailureTest, test *testing.T) 
 
 	var err error
 
+	test.Logf("Running %d parsing test cases", len(parsingTests))
+
 	for _, testCase := range parsingTests {
 
 		_, err = NewEvaluableExpression(testCase.Input)
