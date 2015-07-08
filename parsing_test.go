@@ -142,6 +142,26 @@ func TestConstantParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+			Name: "Single internationalized string",
+			Input: "'ÆŦǽഈᚥஇคٸ'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind: STRING,
+					Value: "ÆŦǽഈᚥஇคٸ",
+				},
+			},
+		},
+		TokenParsingTest{
+			Name: "Single internationalized parameter",
+			Input: "ÆŦǽഈᚥஇคٸ",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind: VARIABLE,
+					Value: "ÆŦǽഈᚥஇคٸ",
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
