@@ -659,8 +659,12 @@ func sanitizeParamters(parameters map[string]interface{}) map[string]interface{}
 func isFixedPoint(value interface{}) bool {
 
 		switch value.(type) {
+		case uint8: return true
+		case uint16: return true
 		case uint32: return true
 		case uint64: return true
+		case int8: return true
+		case int16: return true
 		case int32: return true
 		case int64: return true
 		case int: return true
@@ -670,8 +674,12 @@ func isFixedPoint(value interface{}) bool {
 
 func castFixedPoint(value interface{}) float64 {
 	switch value.(type) {
+	case uint8: return float64(value.(uint8))
+	case uint16: return float64(value.(uint16))
 	case uint32: return float64(value.(uint32))
 	case uint64: return float64(value.(uint64))
+	case int8: return float64(value.(int8))
+	case int16: return float64(value.(int16))
 	case int32: return float64(value.(int32))
 	case int64: return float64(value.(int64))
 	case int: return float64(value.(int))
