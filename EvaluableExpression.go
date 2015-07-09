@@ -664,8 +664,8 @@ func isFixedPoint(value interface{}) bool {
 		case int32: return true
 		case int64: return true
 		case int: return true
-		default: return false
 		}
+		return false
 }
 
 func castFixedPoint(value interface{}) float64 {
