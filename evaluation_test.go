@@ -322,6 +322,19 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Fixed-point parameter",
+			Input: "foo > 1",
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 2,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Modifier after closing clause",
 			Input: "(2 + 2) + 2 == 6",
 			Expected: true,

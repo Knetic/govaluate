@@ -65,9 +65,11 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
 
 	var stream *tokenStream
+	var cleanedParameters map[string]interface{}
 
+	cleanedParameters = sanitizeParamters(parameters)
 	stream = newTokenStream(this.tokens)
-	return evaluateTokens(stream, parameters)
+	return evaluateTokens(stream, cleanedParameters)
 }
 
 func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
@@ -617,6 +619,65 @@ func (this EvaluableExpression) Tokens() []ExpressionToken {
 func (this EvaluableExpression) String() string {
 
 	return this.inputExpression
+}
+
+func sanitizeParamters(parameters map[string]interface{}) map[string]interface{} {
+
+	var ret map[string]interface{}
+	var needsSanitization bool
+
+	// we don't copy anything unless there is something that needs to be sanitized.
+	needsSanitization = false
+
+	for key, value := range parameters {
+
+		if(isFixedPoint(value)) {
+
+			// sanitize.
+			// if we haven't yet made a new map, do so and copy all keys.
+			if(!needsSanitization) {
+
+				ret = make(map[string]interface{}, len(parameters))
+
+				for innerKey, innerValue := range parameters {
+					ret[innerKey] = innerValue
+				}
+
+				needsSanitization = true
+			}
+
+			ret[key] = castFixedPoint(value)
+		}
+	}
+
+	if(needsSanitization) {
+		return ret
+	}
+	return parameters
+}
+
+func isFixedPoint(value interface{}) bool {
+
+		switch value.(type) {
+		case uint32: return true
+		case uint64: return true
+		case int32: return true
+		case int64: return true
+		case int: return true
+		default: return false
+		}
+}
+
+func castFixedPoint(value interface{}) float64 {
+	switch value.(type) {
+	case uint32: return float64(value.(uint32))
+	case uint64: return float64(value.(uint64))
+	case int32: return float64(value.(int32))
+	case int64: return float64(value.(int64))
+	case int: return float64(value.(int))
+	}
+
+	return 0.0
 }
 
 func isString(value interface{}) bool {
