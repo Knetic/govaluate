@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 	"unicode"
-	"unicode/utf8"
 )
 
 /*
@@ -649,12 +648,9 @@ func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTe
 func stripUnquotedWhitespace(expression string) string {
 
 	var expressionBuffer bytes.Buffer
-	var character rune
 	var quoted bool
 
-	for i := 0; i < len(expression); i++ {
-
-		character, _ = utf8.DecodeRuneInString(expression[i:])
+	for _, character := range expression {
 
 		if !quoted && unicode.IsSpace(character) {
 			continue

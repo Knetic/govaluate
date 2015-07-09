@@ -1,11 +1,7 @@
 package govaluate
 
-import (
-	"unicode/utf8"
-)
-
 type lexerStream struct {
-	source   string
+	source   []rune
 	position int
 	length   int
 }
@@ -13,10 +9,15 @@ type lexerStream struct {
 func newLexerStream(source string) *lexerStream {
 
 	var ret *lexerStream
+	var runes []rune
+
+	for _, character := range source {
+		runes = append(runes, character)
+	}
 
 	ret = new(lexerStream)
-	ret.source = source
-	ret.length = len(source)
+	ret.source = runes
+	ret.length = len(runes)
 	return ret
 }
 
@@ -24,7 +25,7 @@ func (this *lexerStream) readCharacter() rune {
 
 	var character rune
 
-	character, _ = utf8.DecodeRuneInString(this.source[this.position:])
+	character = this.source[this.position]
 	this.position += 1
 	return character
 }
