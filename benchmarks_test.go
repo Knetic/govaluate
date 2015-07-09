@@ -1,7 +1,7 @@
 package govaluate
 
 import (
-  "testing"
+	"testing"
 )
 
 /*
@@ -9,9 +9,9 @@ import (
 */
 func BenchmarkSingleParse(bench *testing.B) {
 
-  for i := 0; i < bench.N; i++ {
-    NewEvaluableExpression("1")
-  }
+	for i := 0; i < bench.N; i++ {
+		NewEvaluableExpression("1")
+	}
 }
 
 /*
@@ -20,9 +20,9 @@ func BenchmarkSingleParse(bench *testing.B) {
 */
 func BenchmarkSimpleParse(bench *testing.B) {
 
-  for i := 0; i < bench.N; i++ {
-    NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90")
-  }
+	for i := 0; i < bench.N; i++ {
+		NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90")
+	}
 }
 
 /*
@@ -30,18 +30,18 @@ func BenchmarkSimpleParse(bench *testing.B) {
 */
 func BenchmarkFullParse(bench *testing.B) {
 
-  var expression string
+	var expression string
 
-  // represents all the major syntax possibilities.
-  expression = "2 > 1 &&" +
-               "'something != nothing || " +
-               "'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' &&" +
-               "[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
-               "modifierTest + 1000 / 2 > (80 * 100 % 2)"
+	// represents all the major syntax possibilities.
+	expression = "2 > 1 &&" +
+		"'something != nothing || " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' &&" +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2)"
 
-  for i := 0; i < bench.N; i++ {
-    NewEvaluableExpression(expression)
-  }
+	for i := 0; i < bench.N; i++ {
+		NewEvaluableExpression(expression)
+	}
 }
 
 /*
@@ -49,11 +49,11 @@ func BenchmarkFullParse(bench *testing.B) {
 */
 func BenchmarkEvaluationSingle(bench *testing.B) {
 
-  expression, _ := NewEvaluableExpression("1")
+	expression, _ := NewEvaluableExpression("1")
 
-  for i := 0; i < bench.N; i++ {
-    expression.Evaluate(nil)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(nil)
+	}
 }
 
 /*
@@ -61,11 +61,11 @@ func BenchmarkEvaluationSingle(bench *testing.B) {
 */
 func BenchmarkEvaluationNumericLiteral(bench *testing.B) {
 
-  expression, _ := NewEvaluableExpression("2 > 1")
+	expression, _ := NewEvaluableExpression("2 > 1")
 
-  for i := 0; i < bench.N; i++ {
-    expression.Evaluate(nil)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(nil)
+	}
 }
 
 /*
@@ -73,11 +73,11 @@ func BenchmarkEvaluationNumericLiteral(bench *testing.B) {
 */
 func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 
-  expression, _ := NewEvaluableExpression("2 + 2 == 4")
+	expression, _ := NewEvaluableExpression("2 + 2 == 4")
 
-  for i := 0; i < bench.N; i++ {
-    expression.Evaluate(nil)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(nil)
+	}
 }
 
 /*
@@ -85,15 +85,15 @@ func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 */
 func BenchmarkEvaluationParameters(bench *testing.B) {
 
-  expression, _ := NewEvaluableExpression("requests_made > requests_succeeded")
-  parameters := map[string]interface{} {
-    "requests_made": 99.0,
-    "requests_succeeded": 90.0,
-  }
+	expression, _ := NewEvaluableExpression("requests_made > requests_succeeded")
+	parameters := map[string]interface{}{
+		"requests_made":      99.0,
+		"requests_succeeded": 90.0,
+	}
 
-  for i := 0; i < bench.N; i++ {
-      expression.Evaluate(parameters)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
 }
 
 /*
@@ -101,15 +101,15 @@ func BenchmarkEvaluationParameters(bench *testing.B) {
 */
 func BenchmarkEvaluationParametersModifiers(bench *testing.B) {
 
-  expression, _ := NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90")
-  parameters := map[string]interface{} {
-    "requests_made": 99.0,
-    "requests_succeeded": 90.0,
-  }
+	expression, _ := NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90")
+	parameters := map[string]interface{}{
+		"requests_made":      99.0,
+		"requests_succeeded": 90.0,
+	}
 
-  for i := 0; i < bench.N; i++ {
-      expression.Evaluate(parameters)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
 }
 
 /*
@@ -120,22 +120,22 @@ func BenchmarkEvaluationParametersModifiers(bench *testing.B) {
 */
 func BenchmarkComplexExpression(bench *testing.B) {
 
-  var expressionString string
+	var expressionString string
 
-  expressionString = "2 > 1 &&" +
-               "'something' != 'nothing' || " +
-               "'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
-               "[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
-               "modifierTest + 1000 / 2 > (80 * 100 % 2)"
+	expressionString = "2 > 1 &&" +
+		"'something' != 'nothing' || " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2)"
 
-  expression, _ := NewEvaluableExpression(expressionString)
-  parameters := map[string]interface{} {
-    "escapedVariable name with spaces": 99.0,
-    "unescaped\\-variableName": 90.0,
-    "modifierTest": 5.0,
-  }
+	expression, _ := NewEvaluableExpression(expressionString)
+	parameters := map[string]interface{}{
+		"escapedVariable name with spaces": 99.0,
+		"unescaped\\-variableName":         90.0,
+		"modifierTest":                     5.0,
+	}
 
-  for i := 0; i < bench.N; i++ {
-     expression.Evaluate(parameters)
-  }
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
 }

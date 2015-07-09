@@ -142,21 +142,21 @@ func TestConstantParsing(test *testing.T) {
 			},
 		},
 		TokenParsingTest{
-			Name: "Single internationalized string",
+			Name:  "Single internationalized string",
 			Input: "'ÆŦǽഈᚥஇคٸ'",
 			Expected: []ExpressionToken{
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "ÆŦǽഈᚥஇคٸ",
 				},
 			},
 		},
 		TokenParsingTest{
-			Name: "Single internationalized parameter",
+			Name:  "Single internationalized parameter",
 			Input: "ÆŦǽഈᚥஇคٸ",
 			Expected: []ExpressionToken{
 				ExpressionToken{
-					Kind: VARIABLE,
+					Kind:  VARIABLE,
 					Value: "ÆŦǽഈᚥஇคٸ",
 				},
 			},
