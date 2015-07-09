@@ -59,17 +59,61 @@ func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 }
 
 /*
+  Benchmarks evaluation times of parameters
+*/
+func BenchmarkEvaluationParameters(bench *testing.B) {
+
+  expression, _ := NewEvaluableExpression("requests_made > requests_succeeded")
+  parameters := map[string]interface{} {
+    "requests_made": 99.0,
+    "requests_succeeded": 90.0,
+  }
+
+  for i := 0; i < bench.N; i++ {
+      expression.Evaluate(parameters)
+  }
+}
+
+/*
   Benchmarks evaluation times of parameters + literals with modifiers
 */
 func BenchmarkEvaluationParametersModifiers(bench *testing.B) {
 
   expression, _ := NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90")
   parameters := map[string]interface{} {
-    "requests_made": 99,
-    "requests_succeeded": 90,
+    "requests_made": 99.0,
+    "requests_succeeded": 90.0,
   }
 
   for i := 0; i < bench.N; i++ {
       expression.Evaluate(parameters)
+  }
+}
+
+/*
+  Benchmarks the ludicrously-unlikely worst-case expression,
+  one which uses all features.
+  This is largely a canary benchmark to make sure that any syntax additions don't
+  unnecessarily bloat the evaluation time.
+*/
+func BenchmarkComplexExpression(bench *testing.B) {
+
+  var expressionString string
+
+  expressionString = "2 > 1 &&" +
+               "'something' != 'nothing' || " +
+               "'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
+               "[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
+               "modifierTest + 1000 / 2 > (80 * 100 % 2)"
+
+  expression, _ := NewEvaluableExpression(expressionString)
+  parameters := map[string]interface{} {
+    "escapedVariable name with spaces": 99.0,
+    "unescaped\\-variableName": 90.0,
+    "modifierTest": 5.0,
+  }
+
+  for i := 0; i < bench.N; i++ {
+     expression.Evaluate(parameters)
   }
 }
