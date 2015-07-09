@@ -320,6 +320,18 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Expected: true,
 		},
+		EvaluationTest{
+
+			Name:  "Modifier after closing clause",
+			Input: "(2 + 2) + 2 == 6",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Comparator after closing clause",
+			Input: "(2 + 2) >= 4",
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
