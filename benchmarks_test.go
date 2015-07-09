@@ -5,6 +5,16 @@ import (
 )
 
 /*
+  Serves as a "water test" to give an idea of the general overhead of parsing
+*/
+func BenchmarkSingleParse(bench *testing.B) {
+
+  for i := 0; i < bench.N; i++ {
+    NewEvaluableExpression("1")
+  }
+}
+
+/*
   The most common use case, a single variable, modified slightly, compared to a constant.
   This is the "expected" use case of govaluate.
 */
@@ -31,6 +41,18 @@ func BenchmarkFullParse(bench *testing.B) {
 
   for i := 0; i < bench.N; i++ {
     NewEvaluableExpression(expression)
+  }
+}
+
+/*
+  Benchmarks the bare-minimum evaluation time
+*/
+func BenchmarkEvaluationSingle(bench *testing.B) {
+
+  expression, _ := NewEvaluableExpression("1")
+
+  for i := 0; i < bench.N; i++ {
+    expression.Evaluate(nil)
   }
 }
 
