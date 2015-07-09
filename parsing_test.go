@@ -616,6 +616,25 @@ func TestEscapedParameters(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+
+			Name:  "Parameters with snake_case",
+			Input: "foo_bar > baz_quux",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "foo_bar",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">",
+				},
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "baz_quux",
+				},
+			},
+		},
 	}
 
 	runTokenParsingTest(testCases, test)

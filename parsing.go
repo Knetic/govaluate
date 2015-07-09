@@ -117,7 +117,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 		// regular variable
 		if unicode.IsLetter(character) {
 
-			tokenValue = readTokenUntilFalse(stream, unicode.IsLetter)
+			tokenValue = readTokenUntilFalse(stream, isVariableName)
 			kind = VARIABLE
 
 			if tokenValue == "true" {
@@ -203,7 +203,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			break
 		}
 
-		errorMessage := fmt.Sprintf("Invalid token: %v", tokenValue)
+		errorMessage := fmt.Sprintf("Invalid token: '%s'", tokenString)
 		return ret, errors.New(errorMessage), false
 	}
 
@@ -286,6 +286,13 @@ func isNotAlphanumeric(character rune) bool {
 		character == '(' ||
 		character == ')' ||
 		!isNotQuote(character))
+}
+
+func isVariableName(character rune) bool {
+
+	return unicode.IsLetter(character) ||
+		unicode.IsDigit(character) ||
+		character == '_'
 }
 
 func isNotClosingBracket(character rune) bool {
