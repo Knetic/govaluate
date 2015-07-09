@@ -33,6 +33,8 @@ var validLexerStates = []lexerState{
 		isEOF: true,
 		validNextKinds: []TokenKind{
 
+			COMPARATOR,
+			MODIFIER,
 			PREFIX,
 			NUMERIC,
 			BOOLEAN,
