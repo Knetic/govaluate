@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"time"
+	"reflect"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -66,8 +67,14 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 
 	var stream *tokenStream
 	var cleanedParameters map[string]interface{}
+	var err error
 
-	cleanedParameters = sanitizeParamters(parameters)
+	cleanedParameters, err = sanitizeParamters(parameters)
+
+	if(err != nil) {
+		return nil, err
+	}
+
 	stream = newTokenStream(this.tokens)
 	return evaluateTokens(stream, cleanedParameters)
 }
@@ -621,16 +628,24 @@ func (this EvaluableExpression) String() string {
 	return this.inputExpression
 }
 
-func sanitizeParamters(parameters map[string]interface{}) map[string]interface{} {
+func sanitizeParamters(parameters map[string]interface{}) (map[string]interface{}, error) {
 
 	var ret map[string]interface{}
 	var needsSanitization bool
+	var err error
 
 	// we don't copy anything unless there is something that needs to be sanitized.
 	needsSanitization = false
 
 	for key, value := range parameters {
 
+		// make sure that the parameter is a valid type.
+		err = checkValidType(key, value)
+		if(err != nil) {
+			return nil, err
+		}
+
+		// should be converted to fixed point?
 		if isFixedPoint(value) {
 
 			// sanitize.
@@ -651,9 +666,28 @@ func sanitizeParamters(parameters map[string]interface{}) map[string]interface{}
 	}
 
 	if needsSanitization {
-		return ret
+		return ret, nil
 	}
-	return parameters
+	return parameters, nil
+}
+
+func checkValidType(key string, value interface{}) error {
+
+	switch value.(type) {
+	case complex64:
+		errorMsg := fmt.Sprintf("Parameter '%s' is a complex64 integer, which is not evaluable", key)
+		return errors.New(errorMsg)
+	case complex128:
+		errorMsg := fmt.Sprintf("Parameter '%s' is a complex128 integer, which is not evaluable", key)
+		return errors.New(errorMsg)
+	}
+
+	if reflect.ValueOf(value).Kind() == reflect.Struct {
+		errorMsg := fmt.Sprintf("Parameter '%s' is a struct, which is not evaluable", key)
+		return errors.New(errorMsg)
+	}
+
+	return nil
 }
 
 func isFixedPoint(value interface{}) bool {
