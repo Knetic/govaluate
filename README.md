@@ -7,6 +7,13 @@ govaluate
 
 Provides support for evaluating arbitrary artithmetic/string expressions.
 
+Why can't you just write these expressions in code?
+--
+
+Sometimes, you can't know ahead-of-time what an expression will look like, or you want those expressions to be configurable. Maybe you've written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon. Or perhaps you've got a set of data running through your application, and you want to allow your DBA's to run some validations on it before committing it to a database, but neither of you can predict what those validations will be.
+
+A lot of people (myself included, for a long time) wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking their monitor logic into the actual monitor executable. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
+
 How do I use it?
 --
 
@@ -99,13 +106,6 @@ Or you can use backslashes to escape only the minus sign.
 Backslashes can be used anywhere in an expression to escape the very next character.
 Square bracketed parameter names can be used instead of plain parameter names at any time.
 
-
-Why can't you just write these expressions in code?
---
-
-Sometimes, you can't know ahead-of-time what an expression looks like. Maybe you've written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon. Or perhaps you've got a set of data running through your application, and you want to allow your DBA's to run some validations on it before committing it to a database, but neither of you can predict what those validations will be.
-
-A lot of people (myself included, for a long time) wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking their monitor logic into the actual monitor executable. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
 
 What operators and types does this support?
 --
