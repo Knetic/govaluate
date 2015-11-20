@@ -50,7 +50,7 @@ Or maybe you want to check the status of an alive check ("smoketest") page, whic
 
 These examples have all returned boolean values, but it's equally possible to return numeric ones.
 
-	expression, err := govaluate.NewEvaluableExpression((mem_used / total_mem) * 100);
+	expression, err := govaluate.NewEvaluableExpression("(mem_used / total_mem) * 100");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["total_mem"] = 1024;
