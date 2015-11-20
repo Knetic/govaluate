@@ -128,6 +128,28 @@ Parenthesis to control order of evaluation
 
 Prefixes: ! -
 
+Benchmarks
+--
+
+If you're concerned about the overhead of this library, a good range of benchmarks are built into this repo. You can run them with `go test -bench=.`. The library is built with an eye towards being quick, but has not been aggressively profiled and optimized. For most applications, though, it is completely fine. 
+
+For a very rough idea of performance, here are the results output from a benchmark run on my 3rd-gen Macbook Pro (Linux Mint 17.1).
+
+```
+/govaluate $ go test -bench=.
+PASS
+BenchmarkSingleParse	 2000000	       807 ns/op
+BenchmarkSimpleParse	  200000	      9230 ns/op
+BenchmarkFullParse	  200000	     12974 ns/op
+BenchmarkEvaluationSingle	10000000	       214 ns/op
+BenchmarkEvaluationNumericLiteral	 5000000	       573 ns/op
+BenchmarkEvaluationLiteralModifiers	 5000000	       727 ns/op
+BenchmarkEvaluationParameters	 2000000	       804 ns/op
+BenchmarkEvaluationParametersModifiers	 1000000	      1346 ns/op
+BenchmarkComplexExpression	 1000000	      2822 ns/op
+ok
+```
+
 Branching
 --
 
