@@ -90,7 +90,7 @@ func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (int
 func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
 	var token ExpressionToken
-	var value interface{}
+	var value, newValue interface{}
 	var symbol OperatorSymbol
 	var err error
 	var keyFound bool
@@ -117,21 +117,27 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 		switch symbol {
 
 		case OR:
-			if value != nil {
-				return evaluateLogical(stream, parameters)
+			if value == nil {
+				return evaluateComparator(stream, parameters)
 			} else {
-				value, err = evaluateComparator(stream, parameters)
+				newValue, err = evaluateLogical(stream, parameters)
 			}
 		case AND:
 			if value == nil {
 				return evaluateLogical(stream, parameters)
 			} else {
-				value, err = evaluateComparator(stream, parameters)
+				newValue, err = evaluateComparator(stream, parameters)
 			}
 		}
 
 		if err != nil {
 			return nil, err
+		}
+
+		if(symbol == OR) {
+			return value.(bool) || newValue.(bool), nil
+		} else {
+			return value.(bool) && newValue.(bool), nil
 		}
 	}
 

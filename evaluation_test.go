@@ -372,7 +372,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		EvaluationTest{
 
 			Name:	  "Two-boolean logical operation (for issue #8)",
-			Input:	  "foo == true || bar == true",
+			Input:	  "(foo == true) || (bar == true)",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name: "foo",
