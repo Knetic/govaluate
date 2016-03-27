@@ -43,6 +43,7 @@ var validLexerStates = []lexerState{
 			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
+			LOGICALOP,
 		},
 	},
 

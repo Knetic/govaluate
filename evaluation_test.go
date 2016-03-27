@@ -85,6 +85,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:	  "Logical OR operation of two clauses",
+			Input:	  "(1 == 1) || (true == true)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:	  "Logical AND operation of two clauses",
+			Input:	  "(1 == 1) && (true == true)",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Implicit boolean",
 			Input:    "2 > 1",
 			Expected: true,
@@ -94,6 +106,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Compound boolean",
 			Input:    "5 < 10 && 1 < 5",
 			Expected: true,
+		},
+		EvaluationTest{
+
+			Name: "Evaluated true && false operation (for issue #8)",
+			Input: "1 > 10 && 11 > 10",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name: "Evaluated true && false operation (for issue #8)",
+			Input: "true == true && false == true",
+			Expected: false,
 		},
 		EvaluationTest{
 
@@ -364,7 +388,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		EvaluationTest{
 
 			Name: "Two-variable integer logical operation (for issue #8)",
-			Input: "foo > 10  && bar > 10",
+			Input: "foo > 10 && bar > 10",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name: "foo",
