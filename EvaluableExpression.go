@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"time"
 	"reflect"
+	"time"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -71,7 +71,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 
 	cleanedParameters, err = sanitizeParamters(parameters)
 
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -134,7 +134,7 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 			return nil, err
 		}
 
-		if(symbol == OR) {
+		if symbol == OR {
 			return value.(bool) || newValue.(bool), nil
 		} else {
 			return value.(bool) && newValue.(bool), nil
@@ -647,7 +647,7 @@ func sanitizeParamters(parameters map[string]interface{}) (map[string]interface{
 
 		// make sure that the parameter is a valid type.
 		err = checkValidType(key, value)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 
