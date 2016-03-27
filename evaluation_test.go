@@ -345,6 +345,38 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Input:    "(2 + 2) >= 4",
 			Expected: true,
 		},
+		EvaluationTest{
+
+			Name:	  "Two-boolean logical operation (for issue #8)",
+			Input:	  "foo == true || bar == true",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name: "foo",
+					Value: true,
+				},
+				EvaluationParameter{
+					Name: "bar",
+					Value: false,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name: "Two-variable integer logical operation (for issue #8)",
+			Input: "foo > 10  && bar > 10",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name: "foo",
+					Value: 1,
+				},
+				EvaluationParameter{
+					Name: "bar",
+					Value: 11,
+				},
+			},
+			Expected: false,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
