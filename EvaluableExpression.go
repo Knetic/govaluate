@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"regexp"
 	"time"
 )
 
@@ -195,6 +196,9 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 			return (value == rightValue), nil
 		case NEQ:
 			return (value != rightValue), nil
+		case REGEX:
+			return regexp.MatchString(rightValue.(string), value.(string))
+
 		}
 	}
 
@@ -449,7 +453,7 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 
 	case NUMERIC:
 		fallthrough
-	case STRING:
+	case STRING, PATTERN:
 		fallthrough
 	case BOOLEAN:
 		return token.Value, nil

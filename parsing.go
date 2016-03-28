@@ -115,6 +115,23 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			break
 		}
 
+		// regex pattern
+		if character == '/' {
+			if state.kind == COMPARATOR {
+
+				tokenValue, completed = readUntilFalseNoEscape(stream, true, false, isNotClosingSlash)
+				kind = PATTERN
+
+				if !completed {
+					return ExpressionToken{}, errors.New("Unclosed parameter /"), false
+				}
+
+				// above method normally rewinds us to the closing bracket, which we want to skip.
+				stream.rewind(-1)
+				break
+			}
+		}
+
 		// regular variable
 		if unicode.IsLetter(character) {
 
@@ -202,7 +219,6 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 		_, found = COMPARATOR_SYMBOLS[tokenString]
 		if found {
-
 			kind = COMPARATOR
 			break
 		}
@@ -273,6 +289,49 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 	return tokenBuffer.String(), conditioned
 }
 
+func readUntilFalseNoEscape(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, condition func(rune) bool) (string, bool) {
+
+	var tokenBuffer bytes.Buffer
+	var character rune
+	var conditioned bool
+
+	conditioned = false
+
+	for stream.canRead() {
+
+		character = stream.readCharacter()
+
+		// Use backslashes to escape anything
+		// if character == '\\' {
+
+		// 	character = stream.readCharacter()
+		// 	tokenBuffer.WriteString(string(character))
+		// 	continue
+		// }
+
+		if unicode.IsSpace(character) {
+
+			if breakWhitespace && tokenBuffer.Len() > 0 {
+				conditioned = true
+				break
+			}
+			if !includeWhitespace {
+				continue
+			}
+		}
+
+		if condition(character) {
+			tokenBuffer.WriteString(string(character))
+		} else {
+			conditioned = true
+			stream.rewind(1)
+			break
+		}
+	}
+
+	return tokenBuffer.String(), conditioned
+}
+
 func isLogicalOp(txt string) bool {
 	txt = strings.ToUpper(txt)
 	if _, ok := LOGICAL_SYMBOLS[txt]; ok {
@@ -318,6 +377,11 @@ func isVariableName(character rune) bool {
 func isNotClosingBracket(character rune) bool {
 
 	return character != ']'
+}
+
+func isNotClosingSlash(character rune) bool {
+
+	return character != '/'
 }
 
 /*

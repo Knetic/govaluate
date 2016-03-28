@@ -334,6 +334,11 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    "true xor true",
 			Expected: false,
 		},
+		EvaluationTest{
+			Name:     `"500" =~ /5\d\d/`,
+			Input:    `"500" =~ /5\d\d/`,
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)

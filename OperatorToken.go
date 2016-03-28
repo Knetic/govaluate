@@ -13,6 +13,7 @@ const (
 	LT
 	GTE
 	LTE
+	REGEX
 
 	AND
 	OR
@@ -43,6 +44,7 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	">=": GTE,
 	"<":  LT,
 	"<=": LTE,
+	"=~": REGEX,
 }
 
 /*
