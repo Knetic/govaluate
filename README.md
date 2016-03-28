@@ -114,7 +114,7 @@ Modifiers: + - / * ^ %
 
 Comparators: > >= < <= == !=
 
-Logical ops: || &&
+Logical ops: || && `AND` `OR` `XOR` `NAND`
 
 Numeric constants, as 64-bit floating point (12345.678)
 
