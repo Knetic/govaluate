@@ -112,7 +112,7 @@ What operators and types does this support?
 
 Modifiers: + - / * ^ %
 
-Comparators: > >= < <= == !=
+Comparators: > >= < <= == != =~ !~ `in` `not in`
 
 Logical ops: || && `AND` `OR` `XOR` `NAND`
 
