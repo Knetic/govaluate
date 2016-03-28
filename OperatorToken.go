@@ -15,6 +15,7 @@ const (
 	LTE
 	REGEX
 	REGEXNOT
+	IN
 
 	AND
 	OR
@@ -47,6 +48,7 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	"<=": LTE,
 	"=~": REGEX,
 	"!~": REGEXNOT,
+	"IN": IN,
 }
 
 /*

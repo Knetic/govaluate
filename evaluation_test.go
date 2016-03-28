@@ -344,6 +344,16 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    `"500" !~ /4\d\d/`,
 			Expected: true,
 		},
+		EvaluationTest{
+			Name:     `string in a array of strings`,
+			Input:    `"foo" in ["boo", "bar", "foo", "zob"]`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `number in a array of numbers`,
+			Input:    `6 in [4,5,6]`,
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -499,6 +509,30 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: false,
+		},
+		EvaluationTest{
+			Name:  `string in a param array of strings`,
+			Input: `"foo" in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []string{"boo", "bar", "foo", "zob"},
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:  `number in a param array of numbers`,
+			Input: `4 in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []float64{4, 5, 6},
+				},
+			},
+			Expected: true,
 		},
 	}
 

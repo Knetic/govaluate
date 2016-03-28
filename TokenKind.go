@@ -15,6 +15,7 @@ const (
 	TIME
 	VARIABLE
 	PATTERN
+	ARRAY
 
 	COMPARATOR
 	LOGICALOP
@@ -46,6 +47,8 @@ func GetTokenKindString(kind TokenKind) string {
 		return "VARIABLE"
 	case PATTERN:
 		return "PATTERN"
+	case ARRAY:
+		return "ARRAY"
 	case COMPARATOR:
 		return "COMPARATOR"
 	case LOGICALOP:

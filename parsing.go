@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -108,6 +109,13 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 			if !completed {
 				return ExpressionToken{}, errors.New("Unclosed parameter bracket"), false
+			}
+
+			mapVal := []interface{}{}
+			err := json.Unmarshal([]byte(`[`+tokenValue.(string)+`]`), &mapVal)
+			if err == nil {
+				kind = ARRAY
+				tokenValue = mapVal
 			}
 
 			// above method normally rewinds us to the closing bracket, which we want to skip.

@@ -83,7 +83,18 @@ var validLexerStates = []lexerState{
 			CLAUSE_CLOSE,
 		},
 	},
+	lexerState{
 
+		kind:  ARRAY,
+		isEOF: true,
+		validNextKinds: []TokenKind{
+
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+			CLAUSE_CLOSE,
+		},
+	},
 	lexerState{
 
 		kind:  STRING,
@@ -148,6 +159,7 @@ var validLexerStates = []lexerState{
 			CLAUSE,
 			CLAUSE_CLOSE,
 			PATTERN,
+			ARRAY,
 		},
 	},
 	lexerState{

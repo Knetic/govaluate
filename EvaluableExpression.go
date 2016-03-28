@@ -201,6 +201,25 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		case REGEXNOT:
 			result, err := regexp.MatchString(rightValue.(string), value.(string))
 			return !result, err
+		case IN:
+			found := false
+
+			switch rightValue.(type) {
+			case []string:
+				for _, e := range rightValue.([]string) {
+					if value == e {
+						found = true
+					}
+				}
+			case []float64:
+				for _, e := range rightValue.([]float64) {
+					if value == e {
+						found = true
+					}
+				}
+			}
+
+			return found, nil
 		}
 	}
 
@@ -452,6 +471,26 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 		}
 
 		return value, nil
+	case ARRAY:
+		if len(token.Value.([]interface{})) == 0 {
+			return nil, fmt.Errorf("Empty Slice not castable")
+		}
+		switch t := token.Value.([]interface{})[0].(type) {
+		case string:
+			values := []string{}
+			for _, v := range token.Value.([]interface{}) {
+				values = append(values, v.(string))
+			}
+			return values, nil
+		case float64:
+			values := []float64{}
+			for _, v := range token.Value.([]interface{}) {
+				values = append(values, v.(float64))
+			}
+			return values, nil
+		default:
+			return nil, fmt.Errorf("Slice of unknow type %s %T", t, t)
+		}
 
 	case NUMERIC:
 		fallthrough
