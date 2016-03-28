@@ -201,6 +201,25 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		case REGEXNOT:
 			result, err := regexp.MatchString(rightValue.(string), value.(string))
 			return !result, err
+		case NOTIN:
+			found := false
+
+			switch rightValue.(type) {
+			case []string:
+				for _, e := range rightValue.([]string) {
+					if value == e {
+						found = true
+					}
+				}
+			case []float64:
+				for _, e := range rightValue.([]float64) {
+					if value == e {
+						found = true
+					}
+				}
+			}
+
+			return !found, nil
 		case IN:
 			found := false
 

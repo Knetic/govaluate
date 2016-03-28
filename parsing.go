@@ -160,6 +160,14 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			} else if true == isComparator(tokenValue.(string)) {
 				tokenValue = strings.ToUpper(tokenValue.(string))
 				kind = COMPARATOR
+			} else if strings.ToUpper(tokenValue.(string)) == "NOT" {
+				isin := readTokenUntilFalse(stream, isVariableName)
+				if isin == "in" {
+					kind = COMPARATOR
+					tokenValue = "NOT IN"
+				} else {
+					stream.rewind(-1)
+				}
 			}
 			break
 		}

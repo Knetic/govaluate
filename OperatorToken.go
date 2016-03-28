@@ -16,6 +16,7 @@ const (
 	REGEX
 	REGEXNOT
 	IN
+	NOTIN
 
 	AND
 	OR
@@ -40,15 +41,16 @@ const (
 */
 var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 
-	"==": EQ,
-	"!=": NEQ,
-	">":  GT,
-	">=": GTE,
-	"<":  LT,
-	"<=": LTE,
-	"=~": REGEX,
-	"!~": REGEXNOT,
-	"IN": IN,
+	"==":     EQ,
+	"!=":     NEQ,
+	">":      GT,
+	">=":     GTE,
+	"<":      LT,
+	"<=":     LTE,
+	"=~":     REGEX,
+	"!~":     REGEXNOT,
+	"IN":     IN,
+	"NOT IN": NOTIN,
 }
 
 /*

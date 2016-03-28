@@ -354,6 +354,16 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    `6 in [4,5,6]`,
 			Expected: true,
 		},
+		EvaluationTest{
+			Name:     `string not in a array of strings`,
+			Input:    `"oof" not in ["boo", "bar", "foo", "zob"]`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `number not in a array of numbers`,
+			Input:    `7 not in [4,5,6]`,
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -525,6 +535,31 @@ func TestParameterizedEvaluation(test *testing.T) {
 		EvaluationTest{
 			Name:  `number in a param array of numbers`,
 			Input: `4 in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []float64{4, 5, 6},
+				},
+			},
+			Expected: true,
+		},
+
+		EvaluationTest{
+			Name:  `string not in a param array of strings`,
+			Input: `"oof" not in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []string{"boo", "bar", "foo", "zob"},
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:  `number not in a param array of numbers`,
+			Input: `7 NOT in [bar]`,
 			Parameters: []EvaluationParameter{
 
 				EvaluationParameter{
