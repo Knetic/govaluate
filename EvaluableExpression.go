@@ -116,13 +116,13 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 
 		switch symbol {
 
-		case OR:
+		case OR, XOR:
 			if value == nil {
 				return evaluateComparator(stream, parameters)
 			} else {
 				newValue, err = evaluateLogical(stream, parameters)
 			}
-		case AND:
+		case AND, NAND:
 			if value == nil {
 				return evaluateLogical(stream, parameters)
 			} else {
@@ -136,8 +136,12 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 
 		if symbol == OR {
 			return value.(bool) || newValue.(bool), nil
-		} else {
+		} else if symbol == AND {
 			return value.(bool) && newValue.(bool), nil
+		} else if symbol == XOR {
+			return value.(bool) != newValue.(bool), nil
+		} else if symbol == NAND {
+			return !(value.(bool) && newValue.(bool)), nil
 		}
 	}
 

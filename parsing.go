@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 )
@@ -124,13 +125,16 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 				kind = BOOLEAN
 				tokenValue = true
-			} else {
+			} else if tokenValue == "false" {
 
-				if tokenValue == "false" {
-
-					kind = BOOLEAN
-					tokenValue = false
-				}
+				kind = BOOLEAN
+				tokenValue = false
+			} else if true == isLogicalOp(tokenValue.(string)) {
+				tokenValue = strings.ToUpper(tokenValue.(string))
+				kind = LOGICALOP
+			} else if true == isComparator(tokenValue.(string)) {
+				tokenValue = strings.ToUpper(tokenValue.(string))
+				kind = COMPARATOR
 			}
 			break
 		}
@@ -267,6 +271,22 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 	}
 
 	return tokenBuffer.String(), conditioned
+}
+
+func isLogicalOp(txt string) bool {
+	txt = strings.ToUpper(txt)
+	if _, ok := LOGICAL_SYMBOLS[txt]; ok {
+		return true
+	}
+	return false
+}
+
+func isComparator(txt string) bool {
+	txt = strings.ToUpper(txt)
+	if _, ok := COMPARATOR_SYMBOLS[txt]; ok {
+		return true
+	}
+	return false
 }
 
 func isNumeric(character rune) bool {

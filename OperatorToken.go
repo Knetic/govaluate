@@ -16,6 +16,8 @@ const (
 
 	AND
 	OR
+	NAND
+	XOR
 
 	PLUS
 	MINUS
@@ -50,8 +52,12 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 */
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
 
-	"&&": AND,
-	"||": OR,
+	"&&":   AND,
+	"||":   OR,
+	"AND":  AND,
+	"OR":   OR,
+	"NAND": NAND,
+	"XOR":  XOR,
 }
 
 /*
