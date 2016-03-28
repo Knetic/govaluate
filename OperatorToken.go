@@ -13,9 +13,15 @@ const (
 	LT
 	GTE
 	LTE
+	REGEX
+	REGEXNOT
+	IN
+	NOTIN
 
 	AND
 	OR
+	NAND
+	XOR
 
 	PLUS
 	MINUS
@@ -35,12 +41,16 @@ const (
 */
 var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 
-	"==": EQ,
-	"!=": NEQ,
-	">":  GT,
-	">=": GTE,
-	"<":  LT,
-	"<=": LTE,
+	"==":     EQ,
+	"!=":     NEQ,
+	">":      GT,
+	">=":     GTE,
+	"<":      LT,
+	"<=":     LTE,
+	"=~":     REGEX,
+	"!~":     REGEXNOT,
+	"IN":     IN,
+	"NOT IN": NOTIN,
 }
 
 /*
@@ -50,8 +60,12 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 */
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
 
-	"&&": AND,
-	"||": OR,
+	"&&":   AND,
+	"||":   OR,
+	"AND":  AND,
+	"OR":   OR,
+	"NAND": NAND,
+	"XOR":  XOR,
 }
 
 /*

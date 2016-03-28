@@ -245,6 +245,125 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    "10 * -10",
 			Expected: -100.0,
 		},
+		EvaluationTest{
+
+			Name:     "Evaluated false NAND false operation",
+			Input:    "false NAND false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Evaluated false nand true operation",
+			Input:    "false NAND true",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Evaluated true nand false operation",
+			Input:    "true NAND false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Evaluated true NAND true operation",
+			Input:    "true NAND true",
+			Expected: false,
+		},
+
+		EvaluationTest{
+			Name:     "basic logical test true or false",
+			Input:    "true OR false",
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     "basic logical test false or true",
+			Input:    "false OR true",
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     "basic logical test false or false",
+			Input:    "false OR false",
+			Expected: false,
+		},
+
+		EvaluationTest{
+			Name:     "basic logical test false and false",
+			Input:    "false AND false",
+			Expected: false,
+		},
+		EvaluationTest{
+			Name:     "basic logical test true and true",
+			Input:    "true AND true",
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     "basic logical test true and false",
+			Input:    "true AND false",
+			Expected: false,
+		},
+		EvaluationTest{
+			Name:     "basic logical test false and true",
+			Input:    "false AND true",
+			Expected: false,
+		},
+
+		EvaluationTest{
+			Name:     "basic logical test false and true 2",
+			Input:    "(false AND true) OR true",
+			Expected: true,
+		},
+
+		EvaluationTest{
+			Name:     "false XOR false",
+			Input:    "false XOR false",
+			Expected: false,
+		},
+
+		EvaluationTest{
+			Name:     "false xor true",
+			Input:    "false xor true",
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     "true XOR false",
+			Input:    "true XOR false",
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     "true xor true",
+			Input:    "true xor true",
+			Expected: false,
+		},
+		EvaluationTest{
+			Name:     `"500" =~ /5\d\d/`,
+			Input:    `"500" =~ /5\d\d/`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `"500" !~ /5\d\d/`,
+			Input:    `"500" !~ /4\d\d/`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `string in a array of strings`,
+			Input:    `"foo" in ["boo", "bar", "foo", "zob"]`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `number in a array of numbers`,
+			Input:    `6 in [4,5,6]`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `string not in a array of strings`,
+			Input:    `"oof" not in ["boo", "bar", "foo", "zob"]`,
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:     `number not in a array of numbers`,
+			Input:    `7 not in [4,5,6]`,
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -400,6 +519,55 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: false,
+		},
+		EvaluationTest{
+			Name:  `string in a param array of strings`,
+			Input: `"foo" in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []string{"boo", "bar", "foo", "zob"},
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:  `number in a param array of numbers`,
+			Input: `4 in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []float64{4, 5, 6},
+				},
+			},
+			Expected: true,
+		},
+
+		EvaluationTest{
+			Name:  `string not in a param array of strings`,
+			Input: `"oof" not in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []string{"boo", "bar", "foo", "zob"},
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+			Name:  `number not in a param array of numbers`,
+			Input: `7 NOT in [bar]`,
+			Parameters: []EvaluationParameter{
+
+				EvaluationParameter{
+					Name:  "bar",
+					Value: []float64{4, 5, 6},
+				},
+			},
+			Expected: true,
 		},
 	}
 

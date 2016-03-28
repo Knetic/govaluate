@@ -73,6 +73,30 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
+		kind:  PATTERN,
+		isEOF: true,
+		validNextKinds: []TokenKind{
+
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+			CLAUSE_CLOSE,
+		},
+	},
+	lexerState{
+
+		kind:  ARRAY,
+		isEOF: true,
+		validNextKinds: []TokenKind{
+
+			MODIFIER,
+			COMPARATOR,
+			LOGICALOP,
+			CLAUSE_CLOSE,
+		},
+	},
+	lexerState{
+
 		kind:  STRING,
 		isEOF: true,
 		validNextKinds: []TokenKind{
@@ -134,6 +158,8 @@ var validLexerStates = []lexerState{
 			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
+			PATTERN,
+			ARRAY,
 		},
 	},
 	lexerState{

@@ -2,9 +2,11 @@ package govaluate
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 )
@@ -109,9 +111,33 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 				return ExpressionToken{}, errors.New("Unclosed parameter bracket"), false
 			}
 
+			mapVal := []interface{}{}
+			err := json.Unmarshal([]byte(`[`+tokenValue.(string)+`]`), &mapVal)
+			if err == nil {
+				kind = ARRAY
+				tokenValue = mapVal
+			}
+
 			// above method normally rewinds us to the closing bracket, which we want to skip.
 			stream.rewind(-1)
 			break
+		}
+
+		// regex pattern
+		if character == '/' {
+			if state.kind == COMPARATOR {
+
+				tokenValue, completed = readUntilFalseNoEscape(stream, true, false, isNotClosingSlash)
+				kind = PATTERN
+
+				if !completed {
+					return ExpressionToken{}, errors.New("Unclosed parameter /"), false
+				}
+
+				// above method normally rewinds us to the closing bracket, which we want to skip.
+				stream.rewind(-1)
+				break
+			}
 		}
 
 		// regular variable
@@ -124,12 +150,23 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 				kind = BOOLEAN
 				tokenValue = true
-			} else {
+			} else if tokenValue == "false" {
 
-				if tokenValue == "false" {
-
-					kind = BOOLEAN
-					tokenValue = false
+				kind = BOOLEAN
+				tokenValue = false
+			} else if true == isLogicalOp(tokenValue.(string)) {
+				tokenValue = strings.ToUpper(tokenValue.(string))
+				kind = LOGICALOP
+			} else if true == isComparator(tokenValue.(string)) {
+				tokenValue = strings.ToUpper(tokenValue.(string))
+				kind = COMPARATOR
+			} else if strings.ToUpper(tokenValue.(string)) == "NOT" {
+				isin := readTokenUntilFalse(stream, isVariableName)
+				if isin == "in" {
+					kind = COMPARATOR
+					tokenValue = "NOT IN"
+				} else {
+					stream.rewind(-1)
 				}
 			}
 			break
@@ -198,7 +235,6 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 
 		_, found = COMPARATOR_SYMBOLS[tokenString]
 		if found {
-
 			kind = COMPARATOR
 			break
 		}
@@ -269,6 +305,65 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 	return tokenBuffer.String(), conditioned
 }
 
+func readUntilFalseNoEscape(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, condition func(rune) bool) (string, bool) {
+
+	var tokenBuffer bytes.Buffer
+	var character rune
+	var conditioned bool
+
+	conditioned = false
+
+	for stream.canRead() {
+
+		character = stream.readCharacter()
+
+		// Use backslashes to escape anything
+		// if character == '\\' {
+
+		// 	character = stream.readCharacter()
+		// 	tokenBuffer.WriteString(string(character))
+		// 	continue
+		// }
+
+		if unicode.IsSpace(character) {
+
+			if breakWhitespace && tokenBuffer.Len() > 0 {
+				conditioned = true
+				break
+			}
+			if !includeWhitespace {
+				continue
+			}
+		}
+
+		if condition(character) {
+			tokenBuffer.WriteString(string(character))
+		} else {
+			conditioned = true
+			stream.rewind(1)
+			break
+		}
+	}
+
+	return tokenBuffer.String(), conditioned
+}
+
+func isLogicalOp(txt string) bool {
+	txt = strings.ToUpper(txt)
+	if _, ok := LOGICAL_SYMBOLS[txt]; ok {
+		return true
+	}
+	return false
+}
+
+func isComparator(txt string) bool {
+	txt = strings.ToUpper(txt)
+	if _, ok := COMPARATOR_SYMBOLS[txt]; ok {
+		return true
+	}
+	return false
+}
+
 func isNumeric(character rune) bool {
 
 	return unicode.IsDigit(character) || character == '.'
@@ -298,6 +393,11 @@ func isVariableName(character rune) bool {
 func isNotClosingBracket(character rune) bool {
 
 	return character != ']'
+}
+
+func isNotClosingSlash(character rune) bool {
+
+	return character != '/'
 }
 
 /*
