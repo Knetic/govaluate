@@ -198,7 +198,9 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 			return (value != rightValue), nil
 		case REGEX:
 			return regexp.MatchString(rightValue.(string), value.(string))
-
+		case REGEXNOT:
+			result, err := regexp.MatchString(rightValue.(string), value.(string))
+			return !result, err
 		}
 	}
 
