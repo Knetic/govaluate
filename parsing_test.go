@@ -618,6 +618,25 @@ func TestEscapedParameters(test *testing.T) {
 		},
 		TokenParsingTest{
 
+			Name:  "Unescaped parameter with space",
+			Input: "response\\-time > bar",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "response-time",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">",
+				},
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "bar",
+				},
+			},
+		},
+		TokenParsingTest{
+
 			Name:  "Parameters with snake_case",
 			Input: "foo_bar > baz_quux",
 			Expected: []ExpressionToken{
@@ -632,6 +651,17 @@ func TestEscapedParameters(test *testing.T) {
 				ExpressionToken{
 					Kind:  VARIABLE,
 					Value: "baz_quux",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "String literal does not use backslash for escapes",
+			Input: "\"foo\\bar\"",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo\\bar",
 				},
 			},
 		},
