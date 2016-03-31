@@ -74,3 +74,37 @@ var PREFIX_SYMBOLS = map[string]OperatorSymbol{
 	"-": NEGATE,
 	"!": INVERT,
 }
+
+// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated last if a sequence of modifiers are used.
+var ADDITIVE_MODIFIERS = []OperatorSymbol {
+	PLUS, MINUS,
+}
+
+// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated second if a sequence of modifiers are used.
+var MULTIPLICATIVE_MODIFIERS = []OperatorSymbol {
+	MULTIPLY, DIVIDE, MODULUS,
+}
+
+// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated first if a sequence of modifiers are used.
+var EXPONENTIAL_MODIFIERS = []OperatorSymbol {
+	EXPONENT,
+}
+
+var PREFIX_MODIFIERS = []OperatorSymbol {
+	NEGATE, INVERT,
+}
+
+/*
+	Returns true if this operator is contained by the given array of candidate symbols.
+	False otherwise.
+*/
+func (this OperatorSymbol) IsModifierType(candidate []OperatorSymbol) bool {
+
+	for _, symbolType := range candidate {
+		if(this == symbolType) {
+			return true
+		}
+	}
+
+	return false
+}
