@@ -62,11 +62,7 @@ func TestStructParameter(test *testing.T) {
 	}
 }
 
-/*
-	While there is type-safe transitions checked at parse-time, tested in the "parsing_test" and "parsingFailure_test" files,
-	we also need to make sure that we receive type mismatch errors during evaluation.
-*/
-func TestOperatorTyping(test *testing.T) {
+func TestModifierTyping(test *testing.T) {
 
 	evaluationTests := []EvaluationFailureTest {
 		EvaluationFailureTest {
@@ -111,7 +107,14 @@ func TestOperatorTyping(test *testing.T) {
 			Input:    "number % bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
+	}
 
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
+func TestLogicalOperatorTyping(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest {
 		EvaluationFailureTest {
 
 			Name:     "AND number to number",
@@ -148,11 +151,90 @@ func TestOperatorTyping(test *testing.T) {
 			Input:    "number || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
+	}
 
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
+/*
+	While there is type-safe transitions checked at parse-time, tested in the "parsing_test" and "parsingFailure_test" files,
+	we also need to make sure that we receive type mismatch errors during evaluation.
+*/
+func TestComparatorTyping(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest {
+		EvaluationFailureTest {
+
+			Name:     "GT bool to bool",
+			Input:    "bool > bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "GTE bool to bool",
+			Input:    "bool >= bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "LT bool to bool",
+			Input:    "bool < bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
 		EvaluationFailureTest {
 
 			Name:     "LTE bool to bool",
 			Input:    "bool <= bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+
+		EvaluationFailureTest {
+
+			Name:     "GT string to string",
+			Input:    "string > string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "GTE string to string",
+			Input:    "string >= string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "LT string to string",
+			Input:    "string < string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "LTE string to string",
+			Input:    "string <= string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+
+		EvaluationFailureTest {
+
+			Name:     "GT number to string",
+			Input:    "number > string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "GTE number to string",
+			Input:    "number >= string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "LT number to string",
+			Input:    "number < string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "LTE number to string",
+			Input:    "number <= string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
 	}
