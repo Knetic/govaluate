@@ -110,28 +110,56 @@ Square bracketed parameter names can be used instead of plain parameter names at
 What operators and types does this support?
 --
 
-Modifiers: + - / * ^ %
+Modifiers: `+` `-` `/` `*` `^` `%`
 
-Comparators: > >= < <= == !=
+Comparators: `>` `>=` `<` `<=` `==` `!=`
 
-Logical ops: || &&
+Logical ops: `||` `&&`
 
-Numeric constants, as 64-bit floating point (12345.678)
+Numeric constants, as 64-bit floating point (`12345.678`)
 
-String constants (single quotes: 'foobar')
+String constants (single quotes: `'foobar'`)
 
-Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date)
+Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
 
-Boolean constants: true false
+Boolean constants: `true` `false`
 
-Parenthesis to control order of evaluation
+Parenthesis to control order of evaluation `(` `)`
 
-Prefixes: ! -
+Prefixes: `!` `-`
+
+Types
+--
+
+Some operators don't make sense when used with some types. For instance, what does it mean to get the modulo of a string? Or to take a date to the power of two? What happens if you check to see if two numbers are logically AND'ed together?
+
+Everyone has a different intuition about the answers to these questions. To prevent confusion, this library will _refuse to operate_ upon types for which there is not an unambiguous meaning for the operation. The table is listed below.
+
+Any time you attempt to use an operator on a type which doesn't explicitly support it (indicated by a bold "X" in the table below), the expression will fail to evaluate, and return an error indicating the problem.
+
+Note that this table shows what each type supports - if you use an operator then _both_ types need to support the operator, otherwise an error will be returned. For example, if you try to take a number to the power of a date, an error will be returned.
+
+|                            	| Number/Date           	| String          	| Boolean         	|
+|----------------------------	|-----------------------	|-----------------	|-----------------	|
+| +                          	| Adds                  	| Concatenates    	| **X**           	|
+| -                          	| Subtracts             	| **X**           	| **X**           	|
+| /                          	| Divides               	| **X**           	| **X**           	|
+| *                          	| Multiplies            	| **X**           	| **X**           	|
+| ^                          	| Takes to the power of 	| **X**           	| **X**           	|
+| %                          	| Modulo                	| **X**           	| **X**           	|
+| Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
+| Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
+| !                          	| **X**                 	| **X**           	| Inverts         	|
+| Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
+
+It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this.
+
+Complex types and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
 
 Benchmarks
 --
 
-If you're concerned about the overhead of this library, a good range of benchmarks are built into this repo. You can run them with `go test -bench=.`. The library is built with an eye towards being quick, but has not been aggressively profiled and optimized. For most applications, though, it is completely fine. 
+If you're concerned about the overhead of this library, a good range of benchmarks are built into this repo. You can run them with `go test -bench=.`. The library is built with an eye towards being quick, but has not been aggressively profiled and optimized. For most applications, though, it is completely fine.
 
 For a very rough idea of performance, here are the results output from a benchmark run on my 3rd-gen Macbook Pro (Linux Mint 17.1).
 
