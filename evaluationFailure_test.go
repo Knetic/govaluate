@@ -81,11 +81,71 @@ func TestOperatorTyping(test *testing.T) {
 			Input:    "number - bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
+		EvaluationFailureTest {
 
+			Name:     "MINUS number to bool",
+			Input:    "number - bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "MULTIPLY number to bool",
+			Input:    "number * bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "DIVIDE number to bool",
+			Input:    "number / bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "EXPONENT number to bool",
+			Input:    "number ^ bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "MODULUS number to bool",
+			Input:    "number % bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+
+		EvaluationFailureTest {
+
+			Name:     "AND number to number",
+			Input:    "number || number",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
 		EvaluationFailureTest {
 
 			Name:     "OR number to number",
 			Input:    "number || number",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "AND string to string",
+			Input:    "string || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "OR string to string",
+			Input:    "string || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "AND number to string",
+			Input:    "number || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest {
+
+			Name:     "OR number to string",
+			Input:    "number || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 
