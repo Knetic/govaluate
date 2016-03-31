@@ -152,9 +152,9 @@ Note that this table shows what each type supports - if you use an operator then
 | !                          	| **X**                 	| **X**           	| Inverts         	|
 | Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
 
-It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this.
+It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
 
-Complex types and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
+Complex types, arrays, and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
 
 Benchmarks
 --
