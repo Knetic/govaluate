@@ -137,10 +137,10 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(!isBool(value)) {
+		if !isBool(value) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the logical operator '%v', it is not a bool", value, token.Value))
 		}
-		if(!isBool(newValue)) {
+		if !isBool(newValue) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the logical operator '%v', it is not a bool", newValue, token.Value))
 		}
 
@@ -188,11 +188,11 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(symbol != EQ && symbol != NEQ) {
-			if(!isFloat64(value)) {
+		if symbol != EQ && symbol != NEQ {
+			if !isFloat64(value) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a number", value, token.Value))
 			}
-			if(!isFloat64(rightValue)) {
+			if !isFloat64(rightValue) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a number", rightValue, token.Value))
 			}
 		}
@@ -246,7 +246,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 		}
 
 		// short-circuit if this is, in fact, not an additive modifier
-		if(!symbol.IsModifierType(ADDITIVE_MODIFIERS)) {
+		if !symbol.IsModifierType(ADDITIVE_MODIFIERS) {
 			stream.rewind()
 			return value, nil
 		}
@@ -257,10 +257,10 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(!isFloat64(value)) {
+		if !isFloat64(value) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", value, token.Value))
 		}
-		if(!isFloat64(rightValue)) {
+		if !isFloat64(rightValue) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", rightValue, token.Value))
 		}
 
@@ -305,7 +305,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 		}
 
 		// short circuit if this is, in fact, not multiplicative.
-		if(!symbol.IsModifierType(MULTIPLICATIVE_MODIFIERS)) {
+		if !symbol.IsModifierType(MULTIPLICATIVE_MODIFIERS) {
 			stream.rewind()
 			return value, nil
 		}
@@ -316,10 +316,10 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(!isFloat64(value)) {
+		if !isFloat64(value) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", value, token.Value))
 		}
-		if(!isFloat64(rightValue)) {
+		if !isFloat64(rightValue) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", rightValue, token.Value))
 		}
 
@@ -366,7 +366,7 @@ func evaluateExponentialModifier(stream *tokenStream, parameters map[string]inte
 		}
 
 		// if this isn't actually an exponential modifier, rewind and return.
-		if(!symbol.IsModifierType(EXPONENTIAL_MODIFIERS)) {
+		if !symbol.IsModifierType(EXPONENTIAL_MODIFIERS) {
 			stream.rewind()
 			return value, nil
 		}
@@ -377,10 +377,10 @@ func evaluateExponentialModifier(stream *tokenStream, parameters map[string]inte
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(!isFloat64(value)) {
+		if !isFloat64(value) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", value, token.Value))
 		}
-		if(!isFloat64(rightValue)) {
+		if !isFloat64(rightValue) {
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", rightValue, token.Value))
 		}
 
@@ -673,7 +673,7 @@ func sanitizeParamters(parameters map[string]interface{}) (map[string]interface{
 	var needsSanitization bool
 	var err error
 
-	if(parameters == nil) {
+	if parameters == nil {
 		return DUMMY_PARAMETERS, nil
 	}
 

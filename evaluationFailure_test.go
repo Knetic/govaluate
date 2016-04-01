@@ -4,8 +4,8 @@ package govaluate
   Tests to make sure evaluation fails in the expected ways.
 */
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 type DebugStruct struct {
@@ -22,17 +22,17 @@ type EvaluationFailureTest struct {
 }
 
 const (
-	INVALID_MODIFIER_TYPES string = "cannot be used with the modifier"
-	INVALID_COMPARATOR_TYPES = "cannot be used with the comparator"
-	INVALID_LOGICALOP_TYPES = "cannot be used with the logical operator"
-	ABSENT_PARAMETER = "No parameter"
+	INVALID_MODIFIER_TYPES   string = "cannot be used with the modifier"
+	INVALID_COMPARATOR_TYPES        = "cannot be used with the comparator"
+	INVALID_LOGICALOP_TYPES         = "cannot be used with the logical operator"
+	ABSENT_PARAMETER                = "No parameter"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
-var EVALUATION_FAILURE_PARAMETERS = map[string]interface{} {
+var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 	"number": 1,
 	"string": "foo",
-	"bool": true,
+	"bool":   true,
 }
 
 func TestComplexParameter(test *testing.T) {
@@ -65,10 +65,10 @@ func TestStructParameter(test *testing.T) {
 
 func TestNilParameterUsage(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest {
-		EvaluationFailureTest {
-			Name: "Absent parameter used",
-			Input: "foo > 1",
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+			Name:     "Absent parameter used",
+			Input:    "foo > 1",
 			Expected: ABSENT_PARAMETER,
 		},
 	}
@@ -78,44 +78,44 @@ func TestNilParameterUsage(test *testing.T) {
 
 func TestModifierTyping(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest {
-		EvaluationFailureTest {
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
 
 			Name:     "PLUS number to bool",
 			Input:    "number + bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "MINUS number to bool",
 			Input:    "number - bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "MINUS number to bool",
 			Input:    "number - bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "MULTIPLY number to bool",
 			Input:    "number * bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "DIVIDE number to bool",
 			Input:    "number / bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "EXPONENT number to bool",
 			Input:    "number ^ bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "MODULUS number to bool",
 			Input:    "number % bool",
@@ -128,38 +128,38 @@ func TestModifierTyping(test *testing.T) {
 
 func TestLogicalOperatorTyping(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest {
-		EvaluationFailureTest {
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
 
 			Name:     "AND number to number",
 			Input:    "number || number",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "OR number to number",
 			Input:    "number || number",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "AND string to string",
 			Input:    "string || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "OR string to string",
 			Input:    "string || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "AND number to string",
 			Input:    "number || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "OR number to string",
 			Input:    "number || string",
@@ -176,76 +176,76 @@ func TestLogicalOperatorTyping(test *testing.T) {
 */
 func TestComparatorTyping(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest {
-		EvaluationFailureTest {
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
 
 			Name:     "GT bool to bool",
 			Input:    "bool > bool",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "GTE bool to bool",
 			Input:    "bool >= bool",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LT bool to bool",
 			Input:    "bool < bool",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LTE bool to bool",
 			Input:    "bool <= bool",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
 
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "GT string to string",
 			Input:    "string > string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "GTE string to string",
 			Input:    "string >= string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LT string to string",
 			Input:    "string < string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LTE string to string",
 			Input:    "string <= string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
 
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "GT number to string",
 			Input:    "number > string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "GTE number to string",
 			Input:    "number >= string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LT number to string",
 			Input:    "number < string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
-		EvaluationFailureTest {
+		EvaluationFailureTest{
 
 			Name:     "LTE number to string",
 			Input:    "number <= string",
