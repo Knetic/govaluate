@@ -11,6 +11,8 @@ import (
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
 
+var DUMMY_PARAMETERS = map[string]interface{}{}
+
 /*
 	EvaluableExpression represents a set of ExpressionTokens which, taken together,
 	represent an arbitrary expression that can be evaluated down into a single value.
@@ -670,6 +672,10 @@ func sanitizeParamters(parameters map[string]interface{}) (map[string]interface{
 	var ret map[string]interface{}
 	var needsSanitization bool
 	var err error
+
+	if(parameters == nil) {
+		return DUMMY_PARAMETERS, nil
+	}
 
 	// we don't copy anything unless there is something that needs to be sanitized.
 	needsSanitization = false

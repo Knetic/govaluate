@@ -25,6 +25,7 @@ const (
 	INVALID_MODIFIER_TYPES string = "cannot be used with the modifier"
 	INVALID_COMPARATOR_TYPES = "cannot be used with the comparator"
 	INVALID_LOGICALOP_TYPES = "cannot be used with the logical operator"
+	ABSENT_PARAMETER = "No parameter"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -60,6 +61,19 @@ func TestStructParameter(test *testing.T) {
 		test.Logf("Expected to  fail when giving a struct value, did not")
 		test.Fail()
 	}
+}
+
+func TestNilParameterUsage(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest {
+		EvaluationFailureTest {
+			Name: "Absent parameter used",
+			Input: "foo > 1",
+			Expected: ABSENT_PARAMETER,
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
 }
 
 func TestModifierTyping(test *testing.T) {

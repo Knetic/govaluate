@@ -406,6 +406,15 @@ func TestParameterizedEvaluation(test *testing.T) {
 	runEvaluationTests(evaluationTests, test)
 }
 
+/*
+	Tests the behavior of a nil set of parameters.
+*/
+func TestNilParameters(test *testing.T) {
+
+	expression, _ := NewEvaluableExpression("true")
+	expression.Evaluate(nil)
+}
+
 func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 	var expression *EvaluableExpression
