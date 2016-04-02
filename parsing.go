@@ -136,7 +136,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 		}
 
 		if !isNotQuote(character) {
-			tokenValue, completed = readUntilFalse(stream, true, false, false, isNotQuote)
+			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotQuote)
 
 			if !completed {
 				return ExpressionToken{}, errors.New("Unclosed string literal"), false
