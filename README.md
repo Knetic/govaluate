@@ -109,23 +109,17 @@ Backslashes can be used anywhere in an expression to escape the very next charac
 What operators and types does this support?
 --
 
-Modifiers: `+` `-` `/` `*` `^` `%`
+* Modifiers: `+` `-` `/` `*` `^` `%`
+* Comparators: `>` `>=` `<` `<=` `==` `!=` `=~` `!~`
+* Logical ops: `||` `&&`
+* Numeric constants, as 64-bit floating point (`12345.678`)
+* String constants (single quotes: `'foobar'`)
+* Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
+* Boolean constants: `true` `false`
+* Parenthesis to control order of evaluation `(` `)`
+* Prefixes: `!` `-`
 
-Comparators: `>` `>=` `<` `<=` `==` `!=`
-
-Logical ops: `||` `&&`
-
-Numeric constants, as 64-bit floating point (`12345.678`)
-
-String constants (single quotes: `'foobar'`)
-
-Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
-
-Boolean constants: `true` `false`
-
-Parenthesis to control order of evaluation `(` `)`
-
-Prefixes: `!` `-`
+Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
 Types
 --
@@ -148,6 +142,7 @@ Note that this table shows what each type supports - if you use an operator then
 | %                          	| Modulo                	| **X**           	| **X**           	|
 | Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
+| Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
 | !                          	| **X**                 	| **X**           	| Inverts         	|
 | Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
 
@@ -163,17 +158,16 @@ If you're concerned about the overhead of this library, a good range of benchmar
 For a very rough idea of performance, here are the results output from a benchmark run on my 3rd-gen Macbook Pro (Linux Mint 17.1).
 
 ```
-/govaluate $ go test -bench=.
-PASS
-BenchmarkSingleParse	 2000000	       807 ns/op
-BenchmarkSimpleParse	  200000	      9230 ns/op
-BenchmarkFullParse	  200000	     12974 ns/op
-BenchmarkEvaluationSingle	10000000	       214 ns/op
-BenchmarkEvaluationNumericLiteral	 5000000	       573 ns/op
-BenchmarkEvaluationLiteralModifiers	 5000000	       727 ns/op
-BenchmarkEvaluationParameters	 2000000	       804 ns/op
-BenchmarkEvaluationParametersModifiers	 1000000	      1346 ns/op
-BenchmarkComplexExpression	 1000000	      2822 ns/op
+BenchmarkSingleParse-12                          2000000               683 ns/op
+BenchmarkSimpleParse-12                           200000              6645 ns/op
+BenchmarkFullParse-12                             200000             11788 ns/op
+BenchmarkEvaluationSingle-12                    20000000               114 ns/op
+BenchmarkEvaluationNumericLiteral-12             3000000               572 ns/op
+BenchmarkEvaluationLiteralModifiers-12           2000000               630 ns/op
+BenchmarkEvaluationParameters-12                 2000000               879 ns/op
+BenchmarkEvaluationParametersModifiers-12        1000000              1383 ns/op
+BenchmarkComplexExpression-12                    1000000              1440 ns/op
+BenchmarkRegexExpression-12                       100000             23113 ns/op
 ok
 ```
 
