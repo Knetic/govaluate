@@ -139,3 +139,28 @@ func BenchmarkComplexExpression(bench *testing.B) {
 		expression.Evaluate(parameters)
 	}
 }
+
+/*
+  Benchmarks regex operators, which are probably the most expensive of the lot.
+  Note that regex compilation times are unpredictable and wily things. The regex engine has a lot of edge cases
+  and possible performance pitfalls. This test doesn't aim to be comprehensive against all possible regex scenarios,
+  it is primarily concerned with making sure that simple patterns aren't causing undue time wasted.
+*/
+func BenchmarkRegexExpression(bench *testing.B) {
+
+	var expressionString string
+
+	expressionString = "(foo !~ bar) && (foobar =~ oba)"
+
+	expression, _ := NewEvaluableExpression(expressionString)
+	parameters := map[string]interface{}{
+		"foo": "foo",
+		"bar": "bar",
+		"baz": "baz",
+		"oba": ".*oba.*",
+	}
+
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
+}

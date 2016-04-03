@@ -7,6 +7,7 @@ import (
 	"math"
 	"reflect"
 	"time"
+	"regexp"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -160,6 +161,7 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 	var token ExpressionToken
 	var value, rightValue interface{}
 	var symbol OperatorSymbol
+	var pattern *regexp.Regexp
 	var err error
 	var keyFound bool
 
@@ -188,12 +190,21 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if symbol != EQ && symbol != NEQ {
+		if(symbol.IsModifierType(NUMERIC_COMPARATORS)) {
 			if !isFloat64(value) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a number", value, token.Value))
 			}
 			if !isFloat64(rightValue) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a number", rightValue, token.Value))
+			}
+		}
+
+		if(symbol.IsModifierType(STRING_COMPARATORS)) {
+			if !isString(value) {
+				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a string", value, token.Value))
+			}
+			if !isString(rightValue) {
+				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a string", rightValue, token.Value))
 			}
 		}
 
@@ -211,6 +222,22 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 			return (value == rightValue), nil
 		case NEQ:
 			return (value != rightValue), nil
+		case REQ:
+
+			// TODO: intelligently pre-compile this value, if it's a literal, in the future.
+			pattern, err = regexp.Compile(rightValue.(string))
+			if(err != nil) {
+				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+			}
+
+			return pattern.Match([]byte(value.(string))), nil
+		case NREQ:
+			pattern, err = regexp.Compile(rightValue.(string))
+			if(err != nil) {
+				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+			}
+
+			return !pattern.Match([]byte(value.(string))), nil
 		}
 	}
 

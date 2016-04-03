@@ -139,6 +139,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "REQ comparison of string constants",
+			Input:    "'foobar' =~ 'oba'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "NREQ comparison of string constants",
+			Input:    "'foo' !~ 'bar'",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Multiplicative/additive order",
 			Input:    "5 + 10 * 2",
 			Expected: 25.0,
@@ -400,6 +412,62 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:  "Regex against right-hand parameter",
+			Input: "'foobar' =~ foo",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "obar",
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Not-regex against right-hand paramter",
+			Input: "'foobar' !~ foo",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "baz",
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Regex against two parameter",
+			Input: "foo =~ bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "foobar",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: "oba",
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Not-regex against two paramter",
+			Input: "foo !~ bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "foobar",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: "baz",
+				},
+			},
+			Expected: true,
 		},
 	}
 

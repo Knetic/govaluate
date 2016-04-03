@@ -360,6 +360,44 @@ func TestComparatorParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+
+			Name:  "String REQ",
+			Input: "'foobar' =~ 'bar'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foobar",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "=~",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "bar",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "String NREQ",
+			Input: "'foobar' !~ 'bar'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foobar",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "!~",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "bar",
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)

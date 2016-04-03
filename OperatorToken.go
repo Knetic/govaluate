@@ -13,6 +13,8 @@ const (
 	LT
 	GTE
 	LTE
+	REQ
+	NREQ
 
 	AND
 	OR
@@ -41,6 +43,8 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	">=": GTE,
 	"<":  LT,
 	"<=": LTE,
+	"=~": REQ,
+	"!~": NREQ,
 }
 
 /*
@@ -92,6 +96,14 @@ var EXPONENTIAL_MODIFIERS = []OperatorSymbol{
 
 var PREFIX_MODIFIERS = []OperatorSymbol{
 	NEGATE, INVERT,
+}
+
+var NUMERIC_COMPARATORS = []OperatorSymbol{
+	GT, GTE, LT, LTE,
+}
+
+var STRING_COMPARATORS = []OperatorSymbol{
+	REQ, NREQ,
 }
 
 /*
