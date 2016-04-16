@@ -44,6 +44,7 @@ var validLexerStates = []lexerState{
 			CLAUSE,
 			CLAUSE_CLOSE,
 			LOGICALOP,
+			TERNARY,
 		},
 	},
 
@@ -57,6 +58,7 @@ var validLexerStates = []lexerState{
 			COMPARATOR,
 			LOGICALOP,
 			CLAUSE_CLOSE,
+			TERNARY,
 		},
 	},
 	lexerState{
@@ -69,6 +71,7 @@ var validLexerStates = []lexerState{
 			COMPARATOR,
 			LOGICALOP,
 			CLAUSE_CLOSE,
+			TERNARY,
 		},
 	},
 	lexerState{
@@ -81,6 +84,7 @@ var validLexerStates = []lexerState{
 			COMPARATOR,
 			LOGICALOP,
 			CLAUSE_CLOSE,
+			TERNARY,
 		},
 	},
 	lexerState{
@@ -105,6 +109,7 @@ var validLexerStates = []lexerState{
 			COMPARATOR,
 			LOGICALOP,
 			CLAUSE_CLOSE,
+			TERNARY,
 		},
 	},
 	lexerState{
@@ -163,6 +168,22 @@ var validLexerStates = []lexerState{
 			VARIABLE,
 			CLAUSE,
 			CLAUSE_CLOSE,
+		},
+	},
+
+	lexerState{
+
+		kind:  TERNARY,
+		isEOF: false,
+		validNextKinds: []TokenKind{
+
+			PREFIX,
+			NUMERIC,
+			BOOLEAN,
+			STRING,
+			TIME,
+			VARIABLE,
+			CLAUSE,
 		},
 	},
 }
