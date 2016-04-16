@@ -136,16 +136,18 @@ What operators and types does this support?
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
+If a ternary operator resolves to false, it returns nil. So `false ? 10` will return `nil`, whereas `true ? 10` will return `10.0`.
+
 Types
 --
 
-Some operators don't make sense when used with some types. For instance, what does it mean to get the modulo of a string? Or to take a date to the power of two? What happens if you check to see if two numbers are logically AND'ed together?
+Some operators don't make sense when used with some types. For instance, what does it mean to get the modulo of a string? What happens if you check to see if two numbers are logically AND'ed together?
 
 Everyone has a different intuition about the answers to these questions. To prevent confusion, this library will _refuse to operate_ upon types for which there is not an unambiguous meaning for the operation. The table is listed below.
 
 Any time you attempt to use an operator on a type which doesn't explicitly support it (indicated by a bold "X" in the table below), the expression will fail to evaluate, and return an error indicating the problem.
 
-Note that this table shows what each type supports - if you use an operator then _both_ types need to support the operator, otherwise an error will be returned. For example, if you try to take a number to the power of a date, an error will be returned.
+Note that this table shows what each type supports - if you use an operator then _both_ types need to support the operator, otherwise an error will be returned.
 
 |                            	| Number/Date           	| String          	| Boolean         	|
 |----------------------------	|-----------------------	|-----------------	|-----------------	|
@@ -157,6 +159,7 @@ Note that this table shows what each type supports - if you use an operator then
 | %                          	| Modulo                	| **X**           	| **X**           	|
 | Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
+| Ternary (?)                   | **X**                     | **X**             | Checks by value   |
 | Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
 | !                          	| **X**                 	| **X**           	| Inverts         	|
 | Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
