@@ -203,6 +203,13 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			break
 		}
 
+		_, found = TERNARY_SYMBOLS[tokenString]
+		if found {
+
+			kind = TERNARY
+			break
+		}
+
 		errorMessage := fmt.Sprintf("Invalid token: '%s'", tokenString)
 		return ret, errors.New(errorMessage), false
 	}

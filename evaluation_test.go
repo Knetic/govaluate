@@ -73,7 +73,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:     "Paren usage",
+			Name:     "Parenthesis usage",
 			Input:    "100 - (5 * 10)",
 			Expected: 50.0,
 		},
@@ -256,6 +256,36 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Negation after modifier",
 			Input:    "10 * -10",
 			Expected: -100.0,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary with single boolean",
+			Input:    "true ? 10",
+			Expected: 10.0,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary nil with single boolean",
+			Input:    "false ? 10",
+			Expected: nil,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary with comparator boolean",
+			Input:    "10 > 5 ? 35.50",
+			Expected: 35.50,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary nil with comparator boolean",
+			Input:    "1 > 5 ? 35.50",
+			Expected: nil,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary with parentheses",
+			Input:    "(5 * (15 - 5)) > 5 ? 35.50",
+			Expected: 35.50,
 		},
 	}
 
@@ -468,6 +498,74 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Single boolean parameter",
+			Input: "commission ? 10",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "commission",
+					Value: true,
+				},
+			},
+			Expected: 10.0,
+		},
+		EvaluationTest{
+
+			Name:  "True comparator with a parameter",
+			Input: "partner == 'amazon' ? 10",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "partner",
+					Value: "amazon",
+				},
+			},
+			Expected: 10.0,
+		},
+		EvaluationTest{
+
+			Name:  "False comparator with a parameter",
+			Input: "partner == 'amazon' ? 10",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "partner",
+					Value: "ebay",
+				},
+			},
+			Expected: nil,
+		},
+		EvaluationTest{
+
+			Name:  "True comparator with multiple parameters",
+			Input: "theft && period == 24 ? 60",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "theft",
+					Value: true,
+				},
+				EvaluationParameter{
+					Name:  "period",
+					Value: 24,
+				},
+			},
+			Expected: 60.0,
+		},
+		EvaluationTest{
+
+			Name:  "False comparator with multiple parameters",
+			Input: "theft && period == 24 ? 60",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "theft",
+					Value: false,
+				},
+				EvaluationParameter{
+					Name:  "period",
+					Value: 24,
+				},
+			},
+			Expected: nil,
 		},
 	}
 

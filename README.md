@@ -19,69 +19,83 @@ How do I use it?
 
 You create a new EvaluableExpression, then call "Evaluate" on it.
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("10 > 0");
-	result := expression.Evaluate(nil);
+	result, err := expression.Evaluate(nil);
+```
 
 	// result is now set to "true", the bool value.
 
 Cool, but how about with parameters?
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("foo > 0");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["foo"] = -1;
 
-	result := expression.Evaluate(parameters);
+	result, err := expression.Evaluate(parameters);
 	// result is now set to "false", the bool value.
+```
 
 That's cool, but we can almost certainly have done all that in code. What about a complex use case that involves some math?
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("(requests_made * requests_succeeded / 100) >= 90");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["requests_made"] = 100;
 	parameters["requests_succeeded"] = 80;
 
-	result := expression.Evaluate(parameters);
+	result, err := expression.Evaluate(parameters);
 	// result is now set to "false", the bool value.
+```
 
 Or maybe you want to check the status of an alive check ("smoketest") page, which will be a string?
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("http_response_body == 'service is ok'");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["http_response_body"] = "service is ok";
 
-	result := expression.Evaluate(parameters);
+	result, err := expression.Evaluate(parameters);
 	// result is now set to "true", the bool value.
+```
 
 These examples have all returned boolean values, but it's equally possible to return numeric ones.
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("(mem_used / total_mem) * 100");
 
 	parameters := make(map[string]interface{}, 8)
 	parameters["total_mem"] = 1024;
 	parameters["mem_used"] = 512;
 
-	result := expression.Evaluate(parameters);
+	result, err := expression.Evaluate(parameters);
 	// result is now set to "50.0", the float64 value.
+```
 
 You can also do date parsing, though the formats are somewhat limited. Stick to RF3339, ISO8061, unix date, or ruby date formats. If you're having trouble getting a date string to parse, check the list of formats actually used: [parsing.go:248](https://github.com/Knetic/govaluate/blob/0580e9b47a69125afa0e4ebd1cf93c49eb5a43ec/parsing.go#L258).
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("'2014-01-02' > '2014-01-01 23:59:59'");
-	result := expression.Evaluate(nil);
+	result, err := expression.Evaluate(nil);
 
 	// result is now set to true
+```
 
 Expressions are parsed once, and can be re-used multiple times. Parsing is the compute-intensive phase of the process, so if you intend to use the same expression with different parameters, just parse it once. Like so;
 
+```go
 	expression, err := govaluate.NewEvaluableExpression("response_time <= 100");
 	parameters := make(map[string]interface{}, 8)
 
 	for {
 		parameters["response_time"] = pingSomething();
-		result := expression.Evaluate(parameters)
+		result, err := expression.Evaluate(parameters)
 	}
+```
 
 Escaping characters
 --
@@ -118,6 +132,7 @@ What operators and types does this support?
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
 * Prefixes: `!` `-`
+* Ternary operator `?` (only true case)
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 

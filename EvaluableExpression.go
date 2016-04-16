@@ -85,9 +85,55 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
 
 	if stream.hasNext() {
-		return evaluateLogical(stream, parameters)
+		return evaluateTernary(stream, parameters)
 	}
 	return nil, nil
+}
+
+func evaluateTernary(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+	var token ExpressionToken
+	var value, rightValue interface{}
+	var err error
+	var keyFound bool
+
+	value, err = evaluateLogical(stream, parameters)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for stream.hasNext() {
+
+		token = stream.next()
+
+		if !isString(token.Value) {
+			break
+		}
+
+		_, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
+		if !keyFound {
+			break
+		}
+
+		rightValue, err = evaluateLogical(stream, parameters)
+		if err != nil {
+			return nil, err
+		}
+
+		// make sure that we're only operating on the appropriate types
+		if !isBool(value) {
+			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the ternary operator '%v', it is not a bool", value, token.Value))
+		}
+
+		if value.(bool) {
+			return rightValue, nil
+		} else {
+			return nil, nil
+		}
+	}
+
+	stream.rewind()
+	return value, nil
 }
 
 func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {

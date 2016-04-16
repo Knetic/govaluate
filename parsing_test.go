@@ -708,6 +708,60 @@ func TestEscapedParameters(test *testing.T) {
 	runTokenParsingTest(testCases, test)
 }
 
+func TestTernaryParsing(test *testing.T) {
+	tokenParsingTests := []TokenParsingTest{
+
+		TokenParsingTest{
+
+			Name:  "Ternary after Boolean",
+			Input: "true ? 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  TERNARY,
+					Value: "?",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Ternary after Comperator",
+			Input: "1 == 0 ? true",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 0.0,
+				},
+				ExpressionToken{
+					Kind:  TERNARY,
+					Value: "?",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+			},
+		},
+	}
+
+	runTokenParsingTest(tokenParsingTests, test)
+}
+
 func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
 
 	var currentCase, strippedCase TokenParsingTest

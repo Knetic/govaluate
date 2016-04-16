@@ -82,6 +82,12 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
+			Name:     "Premature end to expression, via ternary operator",
+			Input:    "true ?",
+			Expected: UNEXPECTED_END,
+		},
+		ParsingFailureTest{
+
 			Name:     "Invalid starting token, comparator",
 			Input:    "> 10",
 			Expected: INVALID_TOKEN_TRANSITION,
