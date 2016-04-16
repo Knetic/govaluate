@@ -25,6 +25,7 @@ const (
 	INVALID_MODIFIER_TYPES   string = "cannot be used with the modifier"
 	INVALID_COMPARATOR_TYPES        = "cannot be used with the comparator"
 	INVALID_LOGICALOP_TYPES         = "cannot be used with the logical operator"
+	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
 )
 
@@ -250,6 +251,26 @@ func TestComparatorTyping(test *testing.T) {
 			Name:     "LTE number to string",
 			Input:    "number <= string",
 			Expected: INVALID_COMPARATOR_TYPES,
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
+func TestTernaryTyping(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:     "Ternary with number",
+			Input:    "10 ? true",
+			Expected: INVALID_TERNARY_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "Ternary with string",
+			Input:    "'foo' ? true",
+			Expected: INVALID_TERNARY_TYPES,
 		},
 	}
 

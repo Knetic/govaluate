@@ -287,6 +287,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    "(5 * (15 - 5)) > 5 ? 35.50",
 			Expected: 35.50,
 		},
+		EvaluationTest{
+
+			Name:     "Ternary precedence",
+			Input:    "true ? 35.50 > 10",
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
