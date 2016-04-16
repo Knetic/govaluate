@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math"
 	"reflect"
-	"time"
 	"regexp"
+	"time"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -236,7 +236,7 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 		}
 
 		// make sure that we're only operating on the appropriate types
-		if(symbol.IsModifierType(NUMERIC_COMPARATORS)) {
+		if symbol.IsModifierType(NUMERIC_COMPARATORS) {
 			if !isFloat64(value) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a number", value, token.Value))
 			}
@@ -245,7 +245,7 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 			}
 		}
 
-		if(symbol.IsModifierType(STRING_COMPARATORS)) {
+		if symbol.IsModifierType(STRING_COMPARATORS) {
 			if !isString(value) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a string", value, token.Value))
 			}
@@ -272,14 +272,14 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 
 			// TODO: intelligently pre-compile this value, if it's a literal, in the future.
 			pattern, err = regexp.Compile(rightValue.(string))
-			if(err != nil) {
+			if err != nil {
 				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
 			}
 
 			return pattern.Match([]byte(value.(string))), nil
 		case NREQ:
 			pattern, err = regexp.Compile(rightValue.(string))
-			if(err != nil) {
+			if err != nil {
 				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
 			}
 
