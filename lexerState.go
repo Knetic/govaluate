@@ -121,6 +121,8 @@ var validLexerStates = []lexerState{
 			PREFIX,
 			NUMERIC,
 			VARIABLE,
+			STRING,
+			BOOLEAN,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},

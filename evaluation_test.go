@@ -293,6 +293,42 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    "true ? 35.50 > 10",
 			Expected: true,
 		},
+		EvaluationTest{
+
+			Name:     "String to string concat",
+			Input:    "'foo' + 'bar' == 'foobar'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "String to float64 concat",
+			Input:    "'foo' + 123 == 'foo123'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Float64 to string concat",
+			Input:    "123 + 'bar' == '123bar'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "String to date concat",
+			Input:    "'foo' + '02/05/1970' == 'foobar'",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:     "String to bool concat",
+			Input:    "'foo' + true == 'footrue'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Bool to string concat",
+			Input:    "true + 'bar' == 'truebar'",
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
@@ -572,6 +608,62 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: nil,
+		},
+		EvaluationTest{
+
+			Name:  "String concat with single string parameter",
+			Input: "foo + 'bar'",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "baz",
+				},
+			},
+			Expected: "bazbar",
+		},
+		EvaluationTest{
+
+			Name:  "String concat with multiple string parameter",
+			Input: "foo + bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "baz",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: "quux",
+				},
+			},
+			Expected: "bazquux",
+		},
+		EvaluationTest{
+
+			Name:  "String concat with float parameter",
+			Input: "foo + bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "baz",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: 123.0,
+				},
+			},
+			Expected: "baz123",
+		},
+		EvaluationTest{
+
+			Name:  "Mixed multiple string concat",
+			Input: "foo + 123 + 'bar' + true",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "baz",
+				},
+			},
+			Expected: "baz123bartrue",
 		},
 	}
 

@@ -324,9 +324,16 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 			return value, nil
 		}
 
-		rightValue, err = evaluateMultiplicativeModifier(stream, parameters)
+		rightValue, err = evaluateAdditiveModifier(stream, parameters)
 		if err != nil {
 			return nil, err
+		}
+
+		// short-circuit to check if we're supposed to do a concat on strings
+		if symbol == PLUS {
+			if isString(value) || isString(rightValue){
+				return fmt.Sprintf("%v%v", value, rightValue), nil
+			}
 		}
 
 		// make sure that we're only operating on the appropriate types
