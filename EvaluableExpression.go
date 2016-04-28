@@ -103,6 +103,7 @@ func evaluateTokens(stream *tokenStream, parameters Parameters) (interface{}, er
 func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, error) {
 	var token ExpressionToken
 	var value, rightValue interface{}
+	var symbol OperatorSymbol
 	var err error
 	var keyFound bool
 
@@ -120,7 +121,7 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 			break
 		}
 
-		_, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
+		symbol, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
 		if !keyFound {
 			break
 		}
@@ -135,11 +136,23 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the ternary operator '%v', it is not a bool", value, token.Value))
 		}
 
-		if value.(bool) {
-			return rightValue, nil
-		} else {
-			return nil, nil
+		switch symbol {
+		case TERNARY_TRUE:
+			if value.(bool) {
+				return rightValue, nil
+			} else {
+				return nil, nil
+			}
+
+		case TERNARY_FALSE:
+			if value == nil {
+				return rightValue, nil
+			} else {
+				return nil, nil
+			}
 		}
+
+
 	}
 
 	stream.rewind()

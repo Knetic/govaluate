@@ -330,6 +330,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:    "true + 'bar' == 'truebar'",
 			Expected: true,
 		},
+		EvaluationTest{
+			
+			Name:     "Ternary precedence",
+			Input:    "false ? 35.50 : 50",
+			Expected: 50.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)

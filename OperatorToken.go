@@ -30,6 +30,7 @@ const (
 	INVERT
 
 	TERNARY_TRUE
+	TERNARY_FALSE
 )
 
 /*
@@ -83,6 +84,7 @@ var PREFIX_SYMBOLS = map[string]OperatorSymbol{
 
 var TERNARY_SYMBOLS = map[string]OperatorSymbol{
 	"?": TERNARY_TRUE,
+	":": TERNARY_FALSE,
 }
 
 // Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated last if a sequence of modifiers are used.

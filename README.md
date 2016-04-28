@@ -131,7 +131,7 @@ What operators and types does this support?
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
 * Prefixes: `!` `-`
-* Ternary operator `?` (only true case)
+* Ternary operator `?` `:`
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
@@ -158,7 +158,7 @@ Note that this table shows what each type supports - if you use an operator then
 | %                          	| Modulo                	| **X**           	| **X**           	|
 | Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
-| Ternary (?)                   | **X**                     | **X**             | Checks by value   |
+| Ternary (? :)                 | **X**                     | **X**             | Checks by value   |
 | Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
 | !                          	| **X**                 	| **X**           	| Inverts         	|
 | Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
