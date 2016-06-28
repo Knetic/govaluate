@@ -5,14 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"reflect"
 	"regexp"
 	"time"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
 
-var DUMMY_PARAMETERS = map[string]interface{}{}
+var DUMMY_PARAMETERS = MapParameters(map[string]interface{}{})
 
 /*
 	EvaluableExpression represents a set of ExpressionTokens which, taken together,
@@ -50,6 +49,11 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	return ret, nil
 }
 
+// Like Eval using a MapParameters
+func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
+	return this.Eval(MapParameters(parameters))
+}
+
 /*
 	Evaluate runs the entire expression using the given [parameters].
 	Each parameter is mapped from a string to a value, such as "foo" = 1.0.
@@ -66,13 +70,13 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	e.g., if the expression is "1 + 1", Evaluate will return 2.0.
 	e.g., if the expression is "foo + 1" and parameters contains "foo" = 2, Evaluate will return 3.0
 */
-func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
+func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 
 	var stream *tokenStream
-	var cleanedParameters map[string]interface{}
+	var cleanedParameters Parameters
 	var err error
 
-	cleanedParameters, err = sanitizeParamters(parameters)
+	cleanedParameters = &SanitizedParameters{parameters}
 
 	if err != nil {
 		return nil, err
@@ -82,7 +86,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 	return evaluateTokens(stream, cleanedParameters)
 }
 
-func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateTokens(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	if stream.hasNext() {
 		return evaluateTernary(stream, parameters)
@@ -90,7 +94,7 @@ func evaluateTokens(stream *tokenStream, parameters map[string]interface{}) (int
 	return nil, nil
 }
 
-func evaluateTernary(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, error) {
 	var token ExpressionToken
 	var value, rightValue interface{}
 	var err error
@@ -136,7 +140,7 @@ func evaluateTernary(stream *tokenStream, parameters map[string]interface{}) (in
 	return value, nil
 }
 
-func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, newValue interface{}
@@ -202,7 +206,7 @@ func evaluateLogical(stream *tokenStream, parameters map[string]interface{}) (in
 	return value, nil
 }
 
-func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -291,7 +295,7 @@ func evaluateComparator(stream *tokenStream, parameters map[string]interface{}) 
 	return value, nil
 }
 
-func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -331,7 +335,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 
 		// short-circuit to check if we're supposed to do a concat on strings
 		if symbol == PLUS {
-			if isString(value) || isString(rightValue){
+			if isString(value) || isString(rightValue) {
 				return fmt.Sprintf("%v%v", value, rightValue), nil
 			}
 		}
@@ -357,7 +361,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters map[string]interfa
 	return value, nil
 }
 
-func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -418,7 +422,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters map[string]i
 	return value, nil
 }
 
-func evaluateExponentialModifier(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateExponentialModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -474,7 +478,7 @@ func evaluateExponentialModifier(stream *tokenStream, parameters map[string]inte
 	return value, nil
 }
 
-func evaluatePrefix(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluatePrefix(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value interface{}
@@ -520,7 +524,7 @@ func evaluatePrefix(stream *tokenStream, parameters map[string]interface{}) (int
 	return nil, nil
 }
 
-func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (interface{}, error) {
+func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, error) {
 
 	var token ExpressionToken
 	var value interface{}
@@ -547,7 +551,10 @@ func evaluateValue(stream *tokenStream, parameters map[string]interface{}) (inte
 
 	case VARIABLE:
 		variableName = token.Value.(string)
-		value = parameters[variableName]
+		value, err = parameters.Get(variableName)
+		if err != nil {
+			return nil, err
+		}
 
 		if value == nil {
 			errorMessage = "No parameter '" + variableName + "' found."
@@ -745,145 +752,4 @@ func (this EvaluableExpression) Tokens() []ExpressionToken {
 func (this EvaluableExpression) String() string {
 
 	return this.inputExpression
-}
-
-func sanitizeParamters(parameters map[string]interface{}) (map[string]interface{}, error) {
-
-	var ret map[string]interface{}
-	var needsSanitization bool
-	var err error
-
-	if parameters == nil {
-		return DUMMY_PARAMETERS, nil
-	}
-
-	// we don't copy anything unless there is something that needs to be sanitized.
-	needsSanitization = false
-
-	for key, value := range parameters {
-
-		// make sure that the parameter is a valid type.
-		err = checkValidType(key, value)
-		if err != nil {
-			return nil, err
-		}
-
-		// should be converted to fixed point?
-		if isFixedPoint(value) {
-
-			// sanitize.
-			// if we haven't yet made a new map, do so and copy all keys.
-			if !needsSanitization {
-
-				ret = make(map[string]interface{}, len(parameters))
-
-				for innerKey, innerValue := range parameters {
-					ret[innerKey] = innerValue
-				}
-
-				needsSanitization = true
-			}
-
-			ret[key] = castFixedPoint(value)
-		}
-	}
-
-	if needsSanitization {
-		return ret, nil
-	}
-	return parameters, nil
-}
-
-func checkValidType(key string, value interface{}) error {
-
-	switch value.(type) {
-	case complex64:
-		errorMsg := fmt.Sprintf("Parameter '%s' is a complex64 integer, which is not evaluable", key)
-		return errors.New(errorMsg)
-	case complex128:
-		errorMsg := fmt.Sprintf("Parameter '%s' is a complex128 integer, which is not evaluable", key)
-		return errors.New(errorMsg)
-	}
-
-	if reflect.ValueOf(value).Kind() == reflect.Struct {
-		errorMsg := fmt.Sprintf("Parameter '%s' is a struct, which is not evaluable", key)
-		return errors.New(errorMsg)
-	}
-
-	return nil
-}
-
-func isFixedPoint(value interface{}) bool {
-
-	switch value.(type) {
-	case uint8:
-		return true
-	case uint16:
-		return true
-	case uint32:
-		return true
-	case uint64:
-		return true
-	case int8:
-		return true
-	case int16:
-		return true
-	case int32:
-		return true
-	case int64:
-		return true
-	case int:
-		return true
-	}
-	return false
-}
-
-func castFixedPoint(value interface{}) float64 {
-	switch value.(type) {
-	case uint8:
-		return float64(value.(uint8))
-	case uint16:
-		return float64(value.(uint16))
-	case uint32:
-		return float64(value.(uint32))
-	case uint64:
-		return float64(value.(uint64))
-	case int8:
-		return float64(value.(int8))
-	case int16:
-		return float64(value.(int16))
-	case int32:
-		return float64(value.(int32))
-	case int64:
-		return float64(value.(int64))
-	case int:
-		return float64(value.(int))
-	}
-
-	return 0.0
-}
-
-func isString(value interface{}) bool {
-
-	switch value.(type) {
-	case string:
-		return true
-	}
-	return false
-}
-
-func isBool(value interface{}) bool {
-	switch value.(type) {
-	case bool:
-		return true
-	}
-	return false
-}
-
-func isFloat64(value interface{}) bool {
-	switch value.(type) {
-	case float64:
-		return true
-	}
-	return false
 }

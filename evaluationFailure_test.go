@@ -38,7 +38,7 @@ var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 
 func TestComplexParameter(test *testing.T) {
 
-	expression, _ := NewEvaluableExpression("1")
+	expression, _ := NewEvaluableExpression("foo")
 	parameters := map[string]interface{}{
 		"foo": 1i,
 	}
@@ -52,7 +52,7 @@ func TestComplexParameter(test *testing.T) {
 
 func TestStructParameter(test *testing.T) {
 
-	expression, _ := NewEvaluableExpression("1")
+	expression, _ := NewEvaluableExpression("foo")
 	parameters := map[string]interface{}{
 		"foo": DebugStruct{},
 	}
