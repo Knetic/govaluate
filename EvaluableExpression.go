@@ -53,7 +53,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 // Like Eval using a MapParameters
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
 
-	if(parameters == nil) {
+	if parameters == nil {
 		return this.Eval(nil)
 	}
 	return this.Eval(MapParameters(parameters))
@@ -80,7 +80,7 @@ func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error)
 	var stream *tokenStream
 	var err error
 
-	if(parameters != nil) {
+	if parameters != nil {
 		parameters = &sanitizedParameters{parameters}
 	}
 

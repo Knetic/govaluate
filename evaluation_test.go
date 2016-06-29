@@ -678,7 +678,7 @@ func TestNilParameters(test *testing.T) {
 	expression, _ := NewEvaluableExpression("true")
 	_, err := expression.Evaluate(nil)
 
-	if(err != nil) {
+	if err != nil {
 		test.Fail()
 	}
 }
