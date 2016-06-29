@@ -676,7 +676,11 @@ func TestParameterizedEvaluation(test *testing.T) {
 func TestNilParameters(test *testing.T) {
 
 	expression, _ := NewEvaluableExpression("true")
-	expression.Evaluate(nil)
+	_, err := expression.Evaluate(nil)
+
+	if(err != nil) {
+		test.Fail()
+	}
 }
 
 func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
