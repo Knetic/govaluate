@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -540,6 +541,38 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Pre-compiled regex",
+			Input: "foo =~ bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "foobar",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: regexp.MustCompile("[fF][oO]+"),
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Pre-compiled not-regex",
+			Input: "foo !~ bar",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: "foobar",
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: regexp.MustCompile("[fF][oO]+"),
+				},
+			},
+			Expected: false,
 		},
 		EvaluationTest{
 

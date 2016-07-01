@@ -259,7 +259,7 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 			if !isString(value) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a string", value, token.Value))
 			}
-			if !isString(rightValue) {
+			if !isRegexOrString(rightValue) {
 				return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the comparator '%v', it is not a string", rightValue, token.Value))
 			}
 		}
@@ -280,17 +280,30 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 			return (value != rightValue), nil
 		case REQ:
 
-			// TODO: intelligently pre-compile this value, if it's a literal, in the future.
-			pattern, err = regexp.Compile(rightValue.(string))
-			if err != nil {
-				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+
+			switch rightValue.(type) {
+			case string:
+				// TODO: intelligently pre-compile this value, if it's a literal, in the future.
+				pattern, err = regexp.Compile(rightValue.(string))
+				if err != nil {
+					return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+				}
+			case *regexp.Regexp:
+				pattern = rightValue.(*regexp.Regexp)
 			}
 
 			return pattern.Match([]byte(value.(string))), nil
 		case NREQ:
-			pattern, err = regexp.Compile(rightValue.(string))
-			if err != nil {
-				return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+			
+			switch rightValue.(type) {
+			case string:
+				// TODO: intelligently pre-compile this value, if it's a literal, in the future.
+				pattern, err = regexp.Compile(rightValue.(string))
+				if err != nil {
+					return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
+				}
+			case *regexp.Regexp:
+				pattern = rightValue.(*regexp.Regexp)
 			}
 
 			return !pattern.Match([]byte(value.(string))), nil
@@ -858,6 +871,17 @@ func isString(value interface{}) bool {
 
 	switch value.(type) {
 	case string:
+		return true
+	}
+	return false
+}
+
+func isRegexOrString(value interface{}) bool {
+
+	switch value.(type) {
+	case string:
+		return true
+	case *regexp.Regexp:
 		return true
 	}
 	return false
