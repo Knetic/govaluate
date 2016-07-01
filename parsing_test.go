@@ -373,9 +373,11 @@ func TestComparatorParsing(test *testing.T) {
 					Kind:  COMPARATOR,
 					Value: "=~",
 				},
+
+				// it's not particularly clean to test for the contents of a pattern, (since it means modifying the harness below)
+				// so pattern contents are left untested.
 				ExpressionToken{
-					Kind:  STRING,
-					Value: "bar",
+					Kind:  PATTERN,
 				},
 			},
 		},
@@ -393,8 +395,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "!~",
 				},
 				ExpressionToken{
-					Kind:  STRING,
-					Value: "bar",
+					Kind:  PATTERN,
 				},
 			},
 		},
@@ -858,7 +859,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				continue
 			}
 
-			if actualToken.Value != expectedToken.Value {
+			if expectedToken.Value != nil && actualToken.Value != expectedToken.Value {
 
 				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)

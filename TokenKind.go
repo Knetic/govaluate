@@ -12,6 +12,7 @@ const (
 	NUMERIC
 	BOOLEAN
 	STRING
+	PATTERN
 	TIME
 	VARIABLE
 
@@ -41,6 +42,8 @@ func GetTokenKindString(kind TokenKind) string {
 		return "BOOLEAN"
 	case STRING:
 		return "STRING"
+	case PATTERN:
+		return "PATTERN"
 	case TIME:
 		return "TIME"
 	case VARIABLE:

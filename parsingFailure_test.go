@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"regexp/syntax"
 	"strings"
 	"testing"
 )
@@ -133,6 +134,12 @@ func TestParsingFailure(test *testing.T) {
 			Name:     "Unclosed quote",
 			Input:    "foo == 'responseTime",
 			Expected: UNCLOSED_QUOTES,
+		},
+		ParsingFailureTest{
+
+			Name:     "Constant regex pattern fail to compile",
+			Input:    "foo =~ '[abc'",
+			Expected: string(syntax.ErrMissingBracket),
 		},
 	}
 

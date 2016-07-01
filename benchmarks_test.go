@@ -164,3 +164,18 @@ func BenchmarkRegexExpression(bench *testing.B) {
 		expression.Evaluate(parameters)
 	}
 }
+
+func BenchmarkConstantRegexExpression(bench *testing.B) {
+
+	expressionString := "(foo !~ '[bB]az') && (bar =~ '[bB]ar')"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	parameters := map[string]interface{}{
+		"foo": "foo",
+		"bar": "bar",
+	}
+
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
+}

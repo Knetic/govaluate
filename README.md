@@ -176,16 +176,17 @@ If you're concerned about the overhead of this library, a good range of benchmar
 For a very rough idea of performance, here are the results output from a benchmark run on my 3rd-gen Macbook Pro (Linux Mint 17.1).
 
 ```
-BenchmarkSingleParse-12                          2000000               683 ns/op
-BenchmarkSimpleParse-12                           200000              6645 ns/op
-BenchmarkFullParse-12                             200000             11788 ns/op
-BenchmarkEvaluationSingle-12                    20000000               114 ns/op
-BenchmarkEvaluationNumericLiteral-12             3000000               572 ns/op
-BenchmarkEvaluationLiteralModifiers-12           2000000               630 ns/op
-BenchmarkEvaluationParameters-12                 2000000               879 ns/op
-BenchmarkEvaluationParametersModifiers-12        1000000              1383 ns/op
-BenchmarkComplexExpression-12                    1000000              1440 ns/op
-BenchmarkRegexExpression-12                       100000             23113 ns/op
+BenchmarkSingleParse-12                          2000000               768 ns/op
+BenchmarkSimpleParse-12                           200000              6842 ns/op
+BenchmarkFullParse-12                             200000             12791 ns/op
+BenchmarkEvaluationSingle-12                    10000000               142 ns/op
+BenchmarkEvaluationNumericLiteral-12             3000000               577 ns/op
+BenchmarkEvaluationLiteralModifiers-12           2000000               675 ns/op
+BenchmarkEvaluationParameters-12                 2000000               883 ns/op
+BenchmarkEvaluationParametersModifiers-12        1000000              1305 ns/op
+BenchmarkComplexExpression-12                    1000000              1308 ns/op
+BenchmarkRegexExpression-12                       100000             22751 ns/op
+BenchmarkConstantRegexExpression-12               500000              2599 ns/op
 ok
 ```
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"regexp"
 	"time"
 	"unicode"
 )
@@ -60,7 +61,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 		return ret, errors.New("Unexpected end of expression")
 	}
 
-	return ret, nil
+	return checkTokenOptimizations(ret)
 }
 
 func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, bool) {
@@ -274,6 +275,46 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 	}
 
 	return tokenBuffer.String(), conditioned
+}
+
+/*
+	Checks to see if any optimizations can be performed on the given [tokens], which form a complete, valid expression.
+	The returns slice will represent the optimized (or unmodified) list of tokens to use.
+*/
+func checkTokenOptimizations(tokens []ExpressionToken) ([]ExpressionToken, error) {
+
+	var token ExpressionToken
+	var symbol OperatorSymbol
+	var err error
+	var index int
+
+	for index, token = range tokens {
+
+		// if we find a regex operator, and the right-hand value is a constant, precompile and replace with a pattern.
+		if(token.Kind != COMPARATOR) {
+			continue
+		}
+
+		symbol = COMPARATOR_SYMBOLS[token.Value.(string)]
+		if(symbol != REQ && symbol != NREQ) {
+			continue
+		}
+
+		index++
+		token = tokens[index]
+		if(token.Kind == STRING) {
+
+			token.Kind = PATTERN
+			token.Value, err = regexp.Compile(token.Value.(string))
+
+			if(err != nil) {
+				return tokens, err
+			}
+
+			tokens[index] = token
+		}
+	}
+	return tokens, nil
 }
 
 func isNumeric(character rune) bool {

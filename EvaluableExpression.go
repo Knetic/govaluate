@@ -280,10 +280,8 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 			return (value != rightValue), nil
 		case REQ:
 
-
 			switch rightValue.(type) {
 			case string:
-				// TODO: intelligently pre-compile this value, if it's a literal, in the future.
 				pattern, err = regexp.Compile(rightValue.(string))
 				if err != nil {
 					return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
@@ -294,10 +292,9 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 
 			return pattern.Match([]byte(value.(string))), nil
 		case NREQ:
-			
+
 			switch rightValue.(type) {
 			case string:
-				// TODO: intelligently pre-compile this value, if it's a literal, in the future.
 				pattern, err = regexp.Compile(rightValue.(string))
 				if err != nil {
 					return nil, errors.New(fmt.Sprintf("Unable to compile regexp pattern '%v': %v", rightValue, err))
@@ -585,6 +582,8 @@ func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, err
 	case NUMERIC:
 		fallthrough
 	case STRING:
+		fallthrough
+	case PATTERN:
 		fallthrough
 	case BOOLEAN:
 		return token.Value, nil
