@@ -22,9 +22,8 @@ You create a new EvaluableExpression, then call "Evaluate" on it.
 ```go
 	expression, err := govaluate.NewEvaluableExpression("10 > 0");
 	result, err := expression.Evaluate(nil);
-```
-
 	// result is now set to "true", the bool value.
+```
 
 Cool, but how about with parameters?
 
