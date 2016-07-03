@@ -296,6 +296,30 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Ternary-else",
+			Input:    "false ? 35.50 : 50",
+			Expected: 50.0,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary-else inside clause",
+			Input:    "(false ? 5 : 35.50) > 10",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary-else (true-case) inside clause",
+			Input:    "(true ? 35.50 : 5) > 10",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Ternary-else before comparator (negative case)",
+			Input:    "true ? 35.50 : 5 > 10",
+			Expected: 35.50,
+		},
+		EvaluationTest{
+
 			Name:     "String to string concat",
 			Input:    "'foo' + 'bar' == 'foobar'",
 			Expected: true,
@@ -329,12 +353,6 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Bool to string concat",
 			Input:    "true + 'bar' == 'truebar'",
 			Expected: true,
-		},
-		EvaluationTest{
-			
-			Name:     "Ternary precedence",
-			Input:    "false ? 35.50 : 50",
-			Expected: 50.0,
 		},
 	}
 

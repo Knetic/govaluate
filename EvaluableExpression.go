@@ -107,6 +107,48 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 	var err error
 	var keyFound bool
 
+	value, err = evaluateTernary2(stream, parameters)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for stream.hasNext() {
+
+		token = stream.next()
+
+		if !isString(token.Value) {
+			break
+		}
+
+		symbol, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
+		if !keyFound || symbol != TERNARY_FALSE {
+			break
+		}
+
+		rightValue, err = evaluateTernary2(stream, parameters)
+		if err != nil {
+			return nil, err
+		}
+
+		if value == nil || value == false {
+			return rightValue, nil
+		} else {
+			return value, nil
+		}
+	}
+
+	stream.rewind()
+	return value, nil
+}
+
+func evaluateTernary2(stream *tokenStream, parameters Parameters) (interface{}, error) {
+	var token ExpressionToken
+	var value, rightValue interface{}
+	var symbol OperatorSymbol
+	var err error
+	var keyFound bool
+
 	value, err = evaluateLogical(stream, parameters)
 
 	if err != nil {
@@ -122,7 +164,7 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 		}
 
 		symbol, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
-		if !keyFound {
+		if !keyFound || symbol != TERNARY_TRUE {
 			break
 		}
 
@@ -136,23 +178,11 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the ternary operator '%v', it is not a bool", value, token.Value))
 		}
 
-		switch symbol {
-		case TERNARY_TRUE:
-			if value.(bool) {
-				return rightValue, nil
-			} else {
-				return nil, nil
-			}
-
-		case TERNARY_FALSE:
-			if value == nil {
-				return rightValue, nil
-			} else {
-				return nil, nil
-			}
+		if value.(bool) {
+			return rightValue, nil
+		} else {
+			return nil, nil
 		}
-
-
 	}
 
 	stream.rewind()
