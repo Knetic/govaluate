@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"strconv"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 )
@@ -291,23 +291,23 @@ func checkTokenOptimizations(tokens []ExpressionToken) ([]ExpressionToken, error
 	for index, token = range tokens {
 
 		// if we find a regex operator, and the right-hand value is a constant, precompile and replace with a pattern.
-		if(token.Kind != COMPARATOR) {
+		if token.Kind != COMPARATOR {
 			continue
 		}
 
 		symbol = COMPARATOR_SYMBOLS[token.Value.(string)]
-		if(symbol != REQ && symbol != NREQ) {
+		if symbol != REQ && symbol != NREQ {
 			continue
 		}
 
 		index++
 		token = tokens[index]
-		if(token.Kind == STRING) {
+		if token.Kind == STRING {
 
 			token.Kind = PATTERN
 			token.Value, err = regexp.Compile(token.Value.(string))
 
-			if(err != nil) {
+			if err != nil {
 				return tokens, err
 			}
 

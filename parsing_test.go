@@ -1,8 +1,8 @@
 package govaluate
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 	"testing"
 	"time"
 	"unicode"
@@ -378,7 +378,7 @@ func TestComparatorParsing(test *testing.T) {
 				// it's not particularly clean to test for the contents of a pattern, (since it means modifying the harness below)
 				// so pattern contents are left untested.
 				ExpressionToken{
-					Kind:  PATTERN,
+					Kind: PATTERN,
 				},
 			},
 		},
@@ -396,7 +396,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "!~",
 				},
 				ExpressionToken{
-					Kind:  PATTERN,
+					Kind: PATTERN,
 				},
 			},
 		},
