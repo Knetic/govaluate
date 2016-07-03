@@ -764,6 +764,31 @@ func TestTernaryParsing(test *testing.T) {
 	runTokenParsingTest(tokenParsingTests, test)
 }
 
+/*
+	Tests to make sure that the String() reprsentation of an expression exactly matches what is given to the parse function.
+*/
+func TestOriginalString(test *testing.T) {
+
+	// include all the token types, to be sure there's no shenaniganery going on.
+	expressionString := "2 > 1 &&" +
+		"'something' != 'nothing' || " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false"
+
+	expression, err := NewEvaluableExpression(expressionString)
+	if(err != nil) {
+
+		test.Logf("failed to parse original string test: %v", err)
+		test.Fail()
+	}
+
+	if(expression.String() != expressionString) {
+		test.Logf("String() did not give the same expression as given to parse")
+		test.Fail()
+	}
+}
+
 func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTest {
 
 	var currentCase, strippedCase TokenParsingTest

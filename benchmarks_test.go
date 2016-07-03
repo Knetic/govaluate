@@ -34,8 +34,8 @@ func BenchmarkFullParse(bench *testing.B) {
 
 	// represents all the major syntax possibilities.
 	expression = "2 > 1 &&" +
-		"'something != nothing || " +
-		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' &&" +
+		"'something' != 'nothing' || " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
 		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
 		"modifierTest + 1000 / 2 > (80 * 100 % 2)"
 
