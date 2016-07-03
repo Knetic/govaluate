@@ -16,7 +16,7 @@ var DUMMY_PARAMETERS = MapParameters(map[string]interface{}{})
 
 /*
 	EvaluableExpression represents a set of ExpressionTokens which, taken together,
-	represent an arbitrary expression that can be evaluated down into a single value.
+	are an expression that can be evaluated down into a single value.
 */
 type EvaluableExpression struct {
 
@@ -31,7 +31,7 @@ type EvaluableExpression struct {
 }
 
 /*
-	Creates a new EvaluableExpression from the given [expression] string.
+	Parses a new EvaluableExpression from the given [expression] string.
 	Returns an error if the given expression has invalid syntax.
 */
 func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
@@ -50,7 +50,9 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	return ret, nil
 }
 
-// Like Eval using a MapParameters
+/*
+	Same as `Eval`, but automatically wraps a map of parameters into a `govalute.Parameters` structure.
+*/
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
 
 	if parameters == nil {
@@ -60,20 +62,15 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 }
 
 /*
-	Evaluate runs the entire expression using the given [parameters].
-	Each parameter is mapped from a string to a value, such as "foo" = 1.0.
-	If the expression contains a reference to the variable "foo", it will be taken from parameters["foo"].
+	Runs the entire expression using the given [parameters].
+	e.g., If the expression contains a reference to the variable "foo", it will be taken from `parameters.Get("foo")`.
 
 	This function returns errors if the combination of expression and parameters cannot be run,
-	such as if a string parameter is given in an expression that expects it to be a boolean.
-	e.g., "foo == true", where foo is any string.
-	These errors are almost exclusively returned for parameters not being present, or being of the wrong type.
-	Structural problems with the expression (unexpected tokens, unexpected end of expression, etc) are discovered
-	during parsing of the expression in NewEvaluableExpression.
+	such as if a variable in the expression is not present in [parameters].
 
 	In all non-error circumstances, this returns the single value result of the expression and parameters given.
-	e.g., if the expression is "1 + 1", Evaluate will return 2.0.
-	e.g., if the expression is "foo + 1" and parameters contains "foo" = 2, Evaluate will return 3.0
+	e.g., if the expression is "1 + 1", this will return 2.0.
+	e.g., if the expression is "foo + 1" and parameters contains "foo" = 2, this will return 3.0
 */
 func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 

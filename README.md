@@ -5,14 +5,15 @@ govaluate
 [![Godoc](https://godoc.org/github.com/Knetic/govaluate?status.png)](https://godoc.org/github.com/Knetic/govaluate)
 
 
-Provides support for evaluating arbitrary artithmetic/string expressions.
+Provides support for evaluating arbitrary C-like artithmetic/string expressions.
 
 Why can't you just write these expressions in code?
 --
 
-Sometimes, you can't know ahead-of-time what an expression will look like, or you want those expressions to be configurable. Maybe you've written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon. Or perhaps you've got a set of data running through your application, and you want to allow your DBA's to run some validations on it before committing it to a database, but neither of you can predict what those validations will be.
+Sometimes, you can't know ahead-of-time what an expression will look like, or you want those expressions to be configurable.
+Perhaps you've got a set of data running through your application, and you want to allow your users to specify some validations to run on it before committing it to a database. Or maybe you've written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon, but the conditions for alerting are different for each monitor.
 
-A lot of people (myself included, for a long time) wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking their monitor logic into the actual monitor executable. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
+A lot of people wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking the expression into the actual executable, even if they know it's subject to change. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
 
 How do I use it?
 --
@@ -96,6 +97,8 @@ Expressions are parsed once, and can be re-used multiple times. Parsing is the c
 	}
 ```
 
+The normal C-standard order of operators is respected. When writing an expression, be sure that you either order the operators correctly, or use parenthesis to clarify which portions of an expression should be run first. 
+
 Escaping characters
 --
 
@@ -131,7 +134,7 @@ What operators and types does this support?
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
 * Prefixes: `!` `-`
-* Ternary operator `?` `:`
+* Ternary conditional `?` `:`
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 

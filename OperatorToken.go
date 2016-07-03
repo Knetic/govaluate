@@ -50,22 +50,12 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	"!~": NREQ,
 }
 
-/*
-	Map of all valid logical operators, and their string equivalents.
-	Used during parsing of expressions to determine if a symbol is, in fact, a logical operator.
-	Also used during evaluation to determine exactly which logical operator is being used.
-*/
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
 
 	"&&": AND,
 	"||": OR,
 }
 
-/*
-	Map of all valid modifiers, and their string equivalents.
-	Used during parsing of expressions to determine if a symbol is, in fact, a modifier.
-	Also used during evaluation to determine exactly which modifier is being used.
-*/
 var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
 
 	"+": PLUS,
@@ -87,17 +77,14 @@ var TERNARY_SYMBOLS = map[string]OperatorSymbol{
 	":": TERNARY_FALSE,
 }
 
-// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated last if a sequence of modifiers are used.
 var ADDITIVE_MODIFIERS = []OperatorSymbol{
 	PLUS, MINUS,
 }
 
-// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated second if a sequence of modifiers are used.
 var MULTIPLICATIVE_MODIFIERS = []OperatorSymbol{
 	MULTIPLY, DIVIDE, MODULUS,
 }
 
-// Convenience array that describes all symbols that count as "additive", which is a subset of modifiers that is evaluated first if a sequence of modifiers are used.
 var EXPONENTIAL_MODIFIERS = []OperatorSymbol{
 	EXPONENT,
 }
