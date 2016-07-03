@@ -61,7 +61,12 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 		return ret, errors.New("Unexpected end of expression")
 	}
 
-	return checkTokenOptimizations(ret)
+	err = checkBalance(ret)
+	if(err != nil) {
+		return nil, err
+	}
+
+	return optimizeTokens(ret)
 }
 
 func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, bool) {
@@ -281,7 +286,7 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 	Checks to see if any optimizations can be performed on the given [tokens], which form a complete, valid expression.
 	The returns slice will represent the optimized (or unmodified) list of tokens to use.
 */
-func checkTokenOptimizations(tokens []ExpressionToken) ([]ExpressionToken, error) {
+func optimizeTokens(tokens []ExpressionToken) ([]ExpressionToken, error) {
 
 	var token ExpressionToken
 	var symbol OperatorSymbol
@@ -315,6 +320,37 @@ func checkTokenOptimizations(tokens []ExpressionToken) ([]ExpressionToken, error
 		}
 	}
 	return tokens, nil
+}
+
+
+/*
+	Checks the balance of tokens which have multiple parts, such as parenthesis.
+*/
+func checkBalance(tokens []ExpressionToken) error {
+
+	var stream *tokenStream
+	var token ExpressionToken
+	var parens int
+
+	stream = newTokenStream(tokens)
+
+	for stream.hasNext() {
+
+		token = stream.next()
+		if(token.Kind == CLAUSE) {
+			parens++
+			continue
+		}
+		if(token.Kind == CLAUSE_CLOSE) {
+			parens--
+			continue
+		}
+	}
+
+	if(parens != 0) {
+		return errors.New("Unbalanced parenthesis")
+	}
+	return nil
 }
 
 func isNumeric(character rune) bool {

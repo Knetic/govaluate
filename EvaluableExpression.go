@@ -597,12 +597,8 @@ func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, err
 			return nil, err
 		}
 
-		token = stream.next()
-		if token.Kind != CLAUSE_CLOSE {
-
-			return nil, errors.New("Unbalanced parenthesis")
-		}
-
+		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
+		stream.next()
 		return value, nil
 
 	case VARIABLE:

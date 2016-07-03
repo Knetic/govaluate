@@ -13,6 +13,7 @@ const (
 	INVALID_TOKEN_KIND              = "Invalid token"
 	UNCLOSED_QUOTES                 = "Unclosed string literal"
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
+	UNBALANCED_PARENTHESIS			= "Unbalanced parenthesis"
 )
 
 /*
@@ -141,6 +142,12 @@ func TestParsingFailure(test *testing.T) {
 			Name:     "Constant regex pattern fail to compile",
 			Input:    "foo =~ '[abc'",
 			Expected: string(syntax.ErrMissingBracket),
+		},
+		ParsingFailureTest{
+
+			Name:     "Unbalanced parenthesis",
+			Input:    "10 > (1 + 50",
+			Expected: UNBALANCED_PARENTHESIS,
 		},
 	}
 
