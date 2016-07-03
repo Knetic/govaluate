@@ -215,15 +215,11 @@ func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, e
 		switch symbol {
 
 		case OR:
-			if value == nil {
-				return evaluateComparator(stream, parameters)
-			} else {
+			if value != nil {
 				newValue, err = evaluateLogical(stream, parameters)
 			}
 		case AND:
-			if value == nil {
-				return evaluateLogical(stream, parameters)
-			} else {
+			if value != nil {
 				newValue, err = evaluateComparator(stream, parameters)
 			}
 		}

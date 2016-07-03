@@ -145,7 +145,7 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		EvaluationFailureTest{
 
 			Name:     "AND number to number",
-			Input:    "number || number",
+			Input:    "number && number",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
@@ -157,7 +157,7 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		EvaluationFailureTest{
 
 			Name:     "AND string to string",
-			Input:    "string || string",
+			Input:    "string && string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
@@ -169,13 +169,25 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		EvaluationFailureTest{
 
 			Name:     "AND number to string",
-			Input:    "number || string",
+			Input:    "number && string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
 
 			Name:     "OR number to string",
 			Input:    "number || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "AND bool to string",
+			Input:    "bool && string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR bool to string",
+			Input:    "bool || string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 	}
