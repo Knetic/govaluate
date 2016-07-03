@@ -1,6 +1,6 @@
 language: go
 
-script: go test -cover; go test -bench=.
+script: test.sh
 
 go:
   - 1.0
