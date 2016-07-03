@@ -16,7 +16,7 @@ export GOPATH="${TEMPORARY_PATH}"
 
 pushd "${TEMPORARY_PATH}/src/govaluate"
 
-# run teh actual tests.
+# run the actual tests.
 go test -coverprofile coverage.out
 status=$?
 
