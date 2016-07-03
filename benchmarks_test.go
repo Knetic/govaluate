@@ -141,10 +141,10 @@ func BenchmarkComplexExpression(bench *testing.B) {
 }
 
 /*
-  Benchmarks regex operators, which are probably the most expensive of the lot.
+  Benchmarks uncompiled parameter regex operators, which are the most expensive of the lot.
   Note that regex compilation times are unpredictable and wily things. The regex engine has a lot of edge cases
   and possible performance pitfalls. This test doesn't aim to be comprehensive against all possible regex scenarios,
-  it is primarily concerned with making sure that simple patterns aren't causing undue time wasted.
+  it is primarily concerned with tracking how much longer it takes to compile a regex at evaluation-time than during parse-time.
 */
 func BenchmarkRegexExpression(bench *testing.B) {
 
@@ -165,6 +165,11 @@ func BenchmarkRegexExpression(bench *testing.B) {
 	}
 }
 
+/*
+	Benchmarks pre-compilable regex patterns. Meant to serve as a sanity check that constant strings used as regex patterns
+	are actually being precompiled.
+	Also demonstrates that (generally) compiling a regex at evaluation-time takes an order of magnitude more time than pre-compiling.
+*/
 func BenchmarkConstantRegexExpression(bench *testing.B) {
 
 	expressionString := "(foo !~ '[bB]az') && (bar =~ '[bB]ar')"

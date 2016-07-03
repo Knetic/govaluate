@@ -4,6 +4,7 @@ package govaluate
   Tests to make sure evaluation fails in the expected ways.
 */
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -282,7 +283,7 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 	var expression *EvaluableExpression
 	var err error
 
-	test.Logf("Running %d parsing test cases", len(evaluationTests))
+	fmt.Printf("Running %d negative parsing test cases...\n", len(evaluationTests))
 
 	for _, testCase := range evaluationTests {
 

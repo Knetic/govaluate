@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"fmt"
 	"bytes"
 	"testing"
 	"time"
@@ -817,7 +818,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	var expectedTokenLength, actualTokenLength int
 	var err error
 
-	test.Logf("Running %d parsing test cases", len(tokenParsingTests))
+	fmt.Printf("Running %d parsing test cases...\n", len(tokenParsingTests))
 
 	// Run the test cases.
 	for _, parsingTest := range tokenParsingTests {

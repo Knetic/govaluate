@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"fmt"
 	"regexp/syntax"
 	"strings"
 	"testing"
@@ -150,7 +151,7 @@ func runParsingFailureTests(parsingTests []ParsingFailureTest, test *testing.T) 
 
 	var err error
 
-	test.Logf("Running %d parsing test cases", len(parsingTests))
+	fmt.Printf("Running %d parsing test cases...\n", len(parsingTests))
 
 	for _, testCase := range parsingTests {
 
