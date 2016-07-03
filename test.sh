@@ -17,7 +17,7 @@ export GOPATH="${TEMPORARY_PATH}"
 pushd "${TEMPORARY_PATH}/src/govaluate"
 
 # run the actual tests.
-go test -coverprofile coverage.out
+go test -bench=. -coverprofile coverage.out
 status=$?
 
 if [ "${status}" != 0 ];
@@ -26,6 +26,5 @@ then
 fi
 
 go tool cover -func=coverage.out
-go test -bench=.
 
 popd
