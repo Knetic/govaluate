@@ -723,6 +723,46 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Expected: "baz123bartrue",
 		},
+		EvaluationTest{
+
+			Name:  "Integer width spectrum",
+			Input: "uint8 + uint16 + uint32 + uint64 + int8 + int16 + int32 + int64",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "uint8",
+					Value: uint8(0),
+				},
+				EvaluationParameter{
+					Name:  "uint16",
+					Value: uint16(0),
+				},
+				EvaluationParameter{
+					Name:  "uint32",
+					Value: uint32(0),
+				},
+				EvaluationParameter{
+					Name:  "uint64",
+					Value: uint64(0),
+				},
+				EvaluationParameter{
+					Name:  "int8",
+					Value: int8(0),
+				},
+				EvaluationParameter{
+					Name:  "int16",
+					Value: int16(0),
+				},
+				EvaluationParameter{
+					Name:  "int32",
+					Value: int32(0),
+				},
+				EvaluationParameter{
+					Name:  "int64",
+					Value: int64(0),
+				},
+			},
+			Expected: 0.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)

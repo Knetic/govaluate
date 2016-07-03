@@ -39,14 +39,25 @@ var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 
 func TestComplexParameter(test *testing.T) {
 
-	expression, _ := NewEvaluableExpression("foo")
+	var expression *EvaluableExpression
+	var err error
+
 	parameters := map[string]interface{}{
-		"foo": 1i,
+		"complex64": complex64(0),
+		"complex128": complex128(0),
 	}
 
-	_, err := expression.Evaluate(parameters)
+	expression, _ = NewEvaluableExpression("complex64")
+	_, err = expression.Evaluate(parameters)
 	if err == nil {
-		test.Logf("Expected to  fail when giving a complex value, did not")
+		test.Logf("Expected to fail when giving a complex64 value, did not")
+		test.Fail()
+	}
+
+	expression, _ = NewEvaluableExpression("complex128")
+	_, err = expression.Evaluate(parameters)
+	if err == nil {
+		test.Logf("Expected to fail when giving a complex128 value, did not")
 		test.Fail()
 	}
 }
