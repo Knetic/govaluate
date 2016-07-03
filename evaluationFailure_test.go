@@ -19,6 +19,7 @@ type DebugStruct struct {
 type EvaluationFailureTest struct {
 	Name     string
 	Input    string
+	Parameters map[string]interface{}
 	Expected string
 }
 
@@ -28,6 +29,7 @@ const (
 	INVALID_LOGICALOP_TYPES         = "cannot be used with the logical operator"
 	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
+	INVALID_REGEX					= "Unable to compile regexp pattern"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -272,8 +274,50 @@ func TestComparatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
-			Name:     "LTE number to string",
-			Input:    "number <= string",
+			Name:     "REQ number to string",
+			Input:    "number =~ string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "REQ number to bool",
+			Input:    "number =~ bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "REQ bool to number",
+			Input:    "bool =~ number",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "REQ bool to string",
+			Input:    "bool =~ string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "NREQ number to string",
+			Input:    "number !~ string",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "NREQ number to bool",
+			Input:    "number !~ bool",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "NREQ bool to number",
+			Input:    "bool !~ number",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "NREQ bool to string",
+			Input:    "bool !~ string",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
 	}
@@ -301,6 +345,32 @@ func TestTernaryTyping(test *testing.T) {
 	runEvaluationFailureTests(evaluationTests, test)
 }
 
+func TestRegexParameterCompilation(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:     "Regex equality runtime parsing",
+			Input:    "'foo' =~ foo",
+			Parameters: map[string]interface{} {
+				"foo": "[foo",
+			},
+			Expected: INVALID_REGEX,
+		},
+		EvaluationFailureTest{
+
+			Name:     "Regex inequality runtime parsing",
+			Input:    "'foo' =~ foo",
+			Parameters: map[string]interface{} {
+				"foo": "[foo",
+			},
+			Expected: INVALID_REGEX,
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
 func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *testing.T) {
 
 	var expression *EvaluableExpression
@@ -320,7 +390,11 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 			continue
 		}
 
-		_, err = expression.Evaluate(EVALUATION_FAILURE_PARAMETERS)
+		if(testCase.Parameters == nil) {
+			testCase.Parameters = EVALUATION_FAILURE_PARAMETERS
+		}
+
+		_, err = expression.Evaluate(testCase.Parameters)
 
 		if err == nil {
 
