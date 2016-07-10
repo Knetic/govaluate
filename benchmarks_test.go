@@ -51,6 +51,7 @@ func BenchmarkEvaluationSingle(bench *testing.B) {
 
 	expression, _ := NewEvaluableExpression("1")
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(nil)
 	}
@@ -63,6 +64,7 @@ func BenchmarkEvaluationNumericLiteral(bench *testing.B) {
 
 	expression, _ := NewEvaluableExpression("2 > 1")
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(nil)
 	}
@@ -75,6 +77,7 @@ func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 
 	expression, _ := NewEvaluableExpression("2 + 2 == 4")
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(nil)
 	}
@@ -91,6 +94,7 @@ func BenchmarkEvaluationParameters(bench *testing.B) {
 		"requests_succeeded": 90.0,
 	}
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
 	}
@@ -107,6 +111,7 @@ func BenchmarkEvaluationParametersModifiers(bench *testing.B) {
 		"requests_succeeded": 90.0,
 	}
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
 	}
@@ -135,6 +140,7 @@ func BenchmarkComplexExpression(bench *testing.B) {
 		"modifierTest":                     5.0,
 	}
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
 	}
@@ -160,6 +166,7 @@ func BenchmarkRegexExpression(bench *testing.B) {
 		"oba": ".*oba.*",
 	}
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
 	}
@@ -180,6 +187,7 @@ func BenchmarkConstantRegexExpression(bench *testing.B) {
 		"bar": "bar",
 	}
 
+	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
 	}
