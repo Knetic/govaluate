@@ -256,7 +256,7 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 	var err error
 	var keyFound bool
 
-	value, err = evaluateAdditiveModifier(stream, parameters)
+	value, err = evaluateBitwiseModifier(stream, parameters)
 
 	if err != nil {
 		return nil, err
@@ -339,6 +339,66 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 			}
 
 			return !pattern.Match([]byte(value.(string))), nil
+		}
+	}
+
+	stream.rewind()
+	return value, nil
+}
+
+func evaluateBitwiseModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
+
+	var token ExpressionToken
+	var value, rightValue interface{}
+	var symbol OperatorSymbol
+	var err error
+	var keyFound bool
+
+	value, err = evaluateAdditiveModifier(stream, parameters)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for stream.hasNext() {
+
+		token = stream.next()
+
+		if !isString(token.Value) {
+			break
+		}
+
+		symbol, keyFound = MODIFIER_SYMBOLS[token.Value.(string)]
+		if !keyFound {
+			break
+		}
+
+		// short circuit if this is, in fact, not bitwise.
+		if !symbol.IsModifierType(BITWISE_MODIFIERS) {
+			stream.rewind()
+			return value, nil
+		}
+
+		rightValue, err = evaluateBitwiseModifier(stream, parameters)
+		if err != nil {
+			return nil, err
+		}
+
+		// make sure that we're only operating on the appropriate types
+		if !isFloat64(value) {
+			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", value, token.Value))
+		}
+		if !isFloat64(rightValue) {
+			return nil, errors.New(fmt.Sprintf("Value '%v' cannot be used with the modifier '%v', it is not a number", rightValue, token.Value))
+		}
+
+		switch symbol {
+		case BITWISE_AND:
+			return float64(int64(value.(float64)) & int64(rightValue.(float64))), nil
+		case BITWISE_OR:
+			return float64(int64(value.(float64)) | int64(rightValue.(float64))), nil
+		case BITWISE_XOR:
+			return float64(int64(value.(float64)) ^ int64(rightValue.(float64))), nil
 		}
 	}
 
@@ -564,6 +624,9 @@ func evaluatePrefix(stream *tokenStream, parameters Parameters) (interface{}, er
 
 		case NEGATE:
 			return -value.(float64), nil
+
+		case BITWISE_NOT:
+			return float64(^int64(value.(float64))), nil
 
 		default:
 			stream.rewind()

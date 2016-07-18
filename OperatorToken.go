@@ -21,6 +21,9 @@ const (
 
 	PLUS
 	MINUS
+	BITWISE_AND
+	BITWISE_OR
+	BITWISE_XOR
 	MULTIPLY
 	DIVIDE
 	MODULUS
@@ -28,6 +31,7 @@ const (
 
 	NEGATE
 	INVERT
+	BITWISE_NOT
 
 	TERNARY_TRUE
 	TERNARY_FALSE
@@ -58,18 +62,22 @@ var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
 
 var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
 
-	"+": PLUS,
-	"-": MINUS,
-	"*": MULTIPLY,
-	"/": DIVIDE,
-	"%": MODULUS,
-	"^": EXPONENT,
+	"+":  PLUS,
+	"-":  MINUS,
+	"&":  BITWISE_AND,
+	"|":  BITWISE_OR,
+	"^":  BITWISE_XOR,
+	"*":  MULTIPLY,
+	"/":  DIVIDE,
+	"%":  MODULUS,
+	"**": EXPONENT,
 }
 
 var PREFIX_SYMBOLS = map[string]OperatorSymbol{
 
 	"-": NEGATE,
 	"!": INVERT,
+	"~": BITWISE_NOT,
 }
 
 var TERNARY_SYMBOLS = map[string]OperatorSymbol{
@@ -81,6 +89,10 @@ var ADDITIVE_MODIFIERS = []OperatorSymbol{
 	PLUS, MINUS,
 }
 
+var BITWISE_MODIFIERS = []OperatorSymbol{
+	BITWISE_AND, BITWISE_OR, BITWISE_XOR,
+}
+
 var MULTIPLICATIVE_MODIFIERS = []OperatorSymbol{
 	MULTIPLY, DIVIDE, MODULUS,
 }
@@ -90,7 +102,7 @@ var EXPONENTIAL_MODIFIERS = []OperatorSymbol{
 }
 
 var PREFIX_MODIFIERS = []OperatorSymbol{
-	NEGATE, INVERT,
+	NEGATE, INVERT, BITWISE_NOT,
 }
 
 var NUMERIC_COMPARATORS = []OperatorSymbol{

@@ -125,7 +125,7 @@ Backslashes can be used anywhere in an expression to escape the very next charac
 What operators and types does this support?
 --
 
-* Modifiers: `+` `-` `/` `*` `^` `%`
+* Modifiers: `+` `-` `/` `*` `&` `|` `^` `**` `%`
 * Comparators: `>` `>=` `<` `<=` `==` `!=` `=~` `!~`
 * Logical ops: `||` `&&`
 * Numeric constants, as 64-bit floating point (`12345.678`)
@@ -157,14 +157,17 @@ Note that this table shows what each type supports - if you use an operator then
 | -                          	| Subtracts             	| **X**           	| **X**           	|
 | /                          	| Divides               	| **X**           	| **X**           	|
 | *                          	| Multiplies            	| **X**           	| **X**           	|
-| ^                          	| Takes to the power of 	| **X**           	| **X**           	|
+| &                          	| Bitwise and             | **X**           	| **X**           	|
+|\|                          	| Bitwise or              | **X**           	| **X**           	|
+| ^                          	| Bitwise xor             | **X**           	| **X**           	|
+| **                         	| Takes to the power of 	| **X**           	| **X**           	|
 | %                          	| Modulo                	| **X**           	| **X**           	|
 | Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
-| Ternary (? :)                 | **X**                     | **X**             | Checks by value   |
-| Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
+| Ternary (? :)               | **X**                   | **X**             | Checks by value   |
+| Regex (=~ !~)               | **X**                   | Regex             | **X**             |
 | !                          	| **X**                 	| **X**           	| Inverts         	|
-| Negate (-)                 	| Multiplies by -1        	| **X**           	| **X**           	|
+| Negate (-)                 	| Multiplies by -1        | **X**           	| **X**           	|
 
 It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
 

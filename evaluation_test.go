@@ -39,6 +39,30 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Single BITWISE AND",
+			Input:    "100 & 50",
+			Expected: 32.0,
+		},
+		EvaluationTest{
+
+			Name:     "Single BITWISE OR",
+			Input:    "100 | 50",
+			Expected: 118.0,
+		},
+		EvaluationTest{
+
+			Name:     "Single BITWISE XOR",
+			Input:    "100 ^ 50",
+			Expected: 86.0,
+		},
+		EvaluationTest{
+
+			Name:     "Single BITWISE NOT",
+			Input:    "~10",
+			Expected: -11.0,
+		},
+		EvaluationTest{
+
 			Name:     "Single MULTIPLY",
 			Input:    "5 * 20",
 			Expected: 100.0,
@@ -63,9 +87,21 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Single EXPONENT",
+			Input:    "10 ** 2",
+			Expected: 100.0,
+		},
+		EvaluationTest{
+
 			Name:     "Compound PLUS",
 			Input:    "20 + 30 + 50",
 			Expected: 100.0,
+		},
+		EvaluationTest{
+
+			Name:     "Compound BITWISE AND",
+			Input:    "20 & 30 & 50",
+			Expected: 16.0,
 		},
 		EvaluationTest{
 
@@ -84,6 +120,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Nested parentheses",
 			Input:    "50 + (5 * (15 - 5))",
 			Expected: 100.0,
+		},
+		EvaluationTest{
+
+			Name:     "Nested parentheses with bitwise",
+			Input:    "100 ^ (23 * (2 | 5))",
+			Expected: 197.0,
 		},
 		EvaluationTest{
 
@@ -178,7 +220,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 		EvaluationTest{
 
 			Name:     "Exponent precedence",
-			Input:    "1 + 5 ^ 3 % 2 * 5",
+			Input:    "1 + 5 ** 3 % 2 * 5",
 			Expected: 6.0,
 		},
 		EvaluationTest{

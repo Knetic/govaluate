@@ -13,7 +13,7 @@ const (
 	INVALID_TOKEN_KIND              = "Invalid token"
 	UNCLOSED_QUOTES                 = "Unclosed string literal"
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
-	UNBALANCED_PARENTHESIS			= "Unbalanced parenthesis"
+	UNBALANCED_PARENTHESIS          = "Unbalanced parenthesis"
 )
 
 /*
@@ -39,18 +39,6 @@ func TestParsingFailure(test *testing.T) {
 
 			Name:     "Invalid equality comparator",
 			Input:    "1 === 1",
-			Expected: INVALID_TOKEN_KIND,
-		},
-		ParsingFailureTest{
-
-			Name:     "Half of a logical operator",
-			Input:    "true & false",
-			Expected: INVALID_TOKEN_KIND,
-		},
-		ParsingFailureTest{
-
-			Name:     "Half of a logical operator",
-			Input:    "true | false",
 			Expected: INVALID_TOKEN_KIND,
 		},
 		ParsingFailureTest{
