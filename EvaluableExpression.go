@@ -74,6 +74,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 
 	var stream *tokenStream
+	var stages *evaluationStageList
 	var err error
 
 	if parameters != nil {
@@ -85,25 +86,32 @@ func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error)
 	}
 
 	stream = newTokenStream(this.tokens)
-	return evaluateTokens(stream, parameters)
+	stages = newEvaluationStageList()
+
+	_, err = evaluateTokens(stream, parameters, stages)
+	if(err != nil) {
+		return nil, err
+	}
+
+	// kick off stage evaluation
 }
 
-func evaluateTokens(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateTokens(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	if stream.hasNext() {
-		return evaluateTernary(stream, parameters)
+		return evaluateTernary(stream, parameters, stages)
 	}
 	return nil, nil
 }
 
-func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateTernary(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 	var token ExpressionToken
 	var value, rightValue interface{}
 	var symbol OperatorSymbol
 	var err error
 	var keyFound bool
 
-	value, err = evaluateTernary2(stream, parameters)
+	value, err = evaluateTernary2(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -122,7 +130,7 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 			break
 		}
 
-		rightValue, err = evaluateTernary2(stream, parameters)
+		rightValue, err = evaluateTernary2(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -138,14 +146,14 @@ func evaluateTernary(stream *tokenStream, parameters Parameters) (interface{}, e
 	return value, nil
 }
 
-func evaluateTernary2(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateTernary2(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 	var token ExpressionToken
 	var value, rightValue interface{}
 	var symbol OperatorSymbol
 	var err error
 	var keyFound bool
 
-	value, err = evaluateLogical(stream, parameters)
+	value, err = evaluateLogical(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -164,7 +172,7 @@ func evaluateTernary2(stream *tokenStream, parameters Parameters) (interface{}, 
 			break
 		}
 
-		rightValue, err = evaluateLogical(stream, parameters)
+		rightValue, err = evaluateLogical(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +193,7 @@ func evaluateTernary2(stream *tokenStream, parameters Parameters) (interface{}, 
 	return value, nil
 }
 
-func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateLogical(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, newValue interface{}
@@ -193,7 +201,7 @@ func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, e
 	var err error
 	var keyFound bool
 
-	value, err = evaluateComparator(stream, parameters)
+	value, err = evaluateComparator(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -216,11 +224,11 @@ func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, e
 
 		case OR:
 			if value != nil {
-				newValue, err = evaluateLogical(stream, parameters)
+				newValue, err = evaluateLogical(stream, parameters, stages)
 			}
 		case AND:
 			if value != nil {
-				newValue, err = evaluateComparator(stream, parameters)
+				newValue, err = evaluateComparator(stream, parameters, stages)
 			}
 		}
 
@@ -247,7 +255,7 @@ func evaluateLogical(stream *tokenStream, parameters Parameters) (interface{}, e
 	return value, nil
 }
 
-func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateComparator(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -275,7 +283,7 @@ func evaluateComparator(stream *tokenStream, parameters Parameters) (interface{}
 			break
 		}
 
-		rightValue, err = evaluateAdditiveModifier(stream, parameters)
+		rightValue, err = evaluateAdditiveModifier(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -354,7 +362,7 @@ func evaluateBitwiseModifier(stream *tokenStream, parameters Parameters) (interf
 	var err error
 	var keyFound bool
 
-	value, err = evaluateAdditiveModifier(stream, parameters)
+	value, err = evaluateAdditiveModifier(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -406,7 +414,7 @@ func evaluateBitwiseModifier(stream *tokenStream, parameters Parameters) (interf
 	return value, nil
 }
 
-func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -414,7 +422,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters) (inter
 	var err error
 	var keyFound bool
 
-	value, err = evaluateMultiplicativeModifier(stream, parameters)
+	value, err = evaluateMultiplicativeModifier(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -439,7 +447,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters) (inter
 			return value, nil
 		}
 
-		rightValue, err = evaluateAdditiveModifier(stream, parameters)
+		rightValue, err = evaluateAdditiveModifier(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -472,7 +480,7 @@ func evaluateAdditiveModifier(stream *tokenStream, parameters Parameters) (inter
 	return value, nil
 }
 
-func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -480,7 +488,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters) 
 	var err error
 	var keyFound bool
 
-	value, err = evaluateExponentialModifier(stream, parameters)
+	value, err = evaluateExponentialModifier(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -505,7 +513,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters) 
 			return value, nil
 		}
 
-		rightValue, err = evaluateMultiplicativeModifier(stream, parameters)
+		rightValue, err = evaluateMultiplicativeModifier(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -533,7 +541,7 @@ func evaluateMultiplicativeModifier(stream *tokenStream, parameters Parameters) 
 	return value, nil
 }
 
-func evaluateExponentialModifier(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateExponentialModifier(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value, rightValue interface{}
@@ -541,7 +549,7 @@ func evaluateExponentialModifier(stream *tokenStream, parameters Parameters) (in
 	var err error
 	var keyFound bool
 
-	value, err = evaluateValue(stream, parameters)
+	value, err = evaluateValue(stream, parameters, stages)
 
 	if err != nil {
 		return nil, err
@@ -566,7 +574,7 @@ func evaluateExponentialModifier(stream *tokenStream, parameters Parameters) (in
 			return value, nil
 		}
 
-		rightValue, err = evaluateExponentialModifier(stream, parameters)
+		rightValue, err = evaluateExponentialModifier(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -589,7 +597,7 @@ func evaluateExponentialModifier(stream *tokenStream, parameters Parameters) (in
 	return value, nil
 }
 
-func evaluatePrefix(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluatePrefix(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value interface{}
@@ -612,7 +620,7 @@ func evaluatePrefix(stream *tokenStream, parameters Parameters) (interface{}, er
 
 		// TODO: need a prefix operator symbol check?
 
-		value, err = evaluateValue(stream, parameters)
+		value, err = evaluateValue(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -638,7 +646,7 @@ func evaluatePrefix(stream *tokenStream, parameters Parameters) (interface{}, er
 	return nil, nil
 }
 
-func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, error) {
+func evaluateValue(stream *tokenStream, parameters Parameters, stages *evaluationStageList) (interface{}, error) {
 
 	var token ExpressionToken
 	var value interface{}
@@ -650,7 +658,7 @@ func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, err
 	switch token.Kind {
 
 	case CLAUSE:
-		value, err = evaluateTokens(stream, parameters)
+		value, err = evaluateTokens(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -687,7 +695,7 @@ func evaluateValue(stream *tokenStream, parameters Parameters) (interface{}, err
 	case PREFIX:
 		stream.rewind()
 
-		value, err = evaluatePrefix(stream, parameters)
+		value, err = evaluatePrefix(stream, parameters, stages)
 		if err != nil {
 			return nil, err
 		}
@@ -806,40 +814,4 @@ func (this EvaluableExpression) Tokens() []ExpressionToken {
 func (this EvaluableExpression) String() string {
 
 	return this.inputExpression
-}
-
-func isString(value interface{}) bool {
-
-	switch value.(type) {
-	case string:
-		return true
-	}
-	return false
-}
-
-func isRegexOrString(value interface{}) bool {
-
-	switch value.(type) {
-	case string:
-		return true
-	case *regexp.Regexp:
-		return true
-	}
-	return false
-}
-
-func isBool(value interface{}) bool {
-	switch value.(type) {
-	case bool:
-		return true
-	}
-	return false
-}
-
-func isFloat64(value interface{}) bool {
-	switch value.(type) {
-	case float64:
-		return true
-	}
-	return false
 }
