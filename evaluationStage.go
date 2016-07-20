@@ -19,7 +19,7 @@ type stageTypeCheck func(value interface{}) bool
 
 type evaluationStage struct {
 
-	rightStage *evaluationStage
+	leftStage, rightStage *evaluationStage
 
 	// the operation that will be used to evaluate this stage (such as adding [left] to [right] and return the result)
 	operator evaluationOperator
