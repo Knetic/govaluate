@@ -14,7 +14,7 @@ const (
 	TYPEERROR_TERNARY 		string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
 )
 
-type evaluationOperator func(left interface{}, right interface{}) (interface{}, error)
+type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
 type stageTypeCheck func(value interface{}) bool
 
 type evaluationStage struct {
@@ -30,7 +30,7 @@ type evaluationStage struct {
 	typeErrorFormat string
 }
 
-func addStage(left interface{}, right interface{}) (interface{}, error) {
+func addStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	// string concat if either are strings
 	if isString(left) || isString(right) {
@@ -39,59 +39,65 @@ func addStage(left interface{}, right interface{}) (interface{}, error) {
 
 	return left.(float64) + right.(float64), nil
 }
-func subtractStage(left interface{}, right interface{}) (interface{}, error) {
+func subtractStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) - right.(float64), nil
 }
-func multiplyStage(left interface{}, right interface{}) (interface{}, error) {
+func multiplyStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) * right.(float64), nil
 }
-func divideStage(left interface{}, right interface{}) (interface{}, error) {
+func divideStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) / right.(float64), nil
 }
-func exponentStage(left interface{}, right interface{}) (interface{}, error) {
+func exponentStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return math.Pow(left.(float64), right.(float64)), nil
 }
-func modulusStage(left interface{}, right interface{}) (interface{}, error) {
+func modulusStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return math.Mod(left.(float64), right.(float64)), nil
 }
-func gteStage(left interface{}, right interface{}) (interface{}, error) {
+func gteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) >= right.(float64), nil
 }
-func gtStage(left interface{}, right interface{}) (interface{}, error) {
+func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) > right.(float64), nil
 }
-func lteStage(left interface{}, right interface{}) (interface{}, error) {
+func lteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) >= right.(float64), nil
 }
-func ltStage(left interface{}, right interface{}) (interface{}, error) {
+func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) > right.(float64), nil
 }
-func andStage(left interface{}, right interface{}) (interface{}, error) {
+func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return left == right, nil
+}
+func notEqualStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return left != right, nil
+}
+func andStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(bool) && right.(bool), nil
 }
-func orStage(left interface{}, right interface{}) (interface{}, error) {
+func orStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(bool) || right.(bool), nil
 }
-func negateStage(left interface{}, right interface{}) (interface{}, error) {
+func negateStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return -left.(float64), nil
 }
-func invertStage(left interface{}, right interface{}) (interface{}, error) {
+func invertStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return !left.(bool), nil
 }
-func ternaryIfStage(left interface{}, right interface{}) (interface{}, error) {
+func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if(left.(bool)) {
 		return right, nil
 	}
 	return nil, nil
 }
-func ternaryElseStage(left interface{}, right interface{}) (interface{}, error) {
+func ternaryElseStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if(left == nil) {
 		return right, nil
 	}
 	return left, nil
 }
 
-func regexStage(left interface{}, right interface{}) (interface{}, error) {
+func regexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	var pattern *regexp.Regexp
 	var err error
@@ -109,9 +115,9 @@ func regexStage(left interface{}, right interface{}) (interface{}, error) {
 	return pattern.Match([]byte(left.(string))), nil
 }
 
-func regexNotStage(left interface{}, right interface{}) (interface{}, error) {
+func notRegexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-	ret, err := regexStage(left, right)
+	ret, err := regexStage(left, right, parameters)
 	if(err != nil) {
 		return nil, err
 	}
@@ -119,10 +125,30 @@ func regexNotStage(left interface{}, right interface{}) (interface{}, error) {
 	return !(ret.(bool)), nil
 }
 
-func valueStage(left interface{}, right interface{}) (interface{}, error) {
-	return left, nil
+func makeParameterStage(parameterName string) evaluationOperator {
+
+	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+		value, err := parameters.Get(parameterName)
+		if err != nil {
+			return nil, err
+		}
+
+		if value == nil {
+			errorMessage := "No parameter '" + parameterName + "' found."
+			return nil, errors.New(errorMessage)
+		}
+
+		return value, nil
+	}
 }
 
+func makeLiteralStage(literal interface{}) evaluationOperator {
+	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+		return literal, nil
+	}
+}
+
+//
 
 func isString(value interface{}) bool {
 

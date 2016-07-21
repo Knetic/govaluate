@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"math"
-	"regexp"
 	"time"
 )
 
@@ -26,7 +24,7 @@ type EvaluableExpression struct {
 	QueryDateFormat string
 
 	tokens          []ExpressionToken
-	evaluationStages *evaluationStageList
+	evaluationStage *evaluationStage
 	inputExpression string
 }
 
@@ -48,7 +46,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 		return nil, err
 	}
 
-	ret.evaluationStageList, err = planStage(ret.tokens)
+	ret.evaluationStage, err = planStages(ret.tokens)
 	if(err != nil) {
 		return nil, err
 	}
@@ -80,14 +78,14 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 */
 func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 
-	var stream *tokenStream
-	var err error
+	//var err error
 
 	if parameters != nil {
 		parameters = &sanitizedParameters{parameters}
 	}
 
 	// kick off stage evaluation
+	return nil, nil
 }
 
 /*
