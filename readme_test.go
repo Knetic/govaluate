@@ -104,6 +104,7 @@ func TestMultipleEvaluation(test *testing.T) {
 		if result != true {
 			test.Logf("Expected 'true', got '%v'\n", result)
 			test.Fail()
+			break
 		}
 	}
 }

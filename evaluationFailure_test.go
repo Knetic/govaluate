@@ -407,7 +407,7 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 		if !strings.Contains(err.Error(), testCase.Expected) {
 
 			test.Logf("Test '%s' failed", testCase.Name)
-			test.Logf("Got error: '%s', expected '%s'", testCase.Expected, err.Error())
+			test.Logf("Got error: '%s', expected '%s'", err.Error(), testCase.Expected)
 			test.Fail()
 			continue
 		}
