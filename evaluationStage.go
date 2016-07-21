@@ -16,9 +16,11 @@ const (
 
 type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
 type stageTypeCheck func(value interface{}) bool
+type stageCombinedTypeCheck func(left interface{}, right interface{}) bool
 
 type evaluationStage struct {
 
+	symbol OperatorSymbol
 	leftStage, rightStage *evaluationStage
 
 	// the operation that will be used to evaluate this stage (such as adding [left] to [right] and return the result)
@@ -27,6 +29,13 @@ type evaluationStage struct {
 	// ensures that both left and right values are appropriate for this stage. Returns an error if they aren't operable.
 	leftTypeCheck stageTypeCheck
 	rightTypeCheck stageTypeCheck
+
+	// if specified, will override whatever is used in "leftTypeCheck" and "rightTypeCheck".
+	// primarily used for specific operators that don't care which side a given type is on, but still requires one side to be of a given type
+	// (like string concat)
+	typeCheck stageCombinedTypeCheck
+
+	// regardless of which type check is used, this string format will be used as the error message for type errors
 	typeErrorFormat string
 }
 
@@ -61,10 +70,10 @@ func gtStage(left interface{}, right interface{}, parameters Parameters) (interf
 	return left.(float64) > right.(float64), nil
 }
 func lteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return left.(float64) >= right.(float64), nil
+	return left.(float64) <= right.(float64), nil
 }
 func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return left.(float64) > right.(float64), nil
+	return left.(float64) < right.(float64), nil
 }
 func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left == right, nil
@@ -79,10 +88,10 @@ func orStage(left interface{}, right interface{}, parameters Parameters) (interf
 	return left.(bool) || right.(bool), nil
 }
 func negateStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return -left.(float64), nil
+	return -right.(float64), nil
 }
 func invertStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return !left.(bool), nil
+	return !right.(bool), nil
 }
 func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if(left.(bool)) {
@@ -91,10 +100,10 @@ func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) 
 	return nil, nil
 }
 func ternaryElseStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	if(left == nil) {
-		return right, nil
+	if(left != nil) {
+		return left, nil
 	}
-	return left, nil
+	return right, nil
 }
 
 func regexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
@@ -184,4 +193,19 @@ func isFloat64(value interface{}) bool {
 		return true
 	}
 	return false
+}
+
+/*
+	Addition usually means between numbers, but can also mean string concat.
+	String concat needs one (or both) of the sides to be a string.
+*/
+func additionTypeCheck(left interface{}, right interface{}) bool {
+
+	if(isFloat64(left) && isFloat64(right)) {
+		return true
+	}
+	if(!isString(left) && !isString(right)) {
+		return false
+	}
+	return true
 }

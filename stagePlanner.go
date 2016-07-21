@@ -36,64 +36,69 @@ type precedencePlanner struct {
 
 	leftTypeCheck stageTypeCheck
 	rightTypeCheck stageTypeCheck
+	typeErrorFormat string
 
 	next precedent
+	nextRight precedent
 }
 
 func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 
-	return func(stream *tokenStream) (*evaluationStage, error) {
+	var generated precedent
+	var nextRight precedent
+
+	generated = func(stream *tokenStream) (*evaluationStage, error) {
 		return planPrecedenceLevel(
 			stream,
 			planner.leftTypeCheck,
 			planner.rightTypeCheck,
+			planner.typeErrorFormat,
 			planner.validSymbols,
+			nextRight,
 			planner.next,
 		)
 	}
+
+	if(planner.nextRight != nil) {
+		nextRight = planner.nextRight
+	} else {
+		nextRight = generated
+	}
+
+	return generated
 }
 
 var planPrefix precedent
 var planExponential precedent
 var planMultiplicative precedent
-var planAdditive precedent
 var planLogical precedent
-var planTernary precedent
 
 func init() {
 
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: PREFIX_SYMBOLS,
+		nextRight: planValue,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: EXPONENTIAL_SYMBOLS,
 		leftTypeCheck: isFloat64,
 		rightTypeCheck: isFloat64,
+		typeErrorFormat: TYPEERROR_MODIFIER,
 		next: planValue,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: MULTIPLICATIVE_SYMBOLS,
 		leftTypeCheck: isFloat64,
 		rightTypeCheck: isFloat64,
+		typeErrorFormat: TYPEERROR_MODIFIER,
 		next: planExponential,
-	})
-	planAdditive = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: ADDITIVE_SYMBOLS,
-		leftTypeCheck: isFloat64,
-		rightTypeCheck: isFloat64,
-		next: planMultiplicative,
 	})
 	planLogical = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: LOGICAL_SYMBOLS,
 		leftTypeCheck: isBool,
 		rightTypeCheck: isBool,
+		typeErrorFormat: TYPEERROR_LOGICAL,
 		next: planComparator,
-	})
-	planTernary = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: TERNARY_SYMBOLS,
-		leftTypeCheck: isBool,
-		rightTypeCheck: isBool,
-		next: planLogical,
 	})
 }
 
@@ -127,8 +132,10 @@ func planPrecedenceLevel(
 	stream *tokenStream,
 	leftTypeCheck stageTypeCheck,
 	rightTypeCheck stageTypeCheck,
+	typeErrorFormat string,
 	validSymbols map[string]OperatorSymbol,
-	next precedent) (*evaluationStage, error) {
+	rightPrecedent precedent,
+	leftPrecedent precedent) (*evaluationStage, error) {
 
 	var token ExpressionToken
 	var symbol OperatorSymbol
@@ -136,8 +143,8 @@ func planPrecedenceLevel(
 	var err error
 	var keyFound bool
 
-	if(next != nil) {
-		leftStage, err = next(stream)
+	if(leftPrecedent != nil) {
+		leftStage, err = leftPrecedent(stream)
 		if err != nil {
 			return nil, err
 		}
@@ -155,8 +162,8 @@ func planPrecedenceLevel(
 			break
 		}
 
-		if(next != nil) {
-			rightStage, err = next(stream)
+		if(rightPrecedent != nil) {
+			rightStage, err = rightPrecedent(stream)
 			if err != nil {
 				return nil, err
 			}
@@ -164,12 +171,62 @@ func planPrecedenceLevel(
 
 		return &evaluationStage {
 
+			symbol: symbol,
 			leftStage: leftStage,
 			rightStage: rightStage,
 			operator: stageSymbolMap[symbol],
 
 			leftTypeCheck: leftTypeCheck,
 			rightTypeCheck: rightTypeCheck,
+			typeErrorFormat: typeErrorFormat,
+		}, nil
+	}
+
+	stream.rewind()
+	return leftStage, nil
+}
+
+func planTernary(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var symbol OperatorSymbol
+	var leftStage, rightStage *evaluationStage
+	var leftTypeCheck stageTypeCheck
+	var err error
+	var keyFound bool
+
+	leftStage, err = planLogical(stream)
+
+	for stream.hasNext() {
+
+		token = stream.next()
+		if !isString(token.Value) {
+			break
+		}
+
+		symbol, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
+		if !keyFound {
+			break
+		}
+
+		rightStage, err = planTernary(stream)
+		if err != nil {
+			return nil, err
+		}
+
+		if(symbol == TERNARY_TRUE) {
+			leftTypeCheck = isBool
+		}
+
+		return &evaluationStage {
+
+			symbol: symbol,
+			leftStage: leftStage,
+			rightStage: rightStage,
+			operator: stageSymbolMap[symbol],
+
+			leftTypeCheck: leftTypeCheck,
+			typeErrorFormat: TYPEERROR_TERNARY,
 		}, nil
 	}
 
@@ -226,6 +283,7 @@ func planComparator(stream *tokenStream) (*evaluationStage, error) {
 
 		return &evaluationStage {
 
+			symbol: symbol,
 			operator: stageSymbolMap[symbol],
 			leftStage: leftStage,
 			rightStage: rightStage,
@@ -234,6 +292,60 @@ func planComparator(stream *tokenStream) (*evaluationStage, error) {
 			rightTypeCheck: rightTypeCheck,
 
 			typeErrorFormat: TYPEERROR_COMPARATOR,
+		}, nil
+	}
+
+	stream.rewind()
+	return leftStage, nil
+}
+
+func planAdditive(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var symbol OperatorSymbol
+	var leftStage, rightStage *evaluationStage
+	var leftTypeCheck, rightTypeCheck stageTypeCheck
+	var typeCheck stageCombinedTypeCheck
+	var err error
+	var keyFound bool
+
+	leftStage, err = planMultiplicative(stream)
+
+	for stream.hasNext() {
+
+		token = stream.next()
+		if !isString(token.Value) {
+			break
+		}
+
+		symbol, keyFound = ADDITIVE_SYMBOLS[token.Value.(string)]
+		if !keyFound {
+			break
+		}
+
+		rightStage, err = planAdditive(stream)
+		if err != nil {
+			return nil, err
+		}
+
+		if(symbol != PLUS) {
+			leftTypeCheck = isFloat64
+			rightTypeCheck = isFloat64
+		} else {
+			typeCheck = additionTypeCheck
+		}
+
+		return &evaluationStage {
+
+			symbol: symbol,
+			leftStage: leftStage,
+			rightStage: rightStage,
+			operator: stageSymbolMap[symbol],
+
+			leftTypeCheck: leftTypeCheck,
+			rightTypeCheck: rightTypeCheck,
+			typeCheck: typeCheck,
+			typeErrorFormat: TYPEERROR_MODIFIER,
 		}, nil
 	}
 

@@ -137,3 +137,56 @@ func (this OperatorSymbol) IsModifierType(candidate []OperatorSymbol) bool {
 
 	return false
 }
+
+/*
+	Generally used when formatting type check errors.
+	We could store the stringified symbol somewhere else and not require a duplicated codeblock to translate
+	OperatorSymbol to string, but that would require more memory, and another field somewhere.
+	Adding operators is rare enough that we just stringify it here instead.
+*/
+func (this OperatorSymbol) String() string {
+
+	switch this {
+	case EQ:
+		 return "="
+	case NEQ:
+		 return "!="
+	case GT:
+		return ">"
+	case LT:
+		return "<"
+	case GTE:
+		return ">="
+	case LTE:
+		return "<="
+	case REQ:
+		return "=~"
+	case NREQ:
+		return "!~"
+	case AND:
+		return "&&"
+	case OR:
+		return "||"
+	case PLUS:
+		return "+"
+	case MINUS:
+		return "-"
+	case MULTIPLY:
+		return "*"
+	case DIVIDE:
+		return "/"
+	case MODULUS:
+		return "%"
+	case EXPONENT:
+		return "^"
+	case NEGATE:
+		return "-"
+	case INVERT:
+		return "!"
+	case TERNARY_TRUE:
+		return "?"
+	case TERNARY_FALSE:
+		return ":"
+	}
+	return ""
+}

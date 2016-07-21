@@ -24,7 +24,7 @@ type EvaluableExpression struct {
 	QueryDateFormat string
 
 	tokens          []ExpressionToken
-	evaluationStage *evaluationStage
+	evaluationStages *evaluationStage
 	inputExpression string
 }
 
@@ -46,7 +46,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 		return nil, err
 	}
 
-	ret.evaluationStage, err = planStages(ret.tokens)
+	ret.evaluationStages, err = planStages(ret.tokens)
 	if(err != nil) {
 		return nil, err
 	}
@@ -78,14 +78,70 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 */
 func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 
-	//var err error
+	if(this.evaluationStages == nil) {
+		return nil, nil
+	}
 
 	if parameters != nil {
 		parameters = &sanitizedParameters{parameters}
 	}
+	return evaluateStage(this.evaluationStages, parameters)
+}
 
-	// kick off stage evaluation
-	return nil, nil
+func evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, error) {
+
+	var left, right interface{}
+	var err error
+
+	if(stage.leftStage != nil) {
+		left, err = evaluateStage(stage.leftStage, parameters)
+		if(err != nil) {
+			return nil, err
+		}
+	}
+
+	if(stage.rightStage != nil) {
+		right, err = evaluateStage(stage.rightStage, parameters)
+		if(err != nil) {
+			return nil, err
+		}
+	}
+
+	// type checks
+	if(stage.typeCheck == nil) {
+
+		err = typeCheck(stage.leftTypeCheck, left, stage.symbol, stage.typeErrorFormat)
+		if(err != nil) {
+			return nil, err
+		}
+
+		err = typeCheck(stage.rightTypeCheck, right, stage.symbol, stage.typeErrorFormat)
+		if(err != nil) {
+			return nil, err
+		}
+	} else {
+		// special case where the type check needs to know both sides to determine if the operator can handle it
+		if(!stage.typeCheck(left, right)) {
+			errorMsg := fmt.Sprintf(stage.typeErrorFormat, left, stage.symbol.String())
+			return nil, errors.New(errorMsg)
+		}
+	}
+
+	return stage.operator(left, right, parameters)
+}
+
+func typeCheck(check stageTypeCheck, value interface{}, symbol OperatorSymbol, format string) error {
+
+	if(check == nil) {
+		return  nil
+	}
+
+	if(check(value)) {
+		return nil
+	}
+
+	errorMsg := fmt.Sprintf(format, value, symbol.String())
+	return errors.New(errorMsg)
 }
 
 /*
