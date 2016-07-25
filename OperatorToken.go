@@ -7,7 +7,8 @@ package govaluate
 type OperatorSymbol int
 
 const (
-	EQ OperatorSymbol = iota
+	NOOP OperatorSymbol = iota
+	EQ
 	NEQ
 	GT
 	LT
@@ -36,6 +37,67 @@ const (
 	TERNARY_TRUE
 	TERNARY_FALSE
 )
+
+type OperatorPrecedence int
+
+const (
+	VALUE_PRECEDENCE OperatorPrecedence = iota
+	PREFIX_PRECEDENCE
+	EXPONENTIAL_PRECEDENCE
+	ADDITIVE_PRECEDENCE
+	MULTIPLICATIVE_PRECEDENCE
+	COMPARATOR_PRECEDENCE
+	TERNARY_PRECEDENCE
+	LOGICAL_PRECEDENCE
+)
+
+func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
+
+	switch symbol {
+		case EQ:
+			fallthrough
+		case NEQ:
+			fallthrough
+		case GT:
+			fallthrough
+		case LT:
+			fallthrough
+		case GTE:
+			fallthrough
+		case LTE:
+			fallthrough
+		case REQ:
+			fallthrough
+		case NREQ:
+			return COMPARATOR_PRECEDENCE
+		case AND:
+			fallthrough
+		case OR:
+			return LOGICAL_PRECEDENCE
+		case PLUS:
+			fallthrough
+		case MINUS:
+			return ADDITIVE_PRECEDENCE
+		case MULTIPLY:
+			fallthrough
+		case DIVIDE:
+			fallthrough
+		case MODULUS:
+			return MULTIPLICATIVE_PRECEDENCE
+		case EXPONENT:
+			return EXPONENTIAL_PRECEDENCE
+		case NEGATE:
+			fallthrough
+		case INVERT:
+			return PREFIX_PRECEDENCE
+		case TERNARY_TRUE:
+			fallthrough
+		case TERNARY_FALSE:
+			return TERNARY_PRECEDENCE
+	}
+
+	return -1
+}
 
 /*
 	Map of all valid comparators, and their string equivalents.

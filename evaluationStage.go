@@ -21,6 +21,7 @@ type stageCombinedTypeCheck func(left interface{}, right interface{}) bool
 type evaluationStage struct {
 
 	symbol OperatorSymbol
+
 	leftStage, rightStage *evaluationStage
 
 	// the operation that will be used to evaluate this stage (such as adding [left] to [right] and return the result)
@@ -37,6 +38,23 @@ type evaluationStage struct {
 
 	// regardless of which type check is used, this string format will be used as the error message for type errors
 	typeErrorFormat string
+}
+
+func (this *evaluationStage) swapWith(other *evaluationStage) {
+
+	temp := *other
+	other.setToNonStage(*this)
+	this.setToNonStage(temp)
+}
+
+func (this *evaluationStage) setToNonStage(other evaluationStage) {
+
+	this.symbol = other.symbol
+	this.operator = other.operator
+	this.leftTypeCheck = other.leftTypeCheck
+	this.rightTypeCheck = other.rightTypeCheck
+	this.typeCheck = other.typeCheck
+	this.typeErrorFormat = other.typeErrorFormat
 }
 
 func addStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {

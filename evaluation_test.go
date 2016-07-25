@@ -215,13 +215,23 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name:     "Modulus precedence",
 			Input:    "1 + 101 % 2 * 5",
-			Expected: 2.0,
+			Expected: 6.0,
 		},
 		EvaluationTest{
 
 			Name:     "Exponent precedence",
 			Input:    "1 + 5 ** 3 % 2 * 5",
 			Expected: 6.0,
+		},
+		EvaluationTest{
+			Name:     "Order of non-commutative same-precedence operators (additive)",
+			Input:    "1 - 2 - 4 - 8",
+			Expected: -13.0,
+		},
+		EvaluationTest{
+			Name:     "Order of non-commutative same-precedence operators (multiplicative)",
+			Input:    "1 * 4 / 2 * 8",
+			Expected: 16.0,
 		},
 		EvaluationTest{
 
@@ -352,14 +362,14 @@ func TestNoParameterEvaluation(test *testing.T) {
 		EvaluationTest{
 
 			Name:     "Ternary-else (true-case) inside clause",
-			Input:    "(true ? 35.50 : 5) > 10",
+			Input:    "(true ? 1 : 5) < 10",
 			Expected: true,
 		},
 		EvaluationTest{
 
 			Name:     "Ternary-else before comparator (negative case)",
-			Input:    "true ? 35.50 : 5 > 10",
-			Expected: 35.50,
+			Input:    "true ? 1 : 5 > 10",
+			Expected: 1.0,
 		},
 		EvaluationTest{
 

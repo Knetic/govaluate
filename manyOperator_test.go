@@ -9,8 +9,8 @@ func TestMultipleOperators(test *testing.T) {
 	tests := []EvaluationTest {
 		EvaluationTest{
 			Name:     "Incorrect subtract behavior",
-			Input:    "2 - 6 - 10 - 2",
-			Expected: -16.0,
+			Input:    "1 - 2 - 4 - 8",
+			Expected: -13.0,
 		},
 	}
 
