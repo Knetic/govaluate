@@ -6,30 +6,32 @@ import (
 )
 
 var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
-	EQ:            equalStage,
-	NEQ:           notEqualStage,
-	GT:            gtStage,
-	LT:            ltStage,
-	GTE:           gteStage,
-	LTE:           lteStage,
-	REQ:           regexStage,
-	NREQ:          notRegexStage,
-	AND:           andStage,
-	OR:            orStage,
-	BITWISE_OR:    bitwiseOrStage,
-	BITWISE_AND:   bitwiseAndStage,
-	BITWISE_XOR:   bitwiseXORStage,
-	PLUS:          addStage,
-	MINUS:         subtractStage,
-	MULTIPLY:      multiplyStage,
-	DIVIDE:        divideStage,
-	MODULUS:       modulusStage,
-	EXPONENT:      exponentStage,
-	NEGATE:        negateStage,
-	INVERT:        invertStage,
-	BITWISE_NOT:   bitwiseNotStage,
-	TERNARY_TRUE:  ternaryIfStage,
-	TERNARY_FALSE: ternaryElseStage,
+	EQ:             equalStage,
+	NEQ:            notEqualStage,
+	GT:             gtStage,
+	LT:             ltStage,
+	GTE:            gteStage,
+	LTE:            lteStage,
+	REQ:            regexStage,
+	NREQ:           notRegexStage,
+	AND:            andStage,
+	OR:             orStage,
+	BITWISE_OR:     bitwiseOrStage,
+	BITWISE_AND:    bitwiseAndStage,
+	BITWISE_XOR:    bitwiseXORStage,
+	BITWISE_LSHIFT: leftShiftStage,
+	BITWISE_RSHIFT: rightShiftStage,
+	PLUS:           addStage,
+	MINUS:          subtractStage,
+	MULTIPLY:       multiplyStage,
+	DIVIDE:         divideStage,
+	MODULUS:        modulusStage,
+	EXPONENT:       exponentStage,
+	NEGATE:         negateStage,
+	INVERT:         invertStage,
+	BITWISE_NOT:    bitwiseNotStage,
+	TERNARY_TRUE:   ternaryIfStage,
+	TERNARY_FALSE:  ternaryElseStage,
 }
 
 /*
@@ -86,6 +88,7 @@ var planExponential precedent
 var planMultiplicative precedent
 var planAdditive precedent
 var planBitwise precedent
+var planShift precedent
 var planComparator precedent
 var planLogical precedent
 var planTernary precedent
@@ -115,10 +118,15 @@ func init() {
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planMultiplicative,
 	})
+	planShift = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    BITWISE_SHIFT_SYMBOLS,
+		typeErrorFormat: TYPEERROR_MODIFIER,
+		next:            planAdditive,
+	})
 	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SYMBOLS,
 		typeErrorFormat: TYPEERROR_MODIFIER,
-		next:            planAdditive,
+		next:            planShift,
 	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    COMPARATOR_SYMBOLS,
@@ -271,6 +279,10 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 			left:  isBool,
 			right: isBool,
 		}
+	case BITWISE_LSHIFT:
+		fallthrough
+	case BITWISE_RSHIFT:
+		fallthrough
 	case BITWISE_OR:
 		fallthrough
 	case BITWISE_AND:

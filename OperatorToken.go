@@ -25,6 +25,8 @@ const (
 	BITWISE_AND
 	BITWISE_OR
 	BITWISE_XOR
+	BITWISE_LSHIFT
+	BITWISE_RSHIFT
 	MULTIPLY
 	DIVIDE
 	MODULUS
@@ -46,6 +48,7 @@ const (
 	EXPONENTIAL_PRECEDENCE
 	ADDITIVE_PRECEDENCE
 	BITWISE_PRECEDENCE
+	BITWISE_SHIFTPRECEDENCE
 	MULTIPLICATIVE_PRECEDENCE
 	COMPARATOR_PRECEDENCE
 	TERNARY_PRECEDENCE
@@ -81,6 +84,10 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		fallthrough
 	case BITWISE_XOR:
 		return BITWISE_PRECEDENCE
+	case BITWISE_LSHIFT:
+		fallthrough
+	case BITWISE_RSHIFT:
+		return BITWISE_SHIFTPRECEDENCE
 	case PLUS:
 		fallthrough
 	case MINUS:
@@ -135,6 +142,11 @@ var BITWISE_SYMBOLS = map[string]OperatorSymbol{
 	"|": BITWISE_OR,
 }
 
+var BITWISE_SHIFT_SYMBOLS = map[string]OperatorSymbol{
+	">>": BITWISE_RSHIFT,
+	"<<": BITWISE_LSHIFT,
+}
+
 var ADDITIVE_SYMBOLS = map[string]OperatorSymbol{
 	"+": PLUS,
 	"-": MINUS,
@@ -172,6 +184,8 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
 	"&":  BITWISE_AND,
 	"|":  BITWISE_OR,
 	"^":  BITWISE_XOR,
+	">>": BITWISE_RSHIFT,
+	"<<": BITWISE_LSHIFT,
 }
 
 var ADDITIVE_MODIFIERS = []OperatorSymbol{
@@ -180,6 +194,10 @@ var ADDITIVE_MODIFIERS = []OperatorSymbol{
 
 var BITWISE_MODIFIERS = []OperatorSymbol{
 	BITWISE_AND, BITWISE_OR, BITWISE_XOR,
+}
+
+var BITWISE_SHIFT_MODIFIERS = []OperatorSymbol{
+	BITWISE_LSHIFT, BITWISE_RSHIFT,
 }
 
 var MULTIPLICATIVE_MODIFIERS = []OperatorSymbol{
@@ -252,6 +270,10 @@ func (this OperatorSymbol) String() string {
 		return "|"
 	case BITWISE_XOR:
 		return "^"
+	case BITWISE_LSHIFT:
+		return "<<"
+	case BITWISE_RSHIFT:
+		return ">>"
 	case PLUS:
 		return "+"
 	case MINUS:

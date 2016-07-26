@@ -57,6 +57,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Single shift left",
+			Input:    "2 << 1",
+			Expected: 4.0,
+		},
+		EvaluationTest{
+
+			Name:     "Single shift right",
+			Input:    "2 >> 1",
+			Expected: 1.0,
+		},
+		EvaluationTest{
+
 			Name:     "Single BITWISE NOT",
 			Input:    "~10",
 			Expected: -11.0,
@@ -222,6 +234,24 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Exponent precedence",
 			Input:    "1 + 5 ** 3 % 2 * 5",
 			Expected: 6.0,
+		},
+		EvaluationTest{
+
+			Name:     "Bit shift precedence",
+			Input:    "50 << 1 & 90",
+			Expected: 64.0,
+		},
+		EvaluationTest{
+
+			Name:     "Bit shift precedence",
+			Input:    "90 & 50 << 1",
+			Expected: 64.0,
+		},
+		EvaluationTest{
+
+			Name:     "Bit shift precedence amongst non-bitwise",
+			Input:    "90 + 50 << 1 * 5",
+			Expected: 4480.0,
 		},
 		EvaluationTest{
 			Name:     "Order of non-commutative same-precedence operators (additive)",

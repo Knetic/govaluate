@@ -158,13 +158,17 @@ func notRegexStage(left interface{}, right interface{}, parameters Parameters) (
 func bitwiseOrStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) | int64(right.(float64))), nil
 }
-
 func bitwiseAndStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) & int64(right.(float64))), nil
 }
-
 func bitwiseXORStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) ^ int64(right.(float64))), nil
+}
+func leftShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(uint64(left.(float64)) << uint64(right.(float64))), nil
+}
+func rightShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(uint64(left.(float64)) >> uint64(right.(float64))), nil
 }
 
 func makeParameterStage(parameterName string) evaluationOperator {
