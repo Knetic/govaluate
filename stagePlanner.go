@@ -44,8 +44,6 @@ type precedencePlanner struct {
 
 	validSymbols map[string]OperatorSymbol
 
-	leftTypeCheck stageTypeCheck
-	rightTypeCheck stageTypeCheck
 	typeErrorFormat string
 
 	next precedent
@@ -64,8 +62,6 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 	generated = func(stream *tokenStream) (*evaluationStage, error) {
 		return planPrecedenceLevel(
 			stream,
-			planner.leftTypeCheck,
-			planner.rightTypeCheck,
 			planner.typeErrorFormat,
 			planner.validSymbols,
 			nextRight,
@@ -85,7 +81,10 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 var planPrefix precedent
 var planExponential precedent
 var planMultiplicative precedent
+var planAdditive precedent
+var planComparator precedent
 var planLogical precedent
+var planTernary precedent
 
 func init() {
 
@@ -98,24 +97,33 @@ func init() {
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: EXPONENTIAL_SYMBOLS,
-		leftTypeCheck: isFloat64,
-		rightTypeCheck: isFloat64,
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next: planValue,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: MULTIPLICATIVE_SYMBOLS,
-		leftTypeCheck: isFloat64,
-		rightTypeCheck: isFloat64,
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next: planExponential,
 	})
+	planAdditive = makePrecedentFromPlanner(&precedencePlanner {
+		validSymbols: ADDITIVE_SYMBOLS,
+		typeErrorFormat: TYPEERROR_MODIFIER,
+		next: planMultiplicative,
+	})
+	planComparator = makePrecedentFromPlanner(&precedencePlanner {
+		validSymbols: COMPARATOR_SYMBOLS,
+		typeErrorFormat: TYPEERROR_COMPARATOR,
+		next: planAdditive,
+	})
 	planLogical = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: LOGICAL_SYMBOLS,
-		leftTypeCheck: isBool,
-		rightTypeCheck: isBool,
 		typeErrorFormat: TYPEERROR_LOGICAL,
 		next: planComparator,
+	})
+	planTernary = makePrecedentFromPlanner(&precedencePlanner {
+		validSymbols: TERNARY_SYMBOLS,
+		typeErrorFormat: TYPEERROR_TERNARY,
+		next: planLogical,
 	})
 }
 
@@ -154,8 +162,6 @@ func planTokens(stream *tokenStream) (*evaluationStage, error) {
 */
 func planPrecedenceLevel(
 	stream *tokenStream,
-	leftTypeCheck stageTypeCheck,
-	rightTypeCheck stageTypeCheck,
 	typeErrorFormat string,
 	validSymbols map[string]OperatorSymbol,
 	rightPrecedent precedent,
@@ -164,6 +170,7 @@ func planPrecedenceLevel(
 	var token ExpressionToken
 	var symbol OperatorSymbol
 	var leftStage, rightStage *evaluationStage
+	var checks typeChecks
 	var err error
 	var keyFound bool
 
@@ -193,6 +200,8 @@ func planPrecedenceLevel(
 			}
 		}
 
+		checks = findTypeChecks(symbol)
+
 		return &evaluationStage {
 
 			symbol: symbol,
@@ -200,8 +209,9 @@ func planPrecedenceLevel(
 			rightStage: rightStage,
 			operator: stageSymbolMap[symbol],
 
-			leftTypeCheck: leftTypeCheck,
-			rightTypeCheck: rightTypeCheck,
+			leftTypeCheck: checks.left,
+			rightTypeCheck: checks.right,
+			typeCheck: checks.combined,
 			typeErrorFormat: typeErrorFormat,
 		}, nil
 	}
@@ -211,181 +221,86 @@ func planPrecedenceLevel(
 }
 
 /*
-	Plans a ternary-precedence evaluation stage.
-	This cannot be handled by `planPrecedenceLevel` because the two ternary operators require different type checks.
+	Convenience function to pass a triplet of typechecks between `findTypeChecks` and `planPrecedenceLevel`.
+	Each of these members may be nil, which indicates that type does not matter for that value.
 */
-func planTernary(stream *tokenStream) (*evaluationStage, error) {
-
-	//Might be avoidable with a map of operator-to-type-checks, but for now this works.
-	var token ExpressionToken
-	var symbol OperatorSymbol
-	var leftStage, rightStage *evaluationStage
-	var leftTypeCheck stageTypeCheck
-	var err error
-	var keyFound bool
-
-	leftStage, err = planLogical(stream)
-
-	for stream.hasNext() {
-
-		token = stream.next()
-		if !isString(token.Value) {
-			break
-		}
-
-		symbol, keyFound = TERNARY_SYMBOLS[token.Value.(string)]
-		if !keyFound {
-			break
-		}
-
-		rightStage, err = planTernary(stream)
-		if err != nil {
-			return nil, err
-		}
-
-		if(symbol == TERNARY_TRUE) {
-			leftTypeCheck = isBool
-		}
-
-		return &evaluationStage {
-
-			symbol: symbol,
-			leftStage: leftStage,
-			rightStage: rightStage,
-			operator: stageSymbolMap[symbol],
-
-			leftTypeCheck: leftTypeCheck,
-			typeErrorFormat: TYPEERROR_TERNARY,
-		}, nil
-	}
-
-	stream.rewind()
-	return leftStage, nil
+type typeChecks struct {
+	left stageTypeCheck
+	right stageTypeCheck
+	combined stageCombinedTypeCheck
 }
 
 /*
-	Similar to planTernary,
-	this is mostly a copy of `planPredecenceLevel`, except with multiple possible type checks based on the comparator.
+	Maps a given [symbol] to a set of typechecks to be used during runtime.
 */
-func planComparator(stream *tokenStream) (*evaluationStage, error) {
+func findTypeChecks(symbol OperatorSymbol) typeChecks {
 
-	// comparators can operate on a bunch of different types.
-	// this is mostly a copy of `planPredecenceLevel`, except with multiple possible type checks based on the comparator.
-	var token ExpressionToken
-	var leftStage, rightStage *evaluationStage
-	var symbol OperatorSymbol
-	var leftTypeCheck, rightTypeCheck stageTypeCheck
-	var err error
-	var keyFound bool
+	switch symbol {
+	case GT:
+		fallthrough
+	case LT:
+		fallthrough
+	case GTE:
+		fallthrough
+	case LTE:
+		return typeChecks {
+			left: isFloat64,
+			right: isFloat64,
+		}
+	case REQ:
+		fallthrough
+	case NREQ:
+		return typeChecks {
+			left: isString,
+			right: isRegexOrString,
+		}
+	case AND:
+		fallthrough
+	case OR:
+		return typeChecks {
+			left: isBool,
+			right: isBool,
+		}
+	case PLUS:
+		return typeChecks {
+			combined: additionTypeCheck,
+		}
+	case MINUS:
+		fallthrough
+	case MULTIPLY:
+		fallthrough
+	case DIVIDE:
+		fallthrough
+	case MODULUS:
+		fallthrough
+	case EXPONENT:
+		return typeChecks {
+			left: isFloat64,
+			right: isFloat64,
+		}
+	case NEGATE:
+		return typeChecks {
+			right: isFloat64,
+		}
+	case INVERT:
+		return typeChecks {
+			right: isBool,
+		}
+	case TERNARY_TRUE:
+		return typeChecks {
+			left: isBool,
+		}
 
-	leftStage, err = planAdditive(stream)
-
-	if err != nil {
-		return nil, err
+	// unchecked cases
+	case EQ:
+		fallthrough
+	case NEQ:
+		return typeChecks{}
+	case TERNARY_FALSE:
+		fallthrough
+	default:
+		return typeChecks{}
 	}
-
-	for stream.hasNext() {
-
-		token = stream.next()
-
-		if !isString(token.Value) {
-			break
-		}
-
-		symbol, keyFound = COMPARATOR_SYMBOLS[token.Value.(string)]
-		if !keyFound {
-			break
-		}
-
-		rightStage, err = planAdditive(stream)
-		if err != nil {
-			return nil, err
-		}
-
-		// make sure that we're only operating on the appropriate types
-		if symbol.IsModifierType(NUMERIC_COMPARATORS) {
-			leftTypeCheck = isFloat64
-			rightTypeCheck = isFloat64
-		}
-
-		if symbol.IsModifierType(STRING_COMPARATORS) {
-			leftTypeCheck = isString
-			rightTypeCheck = isRegexOrString
-		}
-
-		return &evaluationStage {
-
-			symbol: symbol,
-			operator: stageSymbolMap[symbol],
-			leftStage: leftStage,
-			rightStage: rightStage,
-
-			leftTypeCheck: leftTypeCheck,
-			rightTypeCheck: rightTypeCheck,
-
-			typeErrorFormat: TYPEERROR_COMPARATOR,
-		}, nil
-	}
-
-	stream.rewind()
-	return leftStage, nil
-}
-
-/*
-	All additive modifiers operate on numbers, except the ADD, which might mean string concat.
-*/
-func planAdditive(stream *tokenStream) (*evaluationStage, error) {
-
-	var token ExpressionToken
-	var symbol OperatorSymbol
-	var leftStage, rightStage *evaluationStage
-	var leftTypeCheck, rightTypeCheck stageTypeCheck
-	var typeCheck stageCombinedTypeCheck
-	var err error
-	var keyFound bool
-
-	leftStage, err = planMultiplicative(stream)
-
-	for stream.hasNext() {
-
-		token = stream.next()
-		if !isString(token.Value) {
-			break
-		}
-
-		symbol, keyFound = ADDITIVE_SYMBOLS[token.Value.(string)]
-		if !keyFound {
-			break
-		}
-
-		rightStage, err = planAdditive(stream)
-		if err != nil {
-			return nil, err
-		}
-
-		if(symbol != PLUS) {
-			leftTypeCheck = isFloat64
-			rightTypeCheck = isFloat64
-		} else {
-			typeCheck = additionTypeCheck
-		}
-
-		return &evaluationStage {
-
-			symbol: symbol,
-			leftStage: leftStage,
-			rightStage: rightStage,
-			operator: stageSymbolMap[symbol],
-
-			leftTypeCheck: leftTypeCheck,
-			rightTypeCheck: rightTypeCheck,
-			typeCheck: typeCheck,
-			typeErrorFormat: TYPEERROR_MODIFIER,
-		}, nil
-	}
-
-	stream.rewind()
-	return leftStage, nil
 }
 
 /*
