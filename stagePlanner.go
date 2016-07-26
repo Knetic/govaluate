@@ -28,8 +28,18 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator {
 	TERNARY_FALSE: ternaryElseStage,
 }
 
+/*
+	A "precedent" is a function which will recursively parse new evaluateionStages from a given stream of tokens.
+	It's called a `precedent` because it is expected to handle exactly what precedence of operator,
+	and defer to other `precedent`s for other operators.
+*/
 type precedent func(stream *tokenStream) (*evaluationStage, error)
 
+/*
+	A convenience function for specifying the behavior of a `precedent`.
+	Most `precedent` functions can be described by the same function, just with different type checks, symbols, and error formats.
+	This struct is passed to `makePrecedentFromPlanner` to create a `precedent` function.
+*/
 type precedencePlanner struct {
 
 	validSymbols map[string]OperatorSymbol
@@ -42,6 +52,10 @@ type precedencePlanner struct {
 	nextRight precedent
 }
 
+/*
+	Given a planner, creates a function which will evaluate a specific precedence level of operators,
+	and link it to other `precedent`s which recurse to parse other precedence levels.
+*/
 func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 
 	var generated precedent
@@ -75,6 +89,9 @@ var planLogical precedent
 
 func init() {
 
+	// all these stages can use the same code (in `planPrecedenceLevel`) to execute,
+	// they simply need different type checks, symbols, and recursive precedents.
+	// While not all precedent phases are listed here, most can be represented this way.
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner {
 		validSymbols: PREFIX_SYMBOLS,
 		nextRight: planValue,
@@ -131,6 +148,10 @@ func planTokens(stream *tokenStream) (*evaluationStage, error) {
 	return planTernary(stream)
 }
 
+/*
+	The most usual method of parsing an evaluation stage for a given precedence.
+	Most stages use the same logic
+*/
 func planPrecedenceLevel(
 	stream *tokenStream,
 	leftTypeCheck stageTypeCheck,
@@ -189,8 +210,13 @@ func planPrecedenceLevel(
 	return leftStage, nil
 }
 
+/*
+	Plans a ternary-precedence evaluation stage.
+	This cannot be handled by `planPrecedenceLevel` because the two ternary operators require different type checks.
+*/
 func planTernary(stream *tokenStream) (*evaluationStage, error) {
 
+	//Might be avoidable with a map of operator-to-type-checks, but for now this works.
 	var token ExpressionToken
 	var symbol OperatorSymbol
 	var leftStage, rightStage *evaluationStage
@@ -237,7 +263,10 @@ func planTernary(stream *tokenStream) (*evaluationStage, error) {
 	return leftStage, nil
 }
 
-
+/*
+	Similar to planTernary,
+	this is mostly a copy of `planPredecenceLevel`, except with multiple possible type checks based on the comparator.
+*/
 func planComparator(stream *tokenStream) (*evaluationStage, error) {
 
 	// comparators can operate on a bunch of different types.
@@ -302,6 +331,9 @@ func planComparator(stream *tokenStream) (*evaluationStage, error) {
 	return leftStage, nil
 }
 
+/*
+	All additive modifiers operate on numbers, except the ADD, which might mean string concat.
+*/
 func planAdditive(stream *tokenStream) (*evaluationStage, error) {
 
 	var token ExpressionToken
@@ -356,6 +388,10 @@ func planAdditive(stream *tokenStream) (*evaluationStage, error) {
 	return leftStage, nil
 }
 
+/*
+	A truly special precedence function, this handles all the "lowest-case" errata of the process, including literals, parmeters,
+	clauses, and prefixes.
+*/
 func planValue(stream *tokenStream) (*evaluationStage, error) {
 
 	var token ExpressionToken
