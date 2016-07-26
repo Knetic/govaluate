@@ -184,17 +184,17 @@ If you're concerned about the overhead of this library, a good range of benchmar
 For a very rough idea of performance, here are the results output from a benchmark run on my 3rd-gen Macbook Pro (Linux Mint 17.1).
 
 ```
-BenchmarkSingleParse-12                          2000000               768 ns/op
-BenchmarkSimpleParse-12                           200000              6842 ns/op
-BenchmarkFullParse-12                             200000             12791 ns/op
-BenchmarkEvaluationSingle-12                    10000000               142 ns/op
-BenchmarkEvaluationNumericLiteral-12             3000000               577 ns/op
-BenchmarkEvaluationLiteralModifiers-12           2000000               675 ns/op
-BenchmarkEvaluationParameters-12                 2000000               883 ns/op
-BenchmarkEvaluationParametersModifiers-12        1000000              1305 ns/op
-BenchmarkComplexExpression-12                    1000000              1308 ns/op
-BenchmarkRegexExpression-12                       100000             22751 ns/op
-BenchmarkConstantRegexExpression-12               500000              2599 ns/op
+BenchmarkSingleParse-12                          1000000              1382 ns/op
+BenchmarkSimpleParse-12                           200000             10771 ns/op
+BenchmarkFullParse-12                              30000             49383 ns/op
+BenchmarkEvaluationSingle-12                    50000000                30.1 ns/op
+BenchmarkEvaluationNumericLiteral-12            10000000               119 ns/op
+BenchmarkEvaluationLiteralModifiers-12          10000000               236 ns/op
+BenchmarkEvaluationParameters-12                 5000000               260 ns/op
+BenchmarkEvaluationParametersModifiers-12        3000000               547 ns/op
+BenchmarkComplexExpression-12                    2000000               963 ns/op
+BenchmarkRegexExpression-12                       100000             20357 ns/op
+BenchmarkConstantRegexExpression-12              1000000              1392 ns/op
 ok
 ```
 
