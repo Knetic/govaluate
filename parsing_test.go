@@ -505,6 +505,101 @@ func TestModifierParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+
+			Name:  "Numeric BITWISE_AND",
+			Input: "1 & 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "&",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Numeric BITWISE_OR",
+			Input: "1 | 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "|",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Numeric BITWISE_XOR",
+			Input: "1 ^ 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "^",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Numeric BITWISE_LSHIFT",
+			Input: "1 << 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "<<",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Numeric BITWISE_RSHIFT",
+			Input: "1 >> 1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: ">>",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
@@ -568,6 +663,36 @@ func TestPrefixParsing(test *testing.T) {
 				ExpressionToken{
 					Kind:  PREFIX,
 					Value: "!",
+				},
+				ExpressionToken{
+					Kind:  VARIABLE,
+					Value: "foo",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Bitwise not prefix",
+			Input: "~1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  PREFIX,
+					Value: "~",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Bitwise not prefix on variable",
+			Input: "~foo",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  PREFIX,
+					Value: "~",
 				},
 				ExpressionToken{
 					Kind:  VARIABLE,

@@ -136,6 +136,42 @@ func TestModifierTyping(test *testing.T) {
 			Input:    "number % bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
+		EvaluationFailureTest{
+
+			Name:     "XOR number to bool",
+			Input:    "number % bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_OR number to bool",
+			Input:    "number | bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_AND number to bool",
+			Input:    "number & bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_XOR number to bool",
+			Input:    "number ^ bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_LSHIFT number to bool",
+			Input:    "number << bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_RSHIFT number to bool",
+			Input:    "number >> bool",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
 	}
 
 	runEvaluationFailureTests(evaluationTests, test)
