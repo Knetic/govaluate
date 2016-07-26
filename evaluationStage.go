@@ -12,6 +12,7 @@ const (
 	TYPEERROR_MODIFIER   string = "Value '%v' cannot be used with the modifier '%v', it is not a number"
 	TYPEERROR_COMPARATOR string = "Value '%v' cannot be used with the comparator '%v', it is not a number"
 	TYPEERROR_TERNARY    string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
+	TYPEERROR_PREFIX     string = "Value '%v' cannot be used with the prefix '%v'"
 )
 
 type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
@@ -110,6 +111,9 @@ func negateStage(left interface{}, right interface{}, parameters Parameters) (in
 func invertStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return !right.(bool), nil
 }
+func bitwiseNotStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(^int64(right.(float64))), nil
+}
 func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if left.(bool) {
 		return right, nil
@@ -149,6 +153,18 @@ func notRegexStage(left interface{}, right interface{}, parameters Parameters) (
 	}
 
 	return !(ret.(bool)), nil
+}
+
+func bitwiseOrStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(int64(left.(float64)) | int64(right.(float64))), nil
+}
+
+func bitwiseAndStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(int64(left.(float64)) & int64(right.(float64))), nil
+}
+
+func bitwiseXORStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return float64(int64(left.(float64)) ^ int64(right.(float64))), nil
 }
 
 func makeParameterStage(parameterName string) evaluationOperator {

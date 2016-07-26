@@ -45,6 +45,7 @@ const (
 	PREFIX_PRECEDENCE
 	EXPONENTIAL_PRECEDENCE
 	ADDITIVE_PRECEDENCE
+	BITWISE_PRECEDENCE
 	MULTIPLICATIVE_PRECEDENCE
 	COMPARATOR_PRECEDENCE
 	TERNARY_PRECEDENCE
@@ -74,6 +75,12 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		fallthrough
 	case OR:
 		return LOGICAL_PRECEDENCE
+	case BITWISE_AND:
+		fallthrough
+	case BITWISE_OR:
+		fallthrough
+	case BITWISE_XOR:
+		return BITWISE_PRECEDENCE
 	case PLUS:
 		fallthrough
 	case MINUS:
@@ -86,6 +93,8 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		return MULTIPLICATIVE_PRECEDENCE
 	case EXPONENT:
 		return EXPONENTIAL_PRECEDENCE
+	case BITWISE_NOT:
+		fallthrough
 	case NEGATE:
 		fallthrough
 	case INVERT:
@@ -120,6 +129,12 @@ var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
 	"||": OR,
 }
 
+var BITWISE_SYMBOLS = map[string]OperatorSymbol{
+	"^": BITWISE_XOR,
+	"&": BITWISE_AND,
+	"|": BITWISE_OR,
+}
+
 var ADDITIVE_SYMBOLS = map[string]OperatorSymbol{
 	"+": PLUS,
 	"-": MINUS,
@@ -132,7 +147,7 @@ var MULTIPLICATIVE_SYMBOLS = map[string]OperatorSymbol{
 }
 
 var EXPONENTIAL_SYMBOLS = map[string]OperatorSymbol{
-	"^": EXPONENT,
+	"**": EXPONENT,
 }
 
 var PREFIX_SYMBOLS = map[string]OperatorSymbol{
@@ -148,12 +163,15 @@ var TERNARY_SYMBOLS = map[string]OperatorSymbol{
 
 // this is defined separately from ADDITIVE_SYMBOLS et al because it's needed for parsing, not stage planning.
 var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
-	"+": PLUS,
-	"-": MINUS,
-	"*": MULTIPLY,
-	"/": DIVIDE,
-	"%": MODULUS,
-	"^": EXPONENT,
+	"+":  PLUS,
+	"-":  MINUS,
+	"*":  MULTIPLY,
+	"/":  DIVIDE,
+	"%":  MODULUS,
+	"**": EXPONENT,
+	"&":  BITWISE_AND,
+	"|":  BITWISE_OR,
+	"^":  BITWISE_XOR,
 }
 
 var ADDITIVE_MODIFIERS = []OperatorSymbol{
@@ -228,6 +246,12 @@ func (this OperatorSymbol) String() string {
 		return "&&"
 	case OR:
 		return "||"
+	case BITWISE_AND:
+		return "&"
+	case BITWISE_OR:
+		return "|"
+	case BITWISE_XOR:
+		return "^"
 	case PLUS:
 		return "+"
 	case MINUS:
@@ -239,11 +263,13 @@ func (this OperatorSymbol) String() string {
 	case MODULUS:
 		return "%"
 	case EXPONENT:
-		return "^"
+		return "**"
 	case NEGATE:
 		return "-"
 	case INVERT:
 		return "!"
+	case BITWISE_NOT:
+		return "~"
 	case TERNARY_TRUE:
 		return "?"
 	case TERNARY_FALSE:

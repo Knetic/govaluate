@@ -16,6 +16,9 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	NREQ:          notRegexStage,
 	AND:           andStage,
 	OR:            orStage,
+	BITWISE_OR:    bitwiseOrStage,
+	BITWISE_AND:   bitwiseAndStage,
+	BITWISE_XOR:   bitwiseXORStage,
 	PLUS:          addStage,
 	MINUS:         subtractStage,
 	MULTIPLY:      multiplyStage,
@@ -24,6 +27,7 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	EXPONENT:      exponentStage,
 	NEGATE:        negateStage,
 	INVERT:        invertStage,
+	BITWISE_NOT:   bitwiseNotStage,
 	TERNARY_TRUE:  ternaryIfStage,
 	TERNARY_FALSE: ternaryElseStage,
 }
@@ -81,6 +85,7 @@ var planPrefix precedent
 var planExponential precedent
 var planMultiplicative precedent
 var planAdditive precedent
+var planBitwise precedent
 var planComparator precedent
 var planLogical precedent
 var planTernary precedent
@@ -91,8 +96,9 @@ func init() {
 	// they simply need different type checks, symbols, and recursive precedents.
 	// While not all precedent phases are listed here, most can be represented this way.
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols: PREFIX_SYMBOLS,
-		nextRight:    planValue,
+		validSymbols:    PREFIX_SYMBOLS,
+		typeErrorFormat: TYPEERROR_PREFIX,
+		nextRight:       planValue,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    EXPONENTIAL_SYMBOLS,
@@ -109,10 +115,15 @@ func init() {
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planMultiplicative,
 	})
+	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    BITWISE_SYMBOLS,
+		typeErrorFormat: TYPEERROR_MODIFIER,
+		next:            planAdditive,
+	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    COMPARATOR_SYMBOLS,
 		typeErrorFormat: TYPEERROR_COMPARATOR,
-		next:            planAdditive,
+		next:            planBitwise,
 	})
 	planLogical = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    LOGICAL_SYMBOLS,
@@ -260,6 +271,15 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 			left:  isBool,
 			right: isBool,
 		}
+	case BITWISE_OR:
+		fallthrough
+	case BITWISE_AND:
+		fallthrough
+	case BITWISE_XOR:
+		return typeChecks{
+			left:  isFloat64,
+			right: isFloat64,
+		}
 	case PLUS:
 		return typeChecks{
 			combined: additionTypeCheck,
@@ -284,6 +304,10 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 	case INVERT:
 		return typeChecks{
 			right: isBool,
+		}
+	case BITWISE_NOT:
+		return typeChecks{
+			right: isFloat64,
 		}
 	case TERNARY_TRUE:
 		return typeChecks{

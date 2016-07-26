@@ -127,7 +127,7 @@ func TestModifierTyping(test *testing.T) {
 		EvaluationFailureTest{
 
 			Name:     "EXPONENT number to bool",
-			Input:    "number ^ bool",
+			Input:    "number ** bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
 		EvaluationFailureTest{
