@@ -198,6 +198,13 @@ BenchmarkConstantRegexExpression-12               500000              2599 ns/op
 ok
 ```
 
+API Breaks
+--
+
+While this library has very few cases which will ever result in an API break, it can (and [has](https://github.com/Knetic/govaluate/releases/tag/2.0.0)) happened. If you are using this in production, vendor the commit you've tested against. Master branch (while infrequent) _may_ at some point contain API breaking changes, and the author will have no way to communicate these to downstreams.
+
+Releases will explicitly state when an API break happens, and if they do not specify an API break it should be safe to upgrade.
+
 Branching
 --
 
