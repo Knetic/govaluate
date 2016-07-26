@@ -23,9 +23,9 @@ type EvaluableExpression struct {
 	*/
 	QueryDateFormat string
 
-	tokens          []ExpressionToken
+	tokens           []ExpressionToken
 	evaluationStages *evaluationStage
-	inputExpression string
+	inputExpression  string
 }
 
 /*
@@ -47,7 +47,7 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 	}
 
 	ret.evaluationStages, err = planStages(ret.tokens)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -78,7 +78,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 */
 func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error) {
 
-	if(this.evaluationStages == nil) {
+	if this.evaluationStages == nil {
 		return nil, nil
 	}
 
@@ -93,35 +93,35 @@ func evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, 
 	var left, right interface{}
 	var err error
 
-	if(stage.leftStage != nil) {
+	if stage.leftStage != nil {
 		left, err = evaluateStage(stage.leftStage, parameters)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 	}
 
-	if(stage.rightStage != nil) {
+	if stage.rightStage != nil {
 		right, err = evaluateStage(stage.rightStage, parameters)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 	}
 
 	// type checks
-	if(stage.typeCheck == nil) {
+	if stage.typeCheck == nil {
 
 		err = typeCheck(stage.leftTypeCheck, left, stage.symbol, stage.typeErrorFormat)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 
 		err = typeCheck(stage.rightTypeCheck, right, stage.symbol, stage.typeErrorFormat)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 	} else {
 		// special case where the type check needs to know both sides to determine if the operator can handle it
-		if(!stage.typeCheck(left, right)) {
+		if !stage.typeCheck(left, right) {
 			errorMsg := fmt.Sprintf(stage.typeErrorFormat, left, stage.symbol.String())
 			return nil, errors.New(errorMsg)
 		}
@@ -132,11 +132,11 @@ func evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, 
 
 func typeCheck(check stageTypeCheck, value interface{}, symbol OperatorSymbol, format string) error {
 
-	if(check == nil) {
-		return  nil
+	if check == nil {
+		return nil
 	}
 
-	if(check(value)) {
+	if check(value) {
 		return nil
 	}
 

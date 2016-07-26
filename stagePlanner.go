@@ -5,26 +5,26 @@ import (
 	"time"
 )
 
-var stageSymbolMap = map[OperatorSymbol]evaluationOperator {
-	EQ: equalStage,
-	NEQ: notEqualStage,
-	GT: gtStage,
-	LT: ltStage,
-	GTE: gteStage,
-	LTE: lteStage,
-	REQ: regexStage,
-	NREQ: notRegexStage,
-	AND: andStage,
-	OR: orStage,
-	PLUS: addStage,
-	MINUS: subtractStage,
-	MULTIPLY: multiplyStage,
-	DIVIDE: divideStage,
-	MODULUS: modulusStage,
-	EXPONENT: exponentStage,
-	NEGATE: negateStage,
-	INVERT: invertStage,
-	TERNARY_TRUE: ternaryIfStage,
+var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
+	EQ:            equalStage,
+	NEQ:           notEqualStage,
+	GT:            gtStage,
+	LT:            ltStage,
+	GTE:           gteStage,
+	LTE:           lteStage,
+	REQ:           regexStage,
+	NREQ:          notRegexStage,
+	AND:           andStage,
+	OR:            orStage,
+	PLUS:          addStage,
+	MINUS:         subtractStage,
+	MULTIPLY:      multiplyStage,
+	DIVIDE:        divideStage,
+	MODULUS:       modulusStage,
+	EXPONENT:      exponentStage,
+	NEGATE:        negateStage,
+	INVERT:        invertStage,
+	TERNARY_TRUE:  ternaryIfStage,
 	TERNARY_FALSE: ternaryElseStage,
 }
 
@@ -41,12 +41,11 @@ type precedent func(stream *tokenStream) (*evaluationStage, error)
 	This struct is passed to `makePrecedentFromPlanner` to create a `precedent` function.
 */
 type precedencePlanner struct {
-
 	validSymbols map[string]OperatorSymbol
 
 	typeErrorFormat string
 
-	next precedent
+	next      precedent
 	nextRight precedent
 }
 
@@ -69,7 +68,7 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 		)
 	}
 
-	if(planner.nextRight != nil) {
+	if planner.nextRight != nil {
 		nextRight = planner.nextRight
 	} else {
 		nextRight = generated
@@ -91,39 +90,39 @@ func init() {
 	// all these stages can use the same code (in `planPrecedenceLevel`) to execute,
 	// they simply need different type checks, symbols, and recursive precedents.
 	// While not all precedent phases are listed here, most can be represented this way.
-	planPrefix = makePrecedentFromPlanner(&precedencePlanner {
+	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols: PREFIX_SYMBOLS,
-		nextRight: planValue,
+		nextRight:    planValue,
 	})
-	planExponential = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: EXPONENTIAL_SYMBOLS,
+	planExponential = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    EXPONENTIAL_SYMBOLS,
 		typeErrorFormat: TYPEERROR_MODIFIER,
-		next: planValue,
+		next:            planValue,
 	})
-	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: MULTIPLICATIVE_SYMBOLS,
+	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    MULTIPLICATIVE_SYMBOLS,
 		typeErrorFormat: TYPEERROR_MODIFIER,
-		next: planExponential,
+		next:            planExponential,
 	})
-	planAdditive = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: ADDITIVE_SYMBOLS,
+	planAdditive = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    ADDITIVE_SYMBOLS,
 		typeErrorFormat: TYPEERROR_MODIFIER,
-		next: planMultiplicative,
+		next:            planMultiplicative,
 	})
-	planComparator = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: COMPARATOR_SYMBOLS,
+	planComparator = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    COMPARATOR_SYMBOLS,
 		typeErrorFormat: TYPEERROR_COMPARATOR,
-		next: planAdditive,
+		next:            planAdditive,
 	})
-	planLogical = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: LOGICAL_SYMBOLS,
+	planLogical = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    LOGICAL_SYMBOLS,
 		typeErrorFormat: TYPEERROR_LOGICAL,
-		next: planComparator,
+		next:            planComparator,
 	})
-	planTernary = makePrecedentFromPlanner(&precedencePlanner {
-		validSymbols: TERNARY_SYMBOLS,
+	planTernary = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    TERNARY_SYMBOLS,
 		typeErrorFormat: TYPEERROR_TERNARY,
-		next: planLogical,
+		next:            planLogical,
 	})
 }
 
@@ -137,7 +136,7 @@ func planStages(tokens []ExpressionToken) (*evaluationStage, error) {
 	stream := newTokenStream(tokens)
 
 	stage, err := planTokens(stream)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -174,7 +173,7 @@ func planPrecedenceLevel(
 	var err error
 	var keyFound bool
 
-	if(leftPrecedent != nil) {
+	if leftPrecedent != nil {
 		leftStage, err = leftPrecedent(stream)
 		if err != nil {
 			return nil, err
@@ -193,7 +192,7 @@ func planPrecedenceLevel(
 			break
 		}
 
-		if(rightPrecedent != nil) {
+		if rightPrecedent != nil {
 			rightStage, err = rightPrecedent(stream)
 			if err != nil {
 				return nil, err
@@ -202,16 +201,16 @@ func planPrecedenceLevel(
 
 		checks = findTypeChecks(symbol)
 
-		return &evaluationStage {
+		return &evaluationStage{
 
-			symbol: symbol,
-			leftStage: leftStage,
+			symbol:     symbol,
+			leftStage:  leftStage,
 			rightStage: rightStage,
-			operator: stageSymbolMap[symbol],
+			operator:   stageSymbolMap[symbol],
 
-			leftTypeCheck: checks.left,
-			rightTypeCheck: checks.right,
-			typeCheck: checks.combined,
+			leftTypeCheck:   checks.left,
+			rightTypeCheck:  checks.right,
+			typeCheck:       checks.combined,
 			typeErrorFormat: typeErrorFormat,
 		}, nil
 	}
@@ -225,8 +224,8 @@ func planPrecedenceLevel(
 	Each of these members may be nil, which indicates that type does not matter for that value.
 */
 type typeChecks struct {
-	left stageTypeCheck
-	right stageTypeCheck
+	left     stageTypeCheck
+	right    stageTypeCheck
 	combined stageCombinedTypeCheck
 }
 
@@ -243,26 +242,26 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 	case GTE:
 		fallthrough
 	case LTE:
-		return typeChecks {
-			left: isFloat64,
+		return typeChecks{
+			left:  isFloat64,
 			right: isFloat64,
 		}
 	case REQ:
 		fallthrough
 	case NREQ:
-		return typeChecks {
-			left: isString,
+		return typeChecks{
+			left:  isString,
 			right: isRegexOrString,
 		}
 	case AND:
 		fallthrough
 	case OR:
-		return typeChecks {
-			left: isBool,
+		return typeChecks{
+			left:  isBool,
 			right: isBool,
 		}
 	case PLUS:
-		return typeChecks {
+		return typeChecks{
 			combined: additionTypeCheck,
 		}
 	case MINUS:
@@ -274,20 +273,20 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 	case MODULUS:
 		fallthrough
 	case EXPONENT:
-		return typeChecks {
-			left: isFloat64,
+		return typeChecks{
+			left:  isFloat64,
 			right: isFloat64,
 		}
 	case NEGATE:
-		return typeChecks {
+		return typeChecks{
 			right: isFloat64,
 		}
 	case INVERT:
-		return typeChecks {
+		return typeChecks{
 			right: isBool,
 		}
 	case TERNARY_TRUE:
-		return typeChecks {
+		return typeChecks{
 			left: isBool,
 		}
 
@@ -321,7 +320,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	case CLAUSE:
 
 		ret, err = planTokens(stream)
-		if(err != nil) {
+		if err != nil {
 			return nil, err
 		}
 
@@ -348,11 +347,11 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		return planPrefix(stream)
 	}
 
-	if(operator == nil) {
+	if operator == nil {
 		return nil, errors.New("Unable to plan token kind: " + GetTokenKindString(token.Kind))
 	}
 
-	return &evaluationStage {
+	return &evaluationStage{
 		operator: operator,
 	}, nil
 }
@@ -379,17 +378,17 @@ func reorderStages(rootStage *evaluationStage) {
 
 		currentPrecedence = findOperatorPrecedenceForSymbol(currentStage.symbol)
 
-		if(currentPrecedence == precedence) {
+		if currentPrecedence == precedence {
 			identicalPrecedences = append(identicalPrecedences, currentStage)
 			continue
 		}
 
 		// precedence break.
 		// See how many in a row we had, and reorder if there's more than one.
-		if(len(identicalPrecedences) > 1) {
+		if len(identicalPrecedences) > 1 {
 			mirrorStageSubtree(identicalPrecedences)
 		} else {
-			if(lastStage.leftStage != nil) {
+			if lastStage.leftStage != nil {
 				reorderStages(lastStage.leftStage)
 			}
 		}
@@ -398,7 +397,7 @@ func reorderStages(rootStage *evaluationStage) {
 		precedence = currentPrecedence
 	}
 
-	if(len(identicalPrecedences) > 1) {
+	if len(identicalPrecedences) > 1 {
 		mirrorStageSubtree(identicalPrecedences)
 	}
 }

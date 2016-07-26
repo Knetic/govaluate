@@ -1,17 +1,17 @@
 package govaluate
 
 import (
-	"fmt"
 	"errors"
-	"regexp"
+	"fmt"
 	"math"
+	"regexp"
 )
 
 const (
-	TYPEERROR_LOGICAL 		string = "Value '%v' cannot be used with the logical operator '%v', it is not a bool"
-	TYPEERROR_MODIFIER 		string = "Value '%v' cannot be used with the modifier '%v', it is not a number"
-	TYPEERROR_COMPARATOR 	string = "Value '%v' cannot be used with the comparator '%v', it is not a number"
-	TYPEERROR_TERNARY 		string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
+	TYPEERROR_LOGICAL    string = "Value '%v' cannot be used with the logical operator '%v', it is not a bool"
+	TYPEERROR_MODIFIER   string = "Value '%v' cannot be used with the modifier '%v', it is not a number"
+	TYPEERROR_COMPARATOR string = "Value '%v' cannot be used with the comparator '%v', it is not a number"
+	TYPEERROR_TERNARY    string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
 )
 
 type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
@@ -19,7 +19,6 @@ type stageTypeCheck func(value interface{}) bool
 type stageCombinedTypeCheck func(left interface{}, right interface{}) bool
 
 type evaluationStage struct {
-
 	symbol OperatorSymbol
 
 	leftStage, rightStage *evaluationStage
@@ -28,7 +27,7 @@ type evaluationStage struct {
 	operator evaluationOperator
 
 	// ensures that both left and right values are appropriate for this stage. Returns an error if they aren't operable.
-	leftTypeCheck stageTypeCheck
+	leftTypeCheck  stageTypeCheck
 	rightTypeCheck stageTypeCheck
 
 	// if specified, will override whatever is used in "leftTypeCheck" and "rightTypeCheck".
@@ -112,13 +111,13 @@ func invertStage(left interface{}, right interface{}, parameters Parameters) (in
 	return !right.(bool), nil
 }
 func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	if(left.(bool)) {
+	if left.(bool) {
 		return right, nil
 	}
 	return nil, nil
 }
 func ternaryElseStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	if(left != nil) {
+	if left != nil {
 		return left, nil
 	}
 	return right, nil
@@ -145,7 +144,7 @@ func regexStage(left interface{}, right interface{}, parameters Parameters) (int
 func notRegexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	ret, err := regexStage(left, right, parameters)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -219,10 +218,10 @@ func isFloat64(value interface{}) bool {
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
 
-	if(isFloat64(left) && isFloat64(right)) {
+	if isFloat64(left) && isFloat64(right) {
 		return true
 	}
-	if(!isString(left) && !isString(right)) {
+	if !isString(left) && !isString(right) {
 		return false
 	}
 	return true

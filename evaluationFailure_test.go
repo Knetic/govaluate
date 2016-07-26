@@ -17,10 +17,10 @@ type DebugStruct struct {
 	Represents a test for parsing failures
 */
 type EvaluationFailureTest struct {
-	Name     string
-	Input    string
+	Name       string
+	Input      string
 	Parameters map[string]interface{}
-	Expected string
+	Expected   string
 }
 
 const (
@@ -29,7 +29,7 @@ const (
 	INVALID_LOGICALOP_TYPES         = "cannot be used with the logical operator"
 	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
-	INVALID_REGEX					= "Unable to compile regexp pattern"
+	INVALID_REGEX                   = "Unable to compile regexp pattern"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -45,7 +45,7 @@ func TestComplexParameter(test *testing.T) {
 	var err error
 
 	parameters := map[string]interface{}{
-		"complex64": complex64(0),
+		"complex64":  complex64(0),
 		"complex128": complex128(0),
 	}
 
@@ -350,18 +350,18 @@ func TestRegexParameterCompilation(test *testing.T) {
 	evaluationTests := []EvaluationFailureTest{
 		EvaluationFailureTest{
 
-			Name:     "Regex equality runtime parsing",
-			Input:    "'foo' =~ foo",
-			Parameters: map[string]interface{} {
+			Name:  "Regex equality runtime parsing",
+			Input: "'foo' =~ foo",
+			Parameters: map[string]interface{}{
 				"foo": "[foo",
 			},
 			Expected: INVALID_REGEX,
 		},
 		EvaluationFailureTest{
 
-			Name:     "Regex inequality runtime parsing",
-			Input:    "'foo' =~ foo",
-			Parameters: map[string]interface{} {
+			Name:  "Regex inequality runtime parsing",
+			Input: "'foo' =~ foo",
+			Parameters: map[string]interface{}{
 				"foo": "[foo",
 			},
 			Expected: INVALID_REGEX,
@@ -390,7 +390,7 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 			continue
 		}
 
-		if(testCase.Parameters == nil) {
+		if testCase.Parameters == nil {
 			testCase.Parameters = EVALUATION_FAILURE_PARAMETERS
 		}
 

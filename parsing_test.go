@@ -777,13 +777,13 @@ func TestOriginalString(test *testing.T) {
 		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false"
 
 	expression, err := NewEvaluableExpression(expressionString)
-	if(err != nil) {
+	if err != nil {
 
 		test.Logf("failed to parse original string test: %v", err)
 		test.Fail()
 	}
 
-	if(expression.String() != expressionString) {
+	if expression.String() != expressionString {
 		test.Logf("String() did not give the same expression as given to parse")
 		test.Fail()
 	}

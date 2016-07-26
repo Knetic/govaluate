@@ -62,7 +62,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	}
 
 	err = checkBalance(ret)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -322,7 +322,6 @@ func optimizeTokens(tokens []ExpressionToken) ([]ExpressionToken, error) {
 	return tokens, nil
 }
 
-
 /*
 	Checks the balance of tokens which have multiple parts, such as parenthesis.
 */
@@ -337,17 +336,17 @@ func checkBalance(tokens []ExpressionToken) error {
 	for stream.hasNext() {
 
 		token = stream.next()
-		if(token.Kind == CLAUSE) {
+		if token.Kind == CLAUSE {
 			parens++
 			continue
 		}
-		if(token.Kind == CLAUSE_CLOSE) {
+		if token.Kind == CLAUSE_CLOSE {
 			parens--
 			continue
 		}
 	}
 
-	if(parens != 0) {
+	if parens != 0 {
 		return errors.New("Unbalanced parenthesis")
 	}
 	return nil

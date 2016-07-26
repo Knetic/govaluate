@@ -1,9 +1,9 @@
 package govaluate
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
-	"errors"
 )
 
 // sanitizedParameters is a wrapper for Parameters that does sanitization as

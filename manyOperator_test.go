@@ -6,7 +6,7 @@ import (
 
 func TestMultipleOperators(test *testing.T) {
 
-	tests := []EvaluationTest {
+	tests := []EvaluationTest{
 		EvaluationTest{
 			Name:     "Incorrect subtract behavior",
 			Input:    "1 - 2 - 4 - 8",

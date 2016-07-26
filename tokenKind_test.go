@@ -13,7 +13,7 @@ func TestTokenKindStrings(test *testing.T) {
 	var kindStrings []string
 	var kindString string
 
-	kinds := []TokenKind {
+	kinds := []TokenKind{
 		UNKNOWN,
 		PREFIX,
 		NUMERIC,
@@ -35,7 +35,7 @@ func TestTokenKindStrings(test *testing.T) {
 		kindString = GetTokenKindString(kind)
 
 		for _, extantKind := range kindStrings {
-			if(extantKind == kindString) {
+			if extantKind == kindString {
 				test.Logf("Token kind test found duplicate string for token kind %v ('%v')\n", kind, kindString)
 				test.Fail()
 				return
