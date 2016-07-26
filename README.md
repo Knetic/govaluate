@@ -97,7 +97,7 @@ Expressions are parsed once, and can be re-used multiple times. Parsing is the c
 	}
 ```
 
-The normal C-standard order of operators is respected. When writing an expression, be sure that you either order the operators correctly, or use parenthesis to clarify which portions of an expression should be run first. 
+The normal C-standard order of operators is respected. When writing an expression, be sure that you either order the operators correctly, or use parenthesis to clarify which portions of an expression should be run first.
 
 Escaping characters
 --
@@ -125,7 +125,7 @@ Backslashes can be used anywhere in an expression to escape the very next charac
 What operators and types does this support?
 --
 
-* Modifiers: `+` `-` `/` `*` `&` `|` `^` `**` `%`
+* Modifiers: `+` `-` `/` `*` `&` `|` `^` `**` `%` `>>` `<<`
 * Comparators: `>` `>=` `<` `<=` `==` `!=` `=~` `!~`
 * Logical ops: `||` `&&`
 * Numeric constants, as 64-bit floating point (`12345.678`)
@@ -133,12 +133,12 @@ What operators and types does this support?
 * Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
-* Prefixes: `!` `-`
+* Prefixes: `!` `-` `~`
 * Ternary conditional `?` `:`
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
-If a ternary operator resolves to false, it returns nil. So `false ? 10` will return `nil`, whereas `true ? 10` will return `10.0`.
+If a ternary operator resolves to false with no else case, it returns nil. So `false ? 10` will return `nil`, whereas `true ? 10` will return `10.0`.
 
 Types
 --
@@ -157,17 +157,20 @@ Note that this table shows what each type supports - if you use an operator then
 | -                          	| Subtracts             	| **X**           	| **X**           	|
 | /                          	| Divides               	| **X**           	| **X**           	|
 | *                          	| Multiplies            	| **X**           	| **X**           	|
-| &                          	| Bitwise and             | **X**           	| **X**           	|
-|\|                          	| Bitwise or              | **X**           	| **X**           	|
-| ^                          	| Bitwise xor             | **X**           	| **X**           	|
+| &                          	| Bitwise and               | **X**           	| **X**           	|
+|\|                          	| Bitwise or                | **X**           	| **X**           	|
+| ^                          	| Bitwise xor               | **X**           	| **X**           	|
+| <<                          	| Bitwise left shift        | **X**           	| **X**           	|
+| >>                          	| Bitwise right shift       | **X**           	| **X**           	|
 | **                         	| Takes to the power of 	| **X**           	| **X**           	|
 | %                          	| Modulo                	| **X**           	| **X**           	|
-| Greater/Lesser (> >= < <=) 	| Valid                 	| **X**           	| **X**           	|
+| Greater/Lesser (> >= < <=) 	| Compares                 	| **X**           	| **X**           	|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
-| Ternary (? :)               | **X**                   | **X**             | Checks by value   |
-| Regex (=~ !~)               | **X**                   | Regex             | **X**             |
+| Ternary (? :)                 | **X**                     | **X**             | Checks by value   |
+| Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
 | !                          	| **X**                 	| **X**           	| Inverts         	|
-| Negate (-)                 	| Multiplies by -1        | **X**           	| **X**           	|
+| Negate (-)                 	| Multiplies by -1          | **X**           	| **X**           	|
+| ~                          	| Bitwise not               | **X**           	| **X**           	|
 
 It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
 
