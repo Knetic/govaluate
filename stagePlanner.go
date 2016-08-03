@@ -48,6 +48,7 @@ type precedent func(stream *tokenStream) (*evaluationStage, error)
 */
 type precedencePlanner struct {
 	validSymbols map[string]OperatorSymbol
+	validKinds []TokenKind
 
 	typeErrorFormat string
 
@@ -69,6 +70,7 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 			stream,
 			planner.typeErrorFormat,
 			planner.validSymbols,
+			planner.validKinds,
 			nextRight,
 			planner.next,
 		)
@@ -100,46 +102,55 @@ func init() {
 	// While not all precedent phases are listed here, most can be represented this way.
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    PREFIX_SYMBOLS,
+		validKinds:		 []TokenKind {PREFIX},
 		typeErrorFormat: TYPEERROR_PREFIX,
 		nextRight:       planValue,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    EXPONENTIAL_SYMBOLS,
+		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planValue,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    MULTIPLICATIVE_SYMBOLS,
+		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planExponential,
 	})
 	planAdditive = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    ADDITIVE_SYMBOLS,
+		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planMultiplicative,
 	})
 	planShift = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SHIFT_SYMBOLS,
+		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planAdditive,
 	})
 	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SYMBOLS,
+		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planShift,
 	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    COMPARATOR_SYMBOLS,
+		validKinds:		 []TokenKind {COMPARATOR},
 		typeErrorFormat: TYPEERROR_COMPARATOR,
 		next:            planBitwise,
 	})
 	planLogical = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    LOGICAL_SYMBOLS,
+		validKinds:		 []TokenKind {LOGICALOP},
 		typeErrorFormat: TYPEERROR_LOGICAL,
 		next:            planComparator,
 	})
 	planTernary = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    TERNARY_SYMBOLS,
+		validKinds:		 []TokenKind {TERNARY},
 		typeErrorFormat: TYPEERROR_TERNARY,
 		next:            planLogical,
 	})
@@ -182,6 +193,7 @@ func planPrecedenceLevel(
 	stream *tokenStream,
 	typeErrorFormat string,
 	validSymbols map[string]OperatorSymbol,
+	validKinds []TokenKind,
 	rightPrecedent precedent,
 	leftPrecedent precedent) (*evaluationStage, error) {
 
@@ -206,6 +218,20 @@ func planPrecedenceLevel(
 			break
 		}
 
+		if(len(validKinds) > 0) {
+
+			keyFound = false
+			for _, kind := range validKinds {
+				if(kind == token.Kind) {
+					keyFound = true
+					break
+				}
+			}
+
+			if(!keyFound) {
+				break
+			}
+		}
 		symbol, keyFound = validSymbols[token.Value.(string)]
 		if !keyFound {
 			break

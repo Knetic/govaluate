@@ -400,6 +400,120 @@ func TestComparatorParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string additive (#22)",
+			Input: "'foo' == '+'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "+",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string multiplicative (#22)",
+			Input: "'foo' == '/'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "/",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string exponential (#22)",
+			Input: "'foo' == '**'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "**",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string bitwise (#22)",
+			Input: "'foo' == '^'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "^",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string shift (#22)",
+			Input: "'foo' == '>>'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: ">>",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Comparator against modifier string ternary (#22)",
+			Input: "'foo' == '?'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "==",
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "?",
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
