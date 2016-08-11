@@ -179,11 +179,6 @@ func makeParameterStage(parameterName string) evaluationOperator {
 			return nil, err
 		}
 
-		if value == nil {
-			errorMessage := "No parameter '" + parameterName + "' found."
-			return nil, errors.New(errorMessage)
-		}
-
 		return value, nil
 	}
 }
