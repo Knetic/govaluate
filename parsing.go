@@ -79,6 +79,7 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 	var character rune
 	var found bool
 	var completed bool
+	var err error
 
 	// numeric is 0-9, or .
 	// string starts with '
@@ -100,7 +101,12 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 		if isNumeric(character) {
 
 			tokenString = readTokenUntilFalse(stream, isNumeric)
-			tokenValue, _ = strconv.ParseFloat(tokenString, 64)
+			tokenValue, err = strconv.ParseFloat(tokenString, 64)
+
+			if(err != nil) {
+				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
+				return ExpressionToken{}, errors.New(errorMsg), false
+			}
 			kind = NUMERIC
 			break
 		}

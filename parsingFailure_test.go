@@ -14,6 +14,7 @@ const (
 	UNCLOSED_QUOTES                 = "Unclosed string literal"
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
 	UNBALANCED_PARENTHESIS          = "Unbalanced parenthesis"
+	INVALID_NUMERIC					= "Unable to parse numeric value"
 )
 
 /*
@@ -136,6 +137,12 @@ func TestParsingFailure(test *testing.T) {
 			Name:     "Unbalanced parenthesis",
 			Input:    "10 > (1 + 50",
 			Expected: UNBALANCED_PARENTHESIS,
+		},
+		ParsingFailureTest{
+
+			Name:     "Multiple radix",
+			Input:    "127.0.0.1",
+			Expected: INVALID_NUMERIC,
 		},
 	}
 
