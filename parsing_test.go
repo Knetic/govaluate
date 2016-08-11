@@ -998,6 +998,25 @@ func TestTernaryParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+
+			Name:  "Null coalesce left",
+			Input: "1 ?? 2",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  TERNARY,
+					Value: "??",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
+			},
+		},
 	}
 
 	runTokenParsingTest(tokenParsingTests, test)

@@ -38,6 +38,7 @@ const (
 
 	TERNARY_TRUE
 	TERNARY_FALSE
+	COALESCE
 )
 
 type OperatorPrecedence int
@@ -106,6 +107,8 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		fallthrough
 	case INVERT:
 		return PREFIX_PRECEDENCE
+	case COALESCE:
+		fallthrough
 	case TERNARY_TRUE:
 		fallthrough
 	case TERNARY_FALSE:
@@ -171,6 +174,7 @@ var PREFIX_SYMBOLS = map[string]OperatorSymbol{
 var TERNARY_SYMBOLS = map[string]OperatorSymbol{
 	"?": TERNARY_TRUE,
 	":": TERNARY_FALSE,
+	"??": COALESCE,
 }
 
 // this is defined separately from ADDITIVE_SYMBOLS et al because it's needed for parsing, not stage planning.
@@ -296,6 +300,8 @@ func (this OperatorSymbol) String() string {
 		return "?"
 	case TERNARY_FALSE:
 		return ":"
+	case COALESCE:
+		return "??"
 	}
 	return ""
 }

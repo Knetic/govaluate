@@ -32,6 +32,7 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	BITWISE_NOT:    bitwiseNotStage,
 	TERNARY_TRUE:   ternaryIfStage,
 	TERNARY_FALSE:  ternaryElseStage,
+	COALESCE:		ternaryElseStage,
 }
 
 /*
@@ -358,6 +359,8 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 	case NEQ:
 		return typeChecks{}
 	case TERNARY_FALSE:
+		fallthrough
+	case COALESCE:
 		fallthrough
 	default:
 		return typeChecks{}

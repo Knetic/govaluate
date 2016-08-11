@@ -264,6 +264,11 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: 16.0,
 		},
 		EvaluationTest{
+			Name:     "Null coalesce precedence",
+			Input:    "true ?? true ? 100 + 200 : 400",
+			Expected: 300.0,
+		},
+		EvaluationTest{
 
 			Name:     "Identical date equivalence",
 			Input:    "'2014-01-02 14:12:22' == '2014-01-02 14:12:22'",
@@ -436,6 +441,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Name:     "Bool to string concat",
 			Input:    "true + 'bar' == 'truebar'",
 			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Null coalesce left",
+			Input:    "1 ?? 2",
+			Expected: 1.0,
 		},
 	}
 
@@ -844,6 +855,18 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: 0.0,
+		},
+		EvaluationTest{
+
+			Name:  "Null coalesce right",
+			Input: "foo ?? 1.0",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: nil,
+				},
+			},
+			Expected: 1.0,
 		},
 	}
 
