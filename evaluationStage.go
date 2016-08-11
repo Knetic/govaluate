@@ -193,7 +193,17 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 
 	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-		return function(right.([]interface{})...)
+		if(right == nil) {
+			return function()
+		}
+
+		switch right.(type) {
+		case []interface{}:
+			return function(right.([]interface{})...)
+		default:
+			return function(right)
+		}
+
 	}
 }
 

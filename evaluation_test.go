@@ -12,6 +12,7 @@ import (
 type EvaluationTest struct {
 	Name       string
 	Input      string
+	Functions map[string]ExpressionFunction
 	Parameters []EvaluationParameter
 	Expected   interface{}
 }
@@ -446,6 +447,31 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name:     "Null coalesce left",
 			Input:    "1 ?? 2",
+			Expected: 1.0,
+		},
+		EvaluationTest{
+
+			Name:	"Single function",
+			Input:	"foo()",
+			Functions: map[string]ExpressionFunction {
+				"foo": func(arguments ...interface{}) (interface{}, error) {
+					return true, nil
+				},
+			},
+
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:	"Function with argument",
+			Input:	"passthrough(1)",
+			Functions: map[string]ExpressionFunction {
+				"passthrough": func(arguments ...interface{}) (interface{}, error) {
+					fmt.Printf("Arg zero: %v\n", arguments)
+					return arguments[0], nil
+				},
+			},
+
 			Expected: 1.0,
 		},
 	}
@@ -898,7 +924,11 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 	// Run the test cases.
 	for _, evaluationTest := range evaluationTests {
 
-		expression, err = NewEvaluableExpression(evaluationTest.Input)
+		if(evaluationTest.Functions != nil) {
+			expression, err = NewEvaluableExpressionWithFunctions(evaluationTest.Input, evaluationTest.Functions)
+		} else {
+			expression, err = NewEvaluableExpression(evaluationTest.Input)
+		}
 
 		if err != nil {
 

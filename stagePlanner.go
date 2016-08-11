@@ -95,6 +95,7 @@ var planShift precedent
 var planComparator precedent
 var planLogical precedent
 var planTernary precedent
+var planSeparator precedent
 
 func init() {
 
@@ -105,13 +106,13 @@ func init() {
 		validSymbols:    PREFIX_SYMBOLS,
 		validKinds:		 []TokenKind {PREFIX},
 		typeErrorFormat: TYPEERROR_PREFIX,
-		nextRight:       planValue,
+		nextRight:       planFunction,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    EXPONENTIAL_SYMBOLS,
 		validKinds:		 []TokenKind {MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
-		next:            planValue,
+		next:            planFunction,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    MULTIPLICATIVE_SYMBOLS,
@@ -155,6 +156,10 @@ func init() {
 		typeErrorFormat: TYPEERROR_TERNARY,
 		next:            planLogical,
 	})
+	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
+		validKinds:		[]TokenKind {SEPARATOR},
+		next: planTernary,
+	})
 }
 
 /*
@@ -183,7 +188,7 @@ func planTokens(stream *tokenStream) (*evaluationStage, error) {
 		return nil, nil
 	}
 
-	return planTernary(stream)
+	return planSeparator(stream)
 }
 
 /*
@@ -206,6 +211,7 @@ func planPrecedenceLevel(
 	var keyFound bool
 
 	if leftPrecedent != nil {
+
 		leftStage, err = leftPrecedent(stream)
 		if err != nil {
 			return nil, err
@@ -215,9 +221,6 @@ func planPrecedenceLevel(
 	for stream.hasNext() {
 
 		token = stream.next()
-		if !isString(token.Value) {
-			break
-		}
 
 		if(len(validKinds) > 0) {
 
@@ -233,9 +236,17 @@ func planPrecedenceLevel(
 				break
 			}
 		}
-		symbol, keyFound = validSymbols[token.Value.(string)]
-		if !keyFound {
-			break
+
+		if(validSymbols != nil) {
+
+			if(!isString(token.Value)) {
+				break;
+			}
+
+			symbol, keyFound = validSymbols[token.Value.(string)]
+			if !keyFound {
+				break
+			}
 		}
 
 		if rightPrecedent != nil {
@@ -368,6 +379,36 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 }
 
 /*
+	A special case where functions need to be of higher precedence than values, and need a special wrapped execution stage operator.
+*/
+func planFunction(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var rightStage *evaluationStage
+	var err error
+
+	token = stream.next()
+
+	if(token.Kind != FUNCTION) {
+		stream.rewind()
+		return planValue(stream)
+	}
+
+	rightStage, err = planValue(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	return &evaluationStage{
+
+		symbol: FUNCTION_OPERATOR,
+		rightStage: rightStage,
+		operator:   makeFunctionStage(token.Value.(ExpressionFunction)),
+		typeErrorFormat: "Unable to run function '%v': %v",
+	}, nil
+}
+
+/*
 	A truly special precedence function, this handles all the "lowest-case" errata of the process, including literals, parmeters,
 	clauses, and prefixes.
 */
@@ -392,12 +433,12 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
 		stream.next()
 		return ret, nil
+		
+	case CLAUSE_CLOSE:
+		return planTokens(stream)
 
 	case VARIABLE:
 		operator = makeParameterStage(token.Value.(string))
-
-	case FUNCTION:
-		operator = makeFunctionStage(token.Value.(ExpressionFunction))
 
 	case NUMERIC:
 		fallthrough

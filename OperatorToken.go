@@ -39,12 +39,16 @@ const (
 	TERNARY_TRUE
 	TERNARY_FALSE
 	COALESCE
+
+	// as distinct from the TokenKind.
+	FUNCTION_OPERATOR
 )
 
 type OperatorPrecedence int
 
 const (
 	VALUE_PRECEDENCE OperatorPrecedence = iota
+	FUNCTION_PRECEDENCE
 	PREFIX_PRECEDENCE
 	EXPONENTIAL_PRECEDENCE
 	ADDITIVE_PRECEDENCE
@@ -113,9 +117,11 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		fallthrough
 	case TERNARY_FALSE:
 		return TERNARY_PRECEDENCE
+	case FUNCTION_OPERATOR:
+		return FUNCTION_PRECEDENCE
 	}
 
-	return -1
+	return VALUE_PRECEDENCE
 }
 
 /*
