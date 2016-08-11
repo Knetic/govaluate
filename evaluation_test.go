@@ -467,12 +467,41 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Input:	"passthrough(1)",
 			Functions: map[string]ExpressionFunction {
 				"passthrough": func(arguments ...interface{}) (interface{}, error) {
-					fmt.Printf("Arg zero: %v\n", arguments)
 					return arguments[0], nil
 				},
 			},
 
 			Expected: 1.0,
+		},
+
+		EvaluationTest{
+
+			Name:	"Function with arguments",
+			Input:	"passthrough(1, 2)",
+			Functions: map[string]ExpressionFunction {
+				"passthrough": func(arguments ...interface{}) (interface{}, error) {
+					return arguments[0].(float64) + arguments[1].(float64), nil
+				},
+			},
+
+			Expected: 3.0,
+		},
+		EvaluationTest{
+
+			Name:	"Nested function with precedence",
+			Input:	"sum(1, sum(2, 3), 2 + 2, true ? 4 : 5)",
+			Functions: map[string]ExpressionFunction {
+				"sum": func(arguments ...interface{}) (interface{}, error) {
+
+					sum := 0.0
+					for _, v := range arguments {
+						sum += v.(float64)
+					}
+					return sum, nil
+				},
+			},
+
+			Expected: 14.0,
 		},
 	}
 
@@ -893,6 +922,33 @@ func TestParameterizedEvaluation(test *testing.T) {
 				},
 			},
 			Expected: 1.0,
+		},
+		EvaluationTest{
+
+			Name:	"Mixed function and parameters",
+			Input:	"sum(1.2, amount) + name",
+			Functions: map[string]ExpressionFunction {
+				"sum": func(arguments ...interface{}) (interface{}, error) {
+
+					sum := 0.0
+					for _, v := range arguments {
+						sum += v.(float64)
+					}
+					return sum, nil
+				},
+			},
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name: "amount",
+					Value: .8,
+				},
+				EvaluationParameter{
+					Name: "name",
+					Value: "awesome",
+				},
+			},
+
+			Expected: "2awesome",
 		},
 	}
 

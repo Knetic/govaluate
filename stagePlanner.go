@@ -33,6 +33,7 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	TERNARY_TRUE:   ternaryIfStage,
 	TERNARY_FALSE:  ternaryElseStage,
 	COALESCE:		ternaryElseStage,
+	SEPARATOR_OPERATOR:		separatorStage,
 }
 
 /*
@@ -157,8 +158,10 @@ func init() {
 		next:            planLogical,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:	SEPARATOR_SYMBOLS,
 		validKinds:		[]TokenKind {SEPARATOR},
-		next: planTernary,
+		typeErrorFormat: "separator",
+		next: 			planTernary,
 	})
 }
 
@@ -433,8 +436,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
 		stream.next()
 		return ret, nil
-		
+
 	case CLAUSE_CLOSE:
+
+		// when functions do not have anything within the parens, the CLAUSE_CLOSE is not consumed. This consumes it.
 		return planTokens(stream)
 
 	case VARIABLE:

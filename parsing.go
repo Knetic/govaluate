@@ -115,6 +115,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		// comma, separator
 		if character == ',' {
 
+			tokenValue = ","
 			kind = SEPARATOR
 			break
 		}

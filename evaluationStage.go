@@ -211,13 +211,11 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 
 	var ret []interface{}
 
-	if(left != nil) {
-		ret = []interface{} {left}
-	}
-
-	switch right.(type) {
+	switch left.(type) {
 	case []interface{}:
-		ret = append(ret, left)
+		ret = append(left.([]interface{}), right)
+	default:
+		ret = []interface{} {left, right}
 	}
 
 	return ret, nil

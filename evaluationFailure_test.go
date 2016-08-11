@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"errors"
 )
 
 type DebugStruct struct {
@@ -19,6 +20,7 @@ type DebugStruct struct {
 type EvaluationFailureTest struct {
 	Name       string
 	Input      string
+	Functions map[string]ExpressionFunction
 	Parameters map[string]interface{}
 	Expected   string
 }
@@ -407,6 +409,25 @@ func TestRegexParameterCompilation(test *testing.T) {
 	runEvaluationFailureTests(evaluationTests, test)
 }
 
+func TestFunctionExecution(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:  "Function error bubbling",
+			Input: "error()",
+			Functions: map[string]ExpressionFunction{
+				"error": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Huge problems")
+				},
+			},
+			Expected: "Huge problems",
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
 func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *testing.T) {
 
 	var expression *EvaluableExpression
@@ -416,7 +437,11 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 
 	for _, testCase := range evaluationTests {
 
-		expression, err = NewEvaluableExpression(testCase.Input)
+		if(len(testCase.Functions) > 0) {
+			expression, err = NewEvaluableExpressionWithFunctions(testCase.Input, testCase.Functions)
+		} else {
+			expression, err = NewEvaluableExpression(testCase.Input)
+		}
 
 		if err != nil {
 
