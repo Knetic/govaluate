@@ -15,6 +15,8 @@ const (
 	PATTERN
 	TIME
 	VARIABLE
+	FUNCTION
+	SEPARATOR
 
 	COMPARATOR
 	LOGICALOP
@@ -48,6 +50,10 @@ func GetTokenKindString(kind TokenKind) string {
 		return "TIME"
 	case VARIABLE:
 		return "VARIABLE"
+	case FUNCTION:
+		return "FUNCTION"
+	case SEPARATOR:
+		return "SEPARATOR"
 	case COMPARATOR:
 		return "COMPARATOR"
 	case LOGICALOP:

@@ -189,6 +189,30 @@ func makeLiteralStage(literal interface{}) evaluationOperator {
 	}
 }
 
+func makeFunctionStage(function ExpressionFunction) evaluationOperator {
+
+	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+
+		return function(right.([]interface{})...)
+	}
+}
+
+func separatorStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+
+	var ret []interface{}
+
+	if(left != nil) {
+		ret = []interface{} {left}
+	}
+
+	switch right.(type) {
+	case []interface{}:
+		ret = append(ret, left)
+	}
+
+	return ret, nil
+}
+
 //
 
 func isString(value interface{}) bool {

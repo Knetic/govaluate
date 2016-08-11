@@ -20,6 +20,7 @@ var validLexerStates = []lexerState{
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
+			FUNCTION,
 			STRING,
 			TIME,
 			CLAUSE,
@@ -45,6 +46,7 @@ var validLexerStates = []lexerState{
 			CLAUSE_CLOSE,
 			LOGICALOP,
 			TERNARY,
+			SEPARATOR,
 		},
 	},
 
@@ -59,6 +61,7 @@ var validLexerStates = []lexerState{
 			LOGICALOP,
 			CLAUSE_CLOSE,
 			TERNARY,
+			SEPARATOR,
 		},
 	},
 	lexerState{
@@ -72,6 +75,7 @@ var validLexerStates = []lexerState{
 			LOGICALOP,
 			CLAUSE_CLOSE,
 			TERNARY,
+			SEPARATOR,
 		},
 	},
 	lexerState{
@@ -85,6 +89,7 @@ var validLexerStates = []lexerState{
 			LOGICALOP,
 			CLAUSE_CLOSE,
 			TERNARY,
+			SEPARATOR,
 		},
 	},
 	lexerState{
@@ -97,6 +102,7 @@ var validLexerStates = []lexerState{
 			COMPARATOR,
 			LOGICALOP,
 			CLAUSE_CLOSE,
+			SEPARATOR,
 		},
 	},
 	lexerState{
@@ -110,6 +116,7 @@ var validLexerStates = []lexerState{
 			LOGICALOP,
 			CLAUSE_CLOSE,
 			TERNARY,
+			SEPARATOR,
 		},
 	},
 	lexerState{
@@ -121,6 +128,7 @@ var validLexerStates = []lexerState{
 			PREFIX,
 			NUMERIC,
 			VARIABLE,
+			FUNCTION,
 			STRING,
 			BOOLEAN,
 			CLAUSE,
@@ -137,6 +145,7 @@ var validLexerStates = []lexerState{
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
+			FUNCTION,
 			STRING,
 			TIME,
 			CLAUSE,
@@ -153,6 +162,7 @@ var validLexerStates = []lexerState{
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
+			FUNCTION,
 			STRING,
 			TIME,
 			CLAUSE,
@@ -168,6 +178,7 @@ var validLexerStates = []lexerState{
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,
+			FUNCTION,
 			CLAUSE,
 			CLAUSE_CLOSE,
 		},
@@ -185,6 +196,32 @@ var validLexerStates = []lexerState{
 			STRING,
 			TIME,
 			VARIABLE,
+			FUNCTION,
+			CLAUSE,
+			SEPARATOR,
+		},
+	},
+	lexerState{
+
+		kind:  FUNCTION,
+		isEOF: false,
+		validNextKinds: []TokenKind{
+			CLAUSE,
+		},
+	},
+	lexerState{
+
+		kind:  SEPARATOR,
+		isEOF: false,
+		validNextKinds: []TokenKind{
+
+			PREFIX,
+			NUMERIC,
+			BOOLEAN,
+			STRING,
+			TIME,
+			VARIABLE,
+			FUNCTION,
 			CLAUSE,
 		},
 	},

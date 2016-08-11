@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 	"unicode"
+	"reflect"
 )
 
 /*
@@ -14,6 +15,7 @@ import (
 type TokenParsingTest struct {
 	Name     string
 	Input    string
+	Functions map[string]ExpressionFunction
 	Expected []ExpressionToken
 }
 
@@ -159,6 +161,132 @@ func TestConstantParsing(test *testing.T) {
 				ExpressionToken{
 					Kind:  VARIABLE,
 					Value: "ÆŦǽഈᚥஇคٸ",
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Parameterless function",
+			Input: "foo()",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Single parameter function",
+			Input: "foo('bar')",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "bar",
+				},
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Multiple parameter function",
+			Input: "foo('bar', 1.0)",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "bar",
+				},
+				ExpressionToken{
+					Kind:  SEPARATOR,
+				},
+				ExpressionToken{
+					Kind: NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Nested function",
+			Input: "foo(foo('bar'), 1.0, foo(2.0))",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+				ExpressionToken{
+					Kind: STRING,
+					Value: "bar",
+				},
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
+				},
+				ExpressionToken{
+					Kind:  SEPARATOR,
+				},
+
+				ExpressionToken{
+					Kind: NUMERIC,
+					Value: 1.0,
+				},
+
+				ExpressionToken{
+					Kind:  SEPARATOR,
+				},
+
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE,
+				},
+				ExpressionToken{
+					Kind: NUMERIC,
+					Value: 2.0,
+				},
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
+				},
+
+				ExpressionToken{
+					Kind:  CLAUSE_CLOSE,
 				},
 			},
 		},
@@ -1063,6 +1191,7 @@ func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTe
 			Name:     (currentCase.Name + " (without whitespace)"),
 			Input:    stripUnquotedWhitespace(currentCase.Input),
 			Expected: currentCase.Expected,
+			Functions: currentCase.Functions,
 		}
 
 		testCases = append(testCases, strippedCase, currentCase)
@@ -1106,7 +1235,11 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	// Run the test cases.
 	for _, parsingTest := range tokenParsingTests {
 
-		expression, err = NewEvaluableExpression(parsingTest.Input)
+		if(parsingTest.Functions != nil) {
+			expression, err = NewEvaluableExpressionWithFunctions(parsingTest.Input, parsingTest.Functions)
+		} else {
+			expression, err = NewEvaluableExpression(parsingTest.Input)
+		}
 
 		if err != nil {
 
@@ -1143,7 +1276,10 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				continue
 			}
 
-			if expectedToken.Value != nil && actualToken.Value != expectedToken.Value {
+			if expectedToken.Value == nil || reflect.TypeOf(expectedToken.Value).Kind() == reflect.Func {
+				continue
+			}
+			if actualToken.Value != expectedToken.Value {
 
 				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
@@ -1152,4 +1288,8 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			}
 		}
 	}
+}
+
+func noop(arguments ...interface{}) (interface{}, error) {
+	return nil, nil
 }

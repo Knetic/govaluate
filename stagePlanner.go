@@ -396,6 +396,9 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	case VARIABLE:
 		operator = makeParameterStage(token.Value.(string))
 
+	case FUNCTION:
+		operator = makeFunctionStage(token.Value.(ExpressionFunction))
+
 	case NUMERIC:
 		fallthrough
 	case STRING:

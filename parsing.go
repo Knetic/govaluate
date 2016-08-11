@@ -10,7 +10,7 @@ import (
 	"unicode"
 )
 
-func parseTokens(expression string) ([]ExpressionToken, error) {
+func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
 	var token, lastToken ExpressionToken
@@ -24,7 +24,7 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 
 	for stream.canRead() {
 
-		token, err, found = readToken(stream, state)
+		token, err, found = readToken(stream, state, functions)
 
 		if err != nil {
 			return ret, err
@@ -69,8 +69,9 @@ func parseTokens(expression string) ([]ExpressionToken, error) {
 	return optimizeTokens(ret)
 }
 
-func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, bool) {
+func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
 
+	var function ExpressionFunction
 	var ret ExpressionToken
 	var tokenValue interface{}
 	var tokenTime time.Time
@@ -111,6 +112,13 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			break
 		}
 
+		// comma, separator
+		if character == ',' {
+
+			kind = SEPARATOR
+			break
+		}
+
 		// escaped variable
 		if character == '[' {
 
@@ -126,10 +134,12 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 			break
 		}
 
-		// regular variable
+		// regular variable - or function?
 		if unicode.IsLetter(character) {
 
-			tokenValue = readTokenUntilFalse(stream, isVariableName)
+			tokenString = readTokenUntilFalse(stream, isVariableName)
+
+			tokenValue = tokenString
 			kind = VARIABLE
 
 			if tokenValue == "true" {
@@ -143,6 +153,13 @@ func readToken(stream *lexerStream, state lexerState) (ExpressionToken, error, b
 					kind = BOOLEAN
 					tokenValue = false
 				}
+			}
+
+			// function?
+			function, found = functions[tokenString]
+			if(found) {
+				kind = FUNCTION
+				tokenValue = function
 			}
 			break
 		}
