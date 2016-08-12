@@ -451,6 +451,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Array membership literals",
+			Input:    "1 in (1, 2, 3)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Array membership literal with inversion",
+			Input:    "!(1 in (1, 2, 3))",
+			Expected: false,
+		},
+		EvaluationTest{
+
 			Name:  "Single function",
 			Input: "foo()",
 			Functions: map[string]ExpressionFunction{

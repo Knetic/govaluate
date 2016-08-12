@@ -221,6 +221,16 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 	return ret, nil
 }
 
+func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+
+	for _, value := range right.([]interface{}) {
+		if left == value {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 //
 
 func isString(value interface{}) bool {
@@ -272,4 +282,12 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 		return false
 	}
 	return true
+}
+
+func isArray(value interface{}) bool {
+	switch value.(type) {
+	case []interface{}:
+		return true
+	}
+	return false
 }

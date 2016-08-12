@@ -16,6 +16,7 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	NREQ:           notRegexStage,
 	AND:            andStage,
 	OR:             orStage,
+	IN:             inStage,
 	BITWISE_OR:     bitwiseOrStage,
 	BITWISE_AND:    bitwiseAndStage,
 	BITWISE_XOR:    bitwiseXORStage,
@@ -129,10 +130,9 @@ func init() {
 		next:            planLogical,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    SEPARATOR_SYMBOLS,
-		validKinds:      []TokenKind{SEPARATOR},
-		typeErrorFormat: "separator",
-		next:            planTernary,
+		validSymbols: SEPARATOR_SYMBOLS,
+		validKinds:   []TokenKind{SEPARATOR},
+		next:         planTernary,
 	})
 }
 
@@ -408,6 +408,10 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		return typeChecks{
 			left:  isBool,
 			right: isBool,
+		}
+	case IN:
+		return typeChecks{
+			right: isArray,
 		}
 	case BITWISE_LSHIFT:
 		fallthrough

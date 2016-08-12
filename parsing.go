@@ -143,6 +143,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			tokenValue = tokenString
 			kind = VARIABLE
 
+			// boolean?
 			if tokenValue == "true" {
 
 				kind = BOOLEAN
@@ -154,6 +155,14 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 					kind = BOOLEAN
 					tokenValue = false
 				}
+			}
+
+			// textual operator?
+			if tokenValue == "in" || tokenValue == "IN" {
+
+				// force lower case for consistency
+				tokenValue = "in"
+				kind = COMPARATOR
 			}
 
 			// function?

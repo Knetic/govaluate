@@ -16,6 +16,7 @@ const (
 	LTE
 	REQ
 	NREQ
+	IN
 
 	AND
 	OR
@@ -40,7 +41,6 @@ const (
 	TERNARY_FALSE
 	COALESCE
 
-	// as distinct from the TokenKind.
 	FUNCTIONAL
 	SEPARATE
 )
@@ -80,6 +80,8 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 	case REQ:
 		fallthrough
 	case NREQ:
+		fallthrough
+	case IN:
 		return COMPARATOR_PRECEDENCE
 	case AND:
 		fallthrough
@@ -142,6 +144,7 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	"<=": LTE,
 	"=~": REQ,
 	"!~": NREQ,
+	"in": IN,
 }
 
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
@@ -282,6 +285,8 @@ func (this OperatorSymbol) String() string {
 		return "&&"
 	case OR:
 		return "||"
+	case IN:
+		return "in"
 	case BITWISE_AND:
 		return "&"
 	case BITWISE_OR:
