@@ -134,7 +134,8 @@ What operators and types does this support?
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
 * Prefixes: `!` `-` `~`
-* Ternary conditional `?` `:`
+* Ternary conditional: `?` `:`
+* Null coalescence: `??`
 
 Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
@@ -165,6 +166,7 @@ Note that this table shows what each type supports - if you use an operator then
 | **                         	| Takes to the power of 	| **X**           	| **X**           	|
 | %                          	| Modulo                	| **X**           	| **X**           	|
 | Greater/Lesser (> >= < <=) 	| Compares                 	| **X**           	| **X**           	|
+| Null Coalesce	(??)			| Gets first non-nil		| Gets first non-nil| Gets first non-nil|
 | Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
 | Ternary (? :)                 | **X**                     | **X**             | Checks by value   |
 | Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
