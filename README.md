@@ -176,6 +176,34 @@ It may, at first, not make sense why a Date supports all the same things as a nu
 
 Complex types, arrays, and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
 
+Functions
+--
+
+You may have cases where you want to call a function on a parameter during execution of the expression. Perhaps you want to aggregate some set of data, but don't know the exact aggregation you want to use until you're writing the expression itself. Or maybe you have a mathematical operation you want to perform, for which there is no operator; like `log` or `tan` or `sqrt`. For cases like this, you can provide a map of functions to `NewEvaluableExpressionWithFunctions`, which will then be able to use them during execution. For instance;
+
+```go
+	functions := map[string]govaluate.ExpressionFunction {
+		"strlen": func(args ...interface{}) (interface{}, error) {
+			return len(args[0].(string)), nil
+		},
+	}
+
+	expString := "strlen('someReallyLongInputString') <= 16"
+	expression, _ := govaluate.NewEvaluableExpressionWithFunctions(expString, functions)
+
+	result, _ := expression.Evaluate(nil)
+	// result is now "false", the boolean value
+```
+
+Functions can accept any number of arguments, correctly handles nested functions, and arguments can be of any type (even if none of this library's operators support evaluation of that type). For instance, all these usages of functions in an expression are valid (assuming that the appropriate functions and parameters are given):
+
+```go
+"sqrt(x1 ** y1, x2 ** y2)"
+"max(someValue, abs(anotherValue), 10 * lastValue)"
+```
+
+Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
+
 Benchmarks
 --
 
