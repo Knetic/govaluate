@@ -6,34 +6,34 @@ import (
 )
 
 var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
-	EQ:             equalStage,
-	NEQ:            notEqualStage,
-	GT:             gtStage,
-	LT:             ltStage,
-	GTE:            gteStage,
-	LTE:            lteStage,
-	REQ:            regexStage,
-	NREQ:           notRegexStage,
-	AND:            andStage,
-	OR:             orStage,
-	BITWISE_OR:     bitwiseOrStage,
-	BITWISE_AND:    bitwiseAndStage,
-	BITWISE_XOR:    bitwiseXORStage,
-	BITWISE_LSHIFT: leftShiftStage,
-	BITWISE_RSHIFT: rightShiftStage,
-	PLUS:           addStage,
-	MINUS:          subtractStage,
-	MULTIPLY:       multiplyStage,
-	DIVIDE:         divideStage,
-	MODULUS:        modulusStage,
-	EXPONENT:       exponentStage,
-	NEGATE:         negateStage,
-	INVERT:         invertStage,
-	BITWISE_NOT:    bitwiseNotStage,
-	TERNARY_TRUE:   ternaryIfStage,
-	TERNARY_FALSE:  ternaryElseStage,
-	COALESCE:		ternaryElseStage,
-	SEPARATOR_OPERATOR:		separatorStage,
+	EQ:                 equalStage,
+	NEQ:                notEqualStage,
+	GT:                 gtStage,
+	LT:                 ltStage,
+	GTE:                gteStage,
+	LTE:                lteStage,
+	REQ:                regexStage,
+	NREQ:               notRegexStage,
+	AND:                andStage,
+	OR:                 orStage,
+	BITWISE_OR:         bitwiseOrStage,
+	BITWISE_AND:        bitwiseAndStage,
+	BITWISE_XOR:        bitwiseXORStage,
+	BITWISE_LSHIFT:     leftShiftStage,
+	BITWISE_RSHIFT:     rightShiftStage,
+	PLUS:               addStage,
+	MINUS:              subtractStage,
+	MULTIPLY:           multiplyStage,
+	DIVIDE:             divideStage,
+	MODULUS:            modulusStage,
+	EXPONENT:           exponentStage,
+	NEGATE:             negateStage,
+	INVERT:             invertStage,
+	BITWISE_NOT:        bitwiseNotStage,
+	TERNARY_TRUE:       ternaryIfStage,
+	TERNARY_FALSE:      ternaryElseStage,
+	COALESCE:           ternaryElseStage,
+	SEPARATOR_OPERATOR: separatorStage,
 }
 
 /*
@@ -50,7 +50,7 @@ type precedent func(stream *tokenStream) (*evaluationStage, error)
 */
 type precedencePlanner struct {
 	validSymbols map[string]OperatorSymbol
-	validKinds []TokenKind
+	validKinds   []TokenKind
 
 	typeErrorFormat string
 
@@ -105,63 +105,63 @@ func init() {
 	// While not all precedent phases are listed here, most can be represented this way.
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    PREFIX_SYMBOLS,
-		validKinds:		 []TokenKind {PREFIX},
+		validKinds:      []TokenKind{PREFIX},
 		typeErrorFormat: TYPEERROR_PREFIX,
 		nextRight:       planFunction,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    EXPONENTIAL_SYMBOLS,
-		validKinds:		 []TokenKind {MODIFIER},
+		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planFunction,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    MULTIPLICATIVE_SYMBOLS,
-		validKinds:		 []TokenKind {MODIFIER},
+		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planExponential,
 	})
 	planAdditive = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    ADDITIVE_SYMBOLS,
-		validKinds:		 []TokenKind {MODIFIER},
+		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planMultiplicative,
 	})
 	planShift = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SHIFT_SYMBOLS,
-		validKinds:		 []TokenKind {MODIFIER},
+		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planAdditive,
 	})
 	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SYMBOLS,
-		validKinds:		 []TokenKind {MODIFIER},
+		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: TYPEERROR_MODIFIER,
 		next:            planShift,
 	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    COMPARATOR_SYMBOLS,
-		validKinds:		 []TokenKind {COMPARATOR},
+		validKinds:      []TokenKind{COMPARATOR},
 		typeErrorFormat: TYPEERROR_COMPARATOR,
 		next:            planBitwise,
 	})
 	planLogical = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    LOGICAL_SYMBOLS,
-		validKinds:		 []TokenKind {LOGICALOP},
+		validKinds:      []TokenKind{LOGICALOP},
 		typeErrorFormat: TYPEERROR_LOGICAL,
 		next:            planComparator,
 	})
 	planTernary = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    TERNARY_SYMBOLS,
-		validKinds:		 []TokenKind {TERNARY},
+		validKinds:      []TokenKind{TERNARY},
 		typeErrorFormat: TYPEERROR_TERNARY,
 		next:            planLogical,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:	SEPARATOR_SYMBOLS,
-		validKinds:		[]TokenKind {SEPARATOR},
+		validSymbols:    SEPARATOR_SYMBOLS,
+		validKinds:      []TokenKind{SEPARATOR},
 		typeErrorFormat: "separator",
-		next: 			planTernary,
+		next:            planTernary,
 	})
 }
 
@@ -225,25 +225,25 @@ func planPrecedenceLevel(
 
 		token = stream.next()
 
-		if(len(validKinds) > 0) {
+		if len(validKinds) > 0 {
 
 			keyFound = false
 			for _, kind := range validKinds {
-				if(kind == token.Kind) {
+				if kind == token.Kind {
 					keyFound = true
 					break
 				}
 			}
 
-			if(!keyFound) {
+			if !keyFound {
 				break
 			}
 		}
 
-		if(validSymbols != nil) {
+		if validSymbols != nil {
 
-			if(!isString(token.Value)) {
-				break;
+			if !isString(token.Value) {
+				break
 			}
 
 			symbol, keyFound = validSymbols[token.Value.(string)]
@@ -392,7 +392,7 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 
 	token = stream.next()
 
-	if(token.Kind != FUNCTION) {
+	if token.Kind != FUNCTION {
 		stream.rewind()
 		return planValue(stream)
 	}
@@ -404,9 +404,9 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 
 	return &evaluationStage{
 
-		symbol: FUNCTION_OPERATOR,
-		rightStage: rightStage,
-		operator:   makeFunctionStage(token.Value.(ExpressionFunction)),
+		symbol:          FUNCTION_OPERATOR,
+		rightStage:      rightStage,
+		operator:        makeFunctionStage(token.Value.(ExpressionFunction)),
 		typeErrorFormat: "Unable to run function '%v': %v",
 	}, nil
 }

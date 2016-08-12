@@ -4,10 +4,10 @@ package govaluate
   Tests to make sure evaluation fails in the expected ways.
 */
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
-	"errors"
 )
 
 type DebugStruct struct {
@@ -20,7 +20,7 @@ type DebugStruct struct {
 type EvaluationFailureTest struct {
 	Name       string
 	Input      string
-	Functions map[string]ExpressionFunction
+	Functions  map[string]ExpressionFunction
 	Parameters map[string]interface{}
 	Expected   string
 }
@@ -437,7 +437,7 @@ func runEvaluationFailureTests(evaluationTests []EvaluationFailureTest, test *te
 
 	for _, testCase := range evaluationTests {
 
-		if(len(testCase.Functions) > 0) {
+		if len(testCase.Functions) > 0 {
 			expression, err = NewEvaluableExpressionWithFunctions(testCase.Input, testCase.Functions)
 		} else {
 			expression, err = NewEvaluableExpression(testCase.Input)

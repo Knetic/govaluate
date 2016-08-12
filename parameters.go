@@ -23,7 +23,7 @@ func (p MapParameters) Get(name string) (interface{}, error) {
 
 	value, found := p[name]
 
-	if(!found) {
+	if !found {
 		errorMessage := "No parameter '" + name + "' found."
 		return nil, errors.New(errorMessage)
 	}

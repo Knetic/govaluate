@@ -193,7 +193,7 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 
 	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-		if(right == nil) {
+		if right == nil {
 			return function()
 		}
 
@@ -215,7 +215,7 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 	case []interface{}:
 		ret = append(left.([]interface{}), right)
 	default:
-		ret = []interface{} {left, right}
+		ret = []interface{}{left, right}
 	}
 
 	return ret, nil

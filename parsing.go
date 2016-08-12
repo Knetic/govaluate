@@ -104,7 +104,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			tokenString = readTokenUntilFalse(stream, isNumeric)
 			tokenValue, err = strconv.ParseFloat(tokenString, 64)
 
-			if(err != nil) {
+			if err != nil {
 				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
 				return ExpressionToken{}, errors.New(errorMsg), false
 			}
@@ -158,7 +158,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 			// function?
 			function, found = functions[tokenString]
-			if(found) {
+			if found {
 				kind = FUNCTION
 				tokenValue = function
 			}

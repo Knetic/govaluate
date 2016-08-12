@@ -14,7 +14,7 @@ const (
 	UNCLOSED_QUOTES                 = "Unclosed string literal"
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
 	UNBALANCED_PARENTHESIS          = "Unbalanced parenthesis"
-	INVALID_NUMERIC					= "Unable to parse numeric value"
+	INVALID_NUMERIC                 = "Unable to parse numeric value"
 )
 
 /*

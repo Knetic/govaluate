@@ -3,20 +3,20 @@ package govaluate
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 	"unicode"
-	"reflect"
 )
 
 /*
 	Represents a test of parsing all tokens correctly from a string
 */
 type TokenParsingTest struct {
-	Name     string
-	Input    string
+	Name      string
+	Input     string
 	Functions map[string]ExpressionFunction
-	Expected []ExpressionToken
+	Expected  []ExpressionToken
 }
 
 func TestConstantParsing(test *testing.T) {
@@ -165,8 +165,8 @@ func TestConstantParsing(test *testing.T) {
 			},
 		},
 		TokenParsingTest{
-			Name:  "Parameterless function",
-			Input: "foo()",
+			Name:      "Parameterless function",
+			Input:     "foo()",
 			Functions: map[string]ExpressionFunction{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -174,16 +174,16 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 			},
 		},
 		TokenParsingTest{
-			Name:  "Single parameter function",
-			Input: "foo('bar')",
+			Name:      "Single parameter function",
+			Input:     "foo('bar')",
 			Functions: map[string]ExpressionFunction{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -191,20 +191,20 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "bar",
 				},
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 			},
 		},
 		TokenParsingTest{
-			Name:  "Multiple parameter function",
-			Input: "foo('bar', 1.0)",
+			Name:      "Multiple parameter function",
+			Input:     "foo('bar', 1.0)",
 			Functions: map[string]ExpressionFunction{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -212,27 +212,27 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "bar",
 				},
 				ExpressionToken{
-					Kind:  SEPARATOR,
+					Kind: SEPARATOR,
 				},
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 			},
 		},
 		TokenParsingTest{
-			Name:  "Nested function",
-			Input: "foo(foo('bar'), 1.0, foo(2.0))",
+			Name:      "Nested function",
+			Input:     "foo(foo('bar'), 1.0, foo(2.0))",
 			Functions: map[string]ExpressionFunction{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -240,7 +240,7 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 
 				ExpressionToken{
@@ -248,26 +248,26 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "bar",
 				},
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 				ExpressionToken{
-					Kind:  SEPARATOR,
+					Kind: SEPARATOR,
 				},
 
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 
 				ExpressionToken{
-					Kind:  SEPARATOR,
+					Kind: SEPARATOR,
 				},
 
 				ExpressionToken{
@@ -275,18 +275,18 @@ func TestConstantParsing(test *testing.T) {
 					Value: noop,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE,
+					Kind: CLAUSE,
 				},
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 2.0,
 				},
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 
 				ExpressionToken{
-					Kind:  CLAUSE_CLOSE,
+					Kind: CLAUSE_CLOSE,
 				},
 			},
 		},
@@ -542,7 +542,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "+",
 				},
 			},
@@ -561,7 +561,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "/",
 				},
 			},
@@ -580,7 +580,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "**",
 				},
 			},
@@ -599,7 +599,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "^",
 				},
 			},
@@ -618,7 +618,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: ">>",
 				},
 			},
@@ -637,7 +637,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "==",
 				},
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "?",
 				},
 			},
@@ -1188,9 +1188,9 @@ func combineWhitespaceExpressions(testCases []TokenParsingTest) []TokenParsingTe
 
 		strippedCase = TokenParsingTest{
 
-			Name:     (currentCase.Name + " (without whitespace)"),
-			Input:    stripUnquotedWhitespace(currentCase.Input),
-			Expected: currentCase.Expected,
+			Name:      (currentCase.Name + " (without whitespace)"),
+			Input:     stripUnquotedWhitespace(currentCase.Input),
+			Expected:  currentCase.Expected,
 			Functions: currentCase.Functions,
 		}
 
@@ -1235,7 +1235,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	// Run the test cases.
 	for _, parsingTest := range tokenParsingTests {
 
-		if(parsingTest.Functions != nil) {
+		if parsingTest.Functions != nil {
 			expression, err = NewEvaluableExpressionWithFunctions(parsingTest.Input, parsingTest.Functions)
 		} else {
 			expression, err = NewEvaluableExpression(parsingTest.Input)

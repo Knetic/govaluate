@@ -12,7 +12,7 @@ import (
 type EvaluationTest struct {
 	Name       string
 	Input      string
-	Functions map[string]ExpressionFunction
+	Functions  map[string]ExpressionFunction
 	Parameters []EvaluationParameter
 	Expected   interface{}
 }
@@ -451,9 +451,9 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:	"Single function",
-			Input:	"foo()",
-			Functions: map[string]ExpressionFunction {
+			Name:  "Single function",
+			Input: "foo()",
+			Functions: map[string]ExpressionFunction{
 				"foo": func(arguments ...interface{}) (interface{}, error) {
 					return true, nil
 				},
@@ -463,9 +463,9 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:	"Function with argument",
-			Input:	"passthrough(1)",
-			Functions: map[string]ExpressionFunction {
+			Name:  "Function with argument",
+			Input: "passthrough(1)",
+			Functions: map[string]ExpressionFunction{
 				"passthrough": func(arguments ...interface{}) (interface{}, error) {
 					return arguments[0], nil
 				},
@@ -476,9 +476,9 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 		EvaluationTest{
 
-			Name:	"Function with arguments",
-			Input:	"passthrough(1, 2)",
-			Functions: map[string]ExpressionFunction {
+			Name:  "Function with arguments",
+			Input: "passthrough(1, 2)",
+			Functions: map[string]ExpressionFunction{
 				"passthrough": func(arguments ...interface{}) (interface{}, error) {
 					return arguments[0].(float64) + arguments[1].(float64), nil
 				},
@@ -488,9 +488,9 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:	"Nested function with precedence",
-			Input:	"sum(1, sum(2, 3), 2 + 2, true ? 4 : 5)",
-			Functions: map[string]ExpressionFunction {
+			Name:  "Nested function with precedence",
+			Input: "sum(1, sum(2, 3), 2 + 2, true ? 4 : 5)",
+			Functions: map[string]ExpressionFunction{
 				"sum": func(arguments ...interface{}) (interface{}, error) {
 
 					sum := 0.0
@@ -925,9 +925,9 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:	"Mixed function and parameters",
-			Input:	"sum(1.2, amount) + name",
-			Functions: map[string]ExpressionFunction {
+			Name:  "Mixed function and parameters",
+			Input: "sum(1.2, amount) + name",
+			Functions: map[string]ExpressionFunction{
 				"sum": func(arguments ...interface{}) (interface{}, error) {
 
 					sum := 0.0
@@ -939,11 +939,11 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
-					Name: "amount",
+					Name:  "amount",
 					Value: .8,
 				},
 				EvaluationParameter{
-					Name: "name",
+					Name:  "name",
 					Value: "awesome",
 				},
 			},
@@ -980,7 +980,7 @@ func runEvaluationTests(evaluationTests []EvaluationTest, test *testing.T) {
 	// Run the test cases.
 	for _, evaluationTest := range evaluationTests {
 
-		if(evaluationTest.Functions != nil) {
+		if evaluationTest.Functions != nil {
 			expression, err = NewEvaluableExpressionWithFunctions(evaluationTest.Input, evaluationTest.Functions)
 		} else {
 			expression, err = NewEvaluableExpression(evaluationTest.Input)

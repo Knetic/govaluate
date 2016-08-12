@@ -182,8 +182,8 @@ var PREFIX_SYMBOLS = map[string]OperatorSymbol{
 }
 
 var TERNARY_SYMBOLS = map[string]OperatorSymbol{
-	"?": TERNARY_TRUE,
-	":": TERNARY_FALSE,
+	"?":  TERNARY_TRUE,
+	":":  TERNARY_FALSE,
 	"??": COALESCE,
 }
 
