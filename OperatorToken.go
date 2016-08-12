@@ -41,15 +41,15 @@ const (
 	COALESCE
 
 	// as distinct from the TokenKind.
-	FUNCTION_OPERATOR
-	SEPARATOR_OPERATOR
+	FUNCTIONAL
+	SEPARATE
 )
 
 type OperatorPrecedence int
 
 const (
 	VALUE_PRECEDENCE OperatorPrecedence = iota
-	FUNCTION_PRECEDENCE
+	FUNCTIONAL_PRECEDENCE
 	PREFIX_PRECEDENCE
 	EXPONENTIAL_PRECEDENCE
 	ADDITIVE_PRECEDENCE
@@ -59,7 +59,7 @@ const (
 	COMPARATOR_PRECEDENCE
 	TERNARY_PRECEDENCE
 	LOGICAL_PRECEDENCE
-	SEPARATOR_PRECEDENCE
+	SEPARATE_PRECEDENCE
 )
 
 func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
@@ -119,10 +119,10 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 		fallthrough
 	case TERNARY_FALSE:
 		return TERNARY_PRECEDENCE
-	case FUNCTION_OPERATOR:
-		return FUNCTION_PRECEDENCE
-	case SEPARATOR_OPERATOR:
-		return SEPARATOR_PRECEDENCE
+	case FUNCTIONAL:
+		return FUNCTIONAL_PRECEDENCE
+	case SEPARATE:
+		return SEPARATE_PRECEDENCE
 	}
 
 	return VALUE_PRECEDENCE
@@ -203,7 +203,7 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
 }
 
 var SEPARATOR_SYMBOLS = map[string]OperatorSymbol{
-	",": SEPARATOR_OPERATOR,
+	",": SEPARATE,
 }
 
 var ADDITIVE_MODIFIERS = []OperatorSymbol{

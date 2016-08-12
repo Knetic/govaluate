@@ -6,34 +6,34 @@ import (
 )
 
 var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
-	EQ:                 equalStage,
-	NEQ:                notEqualStage,
-	GT:                 gtStage,
-	LT:                 ltStage,
-	GTE:                gteStage,
-	LTE:                lteStage,
-	REQ:                regexStage,
-	NREQ:               notRegexStage,
-	AND:                andStage,
-	OR:                 orStage,
-	BITWISE_OR:         bitwiseOrStage,
-	BITWISE_AND:        bitwiseAndStage,
-	BITWISE_XOR:        bitwiseXORStage,
-	BITWISE_LSHIFT:     leftShiftStage,
-	BITWISE_RSHIFT:     rightShiftStage,
-	PLUS:               addStage,
-	MINUS:              subtractStage,
-	MULTIPLY:           multiplyStage,
-	DIVIDE:             divideStage,
-	MODULUS:            modulusStage,
-	EXPONENT:           exponentStage,
-	NEGATE:             negateStage,
-	INVERT:             invertStage,
-	BITWISE_NOT:        bitwiseNotStage,
-	TERNARY_TRUE:       ternaryIfStage,
-	TERNARY_FALSE:      ternaryElseStage,
-	COALESCE:           ternaryElseStage,
-	SEPARATOR_OPERATOR: separatorStage,
+	EQ:             equalStage,
+	NEQ:            notEqualStage,
+	GT:             gtStage,
+	LT:             ltStage,
+	GTE:            gteStage,
+	LTE:            lteStage,
+	REQ:            regexStage,
+	NREQ:           notRegexStage,
+	AND:            andStage,
+	OR:             orStage,
+	BITWISE_OR:     bitwiseOrStage,
+	BITWISE_AND:    bitwiseAndStage,
+	BITWISE_XOR:    bitwiseXORStage,
+	BITWISE_LSHIFT: leftShiftStage,
+	BITWISE_RSHIFT: rightShiftStage,
+	PLUS:           addStage,
+	MINUS:          subtractStage,
+	MULTIPLY:       multiplyStage,
+	DIVIDE:         divideStage,
+	MODULUS:        modulusStage,
+	EXPONENT:       exponentStage,
+	NEGATE:         negateStage,
+	INVERT:         invertStage,
+	BITWISE_NOT:    bitwiseNotStage,
+	TERNARY_TRUE:   ternaryIfStage,
+	TERNARY_FALSE:  ternaryElseStage,
+	COALESCE:       ternaryElseStage,
+	SEPARATE:       separatorStage,
 }
 
 /*
@@ -56,35 +56,6 @@ type precedencePlanner struct {
 
 	next      precedent
 	nextRight precedent
-}
-
-/*
-	Given a planner, creates a function which will evaluate a specific precedence level of operators,
-	and link it to other `precedent`s which recurse to parse other precedence levels.
-*/
-func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
-
-	var generated precedent
-	var nextRight precedent
-
-	generated = func(stream *tokenStream) (*evaluationStage, error) {
-		return planPrecedenceLevel(
-			stream,
-			planner.typeErrorFormat,
-			planner.validSymbols,
-			planner.validKinds,
-			nextRight,
-			planner.next,
-		)
-	}
-
-	if planner.nextRight != nil {
-		nextRight = planner.nextRight
-	} else {
-		nextRight = generated
-	}
-
-	return generated
 }
 
 var planPrefix precedent
@@ -163,6 +134,35 @@ func init() {
 		typeErrorFormat: "separator",
 		next:            planTernary,
 	})
+}
+
+/*
+	Given a planner, creates a function which will evaluate a specific precedence level of operators,
+	and link it to other `precedent`s which recurse to parse other precedence levels.
+*/
+func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
+
+	var generated precedent
+	var nextRight precedent
+
+	generated = func(stream *tokenStream) (*evaluationStage, error) {
+		return planPrecedenceLevel(
+			stream,
+			planner.typeErrorFormat,
+			planner.validSymbols,
+			planner.validKinds,
+			nextRight,
+			planner.next,
+		)
+	}
+
+	if planner.nextRight != nil {
+		nextRight = planner.nextRight
+	} else {
+		nextRight = generated
+	}
+
+	return generated
 }
 
 /*
@@ -280,6 +280,95 @@ func planPrecedenceLevel(
 }
 
 /*
+	A special case where functions need to be of higher precedence than values, and need a special wrapped execution stage operator.
+*/
+func planFunction(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var rightStage *evaluationStage
+	var err error
+
+	token = stream.next()
+
+	if token.Kind != FUNCTION {
+		stream.rewind()
+		return planValue(stream)
+	}
+
+	rightStage, err = planValue(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	return &evaluationStage{
+
+		symbol:          FUNCTIONAL,
+		rightStage:      rightStage,
+		operator:        makeFunctionStage(token.Value.(ExpressionFunction)),
+		typeErrorFormat: "Unable to run function '%v': %v",
+	}, nil
+}
+
+/*
+	A truly special precedence function, this handles all the "lowest-case" errata of the process, including literals, parmeters,
+	clauses, and prefixes.
+*/
+func planValue(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var ret *evaluationStage
+	var operator evaluationOperator
+	var err error
+
+	token = stream.next()
+
+	switch token.Kind {
+
+	case CLAUSE:
+
+		ret, err = planTokens(stream)
+		if err != nil {
+			return nil, err
+		}
+
+		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
+		stream.next()
+		return ret, nil
+
+	case CLAUSE_CLOSE:
+
+		// when functions do not have anything within the parens, the CLAUSE_CLOSE is not consumed. This consumes it.
+		return planTokens(stream)
+
+	case VARIABLE:
+		operator = makeParameterStage(token.Value.(string))
+
+	case NUMERIC:
+		fallthrough
+	case STRING:
+		fallthrough
+	case PATTERN:
+		fallthrough
+	case BOOLEAN:
+		operator = makeLiteralStage(token.Value)
+	case TIME:
+		operator = makeLiteralStage(float64(token.Value.(time.Time).Unix()))
+
+	case PREFIX:
+		stream.rewind()
+		return planPrefix(stream)
+	}
+
+	if operator == nil {
+		return nil, errors.New("Unable to plan token kind: " + GetTokenKindString(token.Kind))
+	}
+
+	return &evaluationStage{
+		operator: operator,
+	}, nil
+}
+
+/*
 	Convenience function to pass a triplet of typechecks between `findTypeChecks` and `planPrecedenceLevel`.
 	Each of these members may be nil, which indicates that type does not matter for that value.
 */
@@ -379,95 +468,6 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 	default:
 		return typeChecks{}
 	}
-}
-
-/*
-	A special case where functions need to be of higher precedence than values, and need a special wrapped execution stage operator.
-*/
-func planFunction(stream *tokenStream) (*evaluationStage, error) {
-
-	var token ExpressionToken
-	var rightStage *evaluationStage
-	var err error
-
-	token = stream.next()
-
-	if token.Kind != FUNCTION {
-		stream.rewind()
-		return planValue(stream)
-	}
-
-	rightStage, err = planValue(stream)
-	if err != nil {
-		return nil, err
-	}
-
-	return &evaluationStage{
-
-		symbol:          FUNCTION_OPERATOR,
-		rightStage:      rightStage,
-		operator:        makeFunctionStage(token.Value.(ExpressionFunction)),
-		typeErrorFormat: "Unable to run function '%v': %v",
-	}, nil
-}
-
-/*
-	A truly special precedence function, this handles all the "lowest-case" errata of the process, including literals, parmeters,
-	clauses, and prefixes.
-*/
-func planValue(stream *tokenStream) (*evaluationStage, error) {
-
-	var token ExpressionToken
-	var ret *evaluationStage
-	var operator evaluationOperator
-	var err error
-
-	token = stream.next()
-
-	switch token.Kind {
-
-	case CLAUSE:
-
-		ret, err = planTokens(stream)
-		if err != nil {
-			return nil, err
-		}
-
-		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
-		stream.next()
-		return ret, nil
-
-	case CLAUSE_CLOSE:
-
-		// when functions do not have anything within the parens, the CLAUSE_CLOSE is not consumed. This consumes it.
-		return planTokens(stream)
-
-	case VARIABLE:
-		operator = makeParameterStage(token.Value.(string))
-
-	case NUMERIC:
-		fallthrough
-	case STRING:
-		fallthrough
-	case PATTERN:
-		fallthrough
-	case BOOLEAN:
-		operator = makeLiteralStage(token.Value)
-	case TIME:
-		operator = makeLiteralStage(float64(token.Value.(time.Time).Unix()))
-
-	case PREFIX:
-		stream.rewind()
-		return planPrefix(stream)
-	}
-
-	if operator == nil {
-		return nil, errors.New("Unable to plan token kind: " + GetTokenKindString(token.Kind))
-	}
-
-	return &evaluationStage{
-		operator: operator,
-	}, nil
 }
 
 /*
