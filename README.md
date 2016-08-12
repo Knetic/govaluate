@@ -186,7 +186,8 @@ You may have cases where you want to call a function on a parameter during execu
 ```go
 	functions := map[string]govaluate.ExpressionFunction {
 		"strlen": func(args ...interface{}) (interface{}, error) {
-			return len(args[0].(string)), nil
+			length := len(args[0].(string))
+			return (float64)(length), nil
 		},
 	}
 

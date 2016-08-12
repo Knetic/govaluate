@@ -108,3 +108,31 @@ func TestMultipleEvaluation(test *testing.T) {
 		}
 	}
 }
+
+func TestStrlenFunction(test *testing.T) {
+
+	functions := map[string]ExpressionFunction {
+		"strlen": func(args ...interface{}) (interface{}, error) {
+			length := len(args[0].(string))
+			return (float64)(length), nil
+		},
+	}
+
+	expString := "strlen('someReallyLongInputString') <= 16"
+	expression, err := NewEvaluableExpressionWithFunctions(expString, functions)
+	if(err != nil) {
+		test.Log(err)
+		test.Fail()
+	}
+
+	result, err := expression.Evaluate(nil)
+	if(err != nil) {
+		test.Log(err)
+		test.Fail()
+	}
+
+	if(result != false) {
+		test.Logf("Expected 'false', got '%v'\n", result)
+		test.Fail()
+	}
+}
