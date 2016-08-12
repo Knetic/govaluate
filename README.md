@@ -133,11 +133,10 @@ What operators and types does this support?
 * Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
 * Boolean constants: `true` `false`
 * Parenthesis to control order of evaluation `(` `)`
+* Arrays (anything separated by `,` within parenthesis: `(1, 2, 'foo')`)
 * Prefixes: `!` `-` `~`
 * Ternary conditional: `?` `:`
 * Null coalescence: `??`
-
-Note: for those not familiar, `=~` is "regex-equals" and `!~` is "regex-not-equals".
 
 If a ternary operator resolves to false with no else case, it returns nil. So `false ? 10` will return `nil`, whereas `true ? 10` will return `10.0`.
 
@@ -152,27 +151,28 @@ Any time you attempt to use an operator on a type which doesn't explicitly suppo
 
 Note that this table shows what each type supports - if you use an operator then _both_ types need to support the operator, otherwise an error will be returned.
 
-|                            	| Number/Date           	| String          	| Boolean         	|
-|----------------------------	|-----------------------	|-----------------	|-----------------	|
-| +                          	| Adds                  	| Concatenates    	| **X**           	|
-| -                          	| Subtracts             	| **X**           	| **X**           	|
-| /                          	| Divides               	| **X**           	| **X**           	|
-| *                          	| Multiplies            	| **X**           	| **X**           	|
-| &                          	| Bitwise and               | **X**           	| **X**           	|
-|\|                          	| Bitwise or                | **X**           	| **X**           	|
-| ^                          	| Bitwise xor               | **X**           	| **X**           	|
-| <<                          	| Bitwise left shift        | **X**           	| **X**           	|
-| >>                          	| Bitwise right shift       | **X**           	| **X**           	|
-| **                         	| Takes to the power of 	| **X**           	| **X**           	|
-| %                          	| Modulo                	| **X**           	| **X**           	|
-| Greater/Lesser (> >= < <=) 	| Compares                 	| **X**           	| **X**           	|
-| Null Coalesce	(??)			| Gets first non-nil		| Gets first non-nil| Gets first non-nil|
-| Equality (== !=)           	| Checks by value       	| Checks by value 	| Checks by value 	|
-| Ternary (? :)                 | **X**                     | **X**             | Checks by value   |
-| Regex (=~ !~)                 | **X**                     | Regex             | **X**             |
-| !                          	| **X**                 	| **X**           	| Inverts         	|
-| Negate (-)                 	| Multiplies by -1          | **X**           	| **X**           	|
-| ~                          	| Bitwise not               | **X**           	| **X**           	|
+|                            	| Number/Date           | String          	| Boolean         	| Array         		|
+|----------------------------	|-----------------------|-----------------	|-----------------	|-----------------	|
+| +                          	| Adds                  | Concatenates    	| **X**           	| **X**							|
+| -                          	| Subtracts             | **X**           	| **X**           	| **X**							|
+| /                          	| Divides               | **X**           	| **X**           	| **X**							|
+| *                          	| Multiplies            | **X**           	| **X**           	| **X**							|
+| &                          	| Bitwise and           | **X**           	| **X**           	| **X**							|
+|\|                          	| Bitwise or            | **X**           	| **X**           	| **X**							|
+| ^                          	| Bitwise xor           | **X**           	| **X**           	| **X**							|
+| <<                          | Bitwise left shift    | **X**           	| **X**           	| **X**							|
+| >>                          | Bitwise right shift   | **X**           	| **X**           	| **X**							|
+| **                         	| Takes to the power of | **X**           	| **X**           	| **X**							|
+| %                          	| Modulo                | **X**           	| **X**           	| **X**							|
+| Greater/Lesser (> >= < <=) 	| Compares              | **X**           	| **X**           	| **X**							|
+| Null Coalesce	(??)					| Gets first non-nil		| Gets first non-nil| Gets first non-nil| Gets first non-nil|
+| Equality (== !=)           	| Checks by value       | Checks by value 	| Checks by value 	| Checks by value   |
+| Membership									|  Checks if in array		| Checks if in array| Checks if in array| Checks if in      |
+| Ternary (? :)               | **X**                 | **X**             | Checks by value   | **X**							|
+| Regex (=~ !~)               | **X**                 | Regex             | **X**             | **X**							|
+| !                          	| **X**                 | **X**           	| Inverts         	| **X**							|
+| Negate (-)                 	| Multiplies by -1      | **X**           	| **X**           	| **X**							|
+| ~                          	| Bitwise not           | **X**           	| **X**           	| **X**							|
 
 It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
 
@@ -198,7 +198,7 @@ You may have cases where you want to call a function on a parameter during execu
 	// result is now "false", the boolean value
 ```
 
-Functions can accept any number of arguments, correctly handles nested functions, and arguments can be of any type (even if none of this library's operators support evaluation of that type). For instance, all these usages of functions in an expression are valid (assuming that the appropriate functions and parameters are given):
+Functions can accept any number of arguments, correctly handles nested functions, and arguments can be of any type (even if none of this library's operators support evaluation of that type). For instance, each of these usages of functions in an expression are valid (assuming that the appropriate functions and parameters are given):
 
 ```go
 "sqrt(x1 ** y1, x2 ** y2)"
