@@ -132,6 +132,60 @@ func TestSQLSerialization(test *testing.T) {
 			Input:    "foo < -1",
 			Expected: "[foo] < -1",
 		},
+		QueryTest{
+
+			Name:     "Invert prefix",
+			Input:    "!(foo > 1)",
+			Expected: "NOT ( [foo] > 1 )",
+		},
+		QueryTest{
+
+			Name:     "Exponent",
+			Input:    "1 ** 2",
+			Expected: "POW(1, 2)",
+		},
+		QueryTest{
+
+			Name:     "Modulus",
+			Input:    "10 % 2",
+			Expected: "MOD(10, 2)",
+		},
+		QueryTest{
+
+			Name:     "Membership operator",
+			Input:    "foo IN (1, 2, 3)",
+			Expected: "FIND_IN_SET([foo], '1,2,3') > 0 ",
+		},
+		QueryTest{
+
+			Name:     "Null coalescence",
+			Input:    "foo ?? bar",
+			Expected: "COALESCE([foo], [bar])",
+		},
+		QueryTest{
+
+			Name: 	  "Full ternary",
+			Input:	  "[foo] ? 1 : 2",
+			Expected: "IF([foo] = 0, 1, 2)",
+		},
+		QueryTest{
+
+			Name: 	  "Half ternary",
+			Input:	  "[foo] ? 1",
+			Expected: "IF([foo] = 0, 1)",
+		},
+		QueryTest{
+
+			Name: 	  "Regex equals",
+			Input:	  "'foo' =~ '[fF][oO]+'",
+			Expected: "'foo' RLIKE '[fF][oO]+'",
+		},
+		QueryTest{
+
+			Name: 	  "Regex not-equals",
+			Input:	  "'foo' !~ '[fF][oO]+'",
+			Expected: "'foo' NOT RLIKE '[fF][oO]+'",
+		},
 	}
 
 	runQueryTests(testCases, test)
