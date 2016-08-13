@@ -1231,6 +1231,7 @@ func TestOriginalString(test *testing.T) {
 
 		test.Logf("failed to parse original string test: %v", err)
 		test.Fail()
+		return
 	}
 
 	if expression.String() != expressionString {

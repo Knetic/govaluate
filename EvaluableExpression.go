@@ -39,8 +39,43 @@ func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 }
 
 /*
-	Parses a new EvaluableExpression from the given [expression] string.
-	Returns an error if the given expression has invalid syntax.
+	Similar to [NewEvaluableExpression], except that instead of a string, an already-tokenized expression is given.
+	This is useful in cases where you may be generating an expression automatically, or using some other parser (e.g., to parse from a query language)
+*/
+func NewEvaluableExpressionFromTokens(tokens []ExpressionToken) (*EvaluableExpression, error) {
+
+	var ret *EvaluableExpression
+	var err error
+
+	ret = new(EvaluableExpression)
+	ret.QueryDateFormat = isoDateFormat
+
+	err = checkBalance(tokens)
+	if(err != nil) {
+		return nil, err
+	}
+
+	err = checkExpressionSyntax(tokens)
+	if(err != nil) {
+		return nil, err
+	}
+
+	ret.tokens, err = optimizeTokens(tokens)
+	if(err != nil) {
+		return nil, err
+	}
+
+	ret.evaluationStages, err = planStages(ret.tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}
+
+/*
+	Similar to [NewEvaluableExpression], except enables the use of user-defined functions.
+	Functions passed into this will be available to the expression.
 */
 func NewEvaluableExpressionWithFunctions(expression string, functions map[string]ExpressionFunction) (*EvaluableExpression, error) {
 
@@ -53,6 +88,11 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 
 	ret.tokens, err = parseTokens(expression, functions)
 	if err != nil {
+		return nil, err
+	}
+
+	err = checkExpressionSyntax(ret.tokens)
+	if(err != nil) {
 		return nil, err
 	}
 

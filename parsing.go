@@ -13,14 +13,14 @@ import (
 func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
-	var token, lastToken ExpressionToken
-	var state lexerState
+	var token ExpressionToken
 	var stream *lexerStream
+	var state lexerState
 	var err error
 	var found bool
 
-	state = validLexerStates[0]
 	stream = newLexerStream(expression)
+	state = validLexerStates[0]
 
 	for stream.canRead() {
 
@@ -34,31 +34,13 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 			break
 		}
 
-		if !state.canTransitionTo(token.Kind) {
-
-			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value)
-			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value)
-
-			return ret, errors.New("Cannot transition token types from " + firstStateName + " to " + nextStateName)
+		state, err = getLexerStateForToken(token.Kind)
+		if(err != nil) {
+			return ret, err
 		}
 
-		// append this valid token, find new lexer state.
+		// append this valid token
 		ret = append(ret, token)
-
-		for _, possibleState := range validLexerStates {
-
-			if possibleState.kind == token.Kind {
-
-				state = possibleState
-				break
-			}
-		}
-
-		lastToken = token
-	}
-
-	if !state.isEOF {
-		return ret, errors.New("Unexpected end of expression")
 	}
 
 	err = checkBalance(ret)
