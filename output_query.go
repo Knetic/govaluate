@@ -1,11 +1,10 @@
 package govaluate
 
 import (
-
-	"fmt"
-	"time"
 	"errors"
+	"fmt"
 	"regexp"
+	"time"
 )
 
 /*
@@ -32,7 +31,7 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 	for stream.hasNext() {
 
 		transaction, err = this.findNextSQLString(stream, transactions)
-		if(err != nil) {
+		if err != nil {
 			return "", err
 		}
 
@@ -103,11 +102,38 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 
 			left := transactions.rollback()
 			right, err := this.findNextSQLString(stream, transactions)
-			if(err != nil) {
+			if err != nil {
 				return "", err
 			}
 
 			ret = fmt.Sprintf("COALESCE(%v, %v)", left, right)
+		case TERNARY_TRUE:
+
+			left := transactions.rollback()
+			right, err := this.findNextSQLString(stream, transactions)
+			if err != nil {
+				return "", err
+			}
+
+			// ternaries are weird, in that we handle the else case slightly differently than the half case.
+
+			if !stream.hasNext() {
+				break
+			}
+
+			nextToken := stream.next()
+			if nextToken.Kind == TERNARY {
+
+				last, err := this.findNextSQLString(stream, transactions)
+				if err != nil {
+					return "", err
+				}
+
+				ret = fmt.Sprintf("IF(%s, %s, %s)", left, right, last)
+				break
+			}
+
+			ret = fmt.Sprintf("IF(%s, %s)", left, right)
 		}
 	case PREFIX:
 		switch PREFIX_SYMBOLS[token.Value.(string)] {
@@ -117,7 +143,7 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 		default:
 
 			right, err := this.findNextSQLString(stream, transactions)
-			if(err != nil) {
+			if err != nil {
 				return "", err
 			}
 
@@ -131,7 +157,7 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 
 			left := transactions.rollback()
 			right, err := this.findNextSQLString(stream, transactions)
-			if(err != nil) {
+			if err != nil {
 				return "", err
 			}
 
@@ -140,7 +166,7 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 
 			left := transactions.rollback()
 			right, err := this.findNextSQLString(stream, transactions)
-			if(err != nil) {
+			if err != nil {
 				return "", err
 			}
 

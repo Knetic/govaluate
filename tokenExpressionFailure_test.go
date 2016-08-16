@@ -1,9 +1,9 @@
 package govaluate
 
 import (
-	"testing"
 	"fmt"
 	"strings"
+	"testing"
 )
 
 const (
@@ -21,140 +21,140 @@ const (
 	Cases that cannot occur through the normal parser, but may occur in other parsers.
 */
 type ExpressionTokenSyntaxTest struct {
-	Name       string
-	Input      []ExpressionToken
-	Expected   string
+	Name     string
+	Input    []ExpressionToken
+	Expected string
 }
 
 func TestNilValues(test *testing.T) {
 
-	cases := []ExpressionTokenSyntaxTest {
-		ExpressionTokenSyntaxTest {
+	cases := []ExpressionTokenSyntaxTest{
+		ExpressionTokenSyntaxTest{
 			Name: "Nil numeric",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: NUMERIC,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil string",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: STRING,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil bool",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: BOOLEAN,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil time",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: TIME,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil pattern",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: PATTERN,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil variable",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: VARIABLE,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil prefix",
-			Input: []ExpressionToken {
-				ExpressionToken {
+			Input: []ExpressionToken{
+				ExpressionToken{
 					Kind: PREFIX,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil comparator",
-			Input: []ExpressionToken {
-				ExpressionToken {
-					Kind: NUMERIC,
+			Input: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
-				ExpressionToken {
+				ExpressionToken{
 					Kind: COMPARATOR,
 				},
-				ExpressionToken {
-					Kind: NUMERIC,
+				ExpressionToken{
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil logicalop",
-			Input: []ExpressionToken {
-				ExpressionToken {
-					Kind: BOOLEAN,
+			Input: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
 					Value: true,
 				},
-				ExpressionToken {
+				ExpressionToken{
 					Kind: LOGICALOP,
 				},
-				ExpressionToken {
-					Kind: BOOLEAN,
+				ExpressionToken{
+					Kind:  BOOLEAN,
 					Value: true,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil modifer",
-			Input: []ExpressionToken {
-				ExpressionToken {
-					Kind: NUMERIC,
+			Input: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
-				ExpressionToken {
+				ExpressionToken{
 					Kind: MODIFIER,
 				},
-				ExpressionToken {
-					Kind: NUMERIC,
+				ExpressionToken{
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest {
+		ExpressionTokenSyntaxTest{
 			Name: "Nil ternary",
-			Input: []ExpressionToken {
-				ExpressionToken {
-					Kind: BOOLEAN,
+			Input: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
 					Value: true,
 				},
-				ExpressionToken {
+				ExpressionToken{
 					Kind: TERNARY,
 				},
-				ExpressionToken {
-					Kind: BOOLEAN,
+				ExpressionToken{
+					Kind:  BOOLEAN,
 					Value: true,
 				},
 			},
@@ -176,7 +176,7 @@ func runExpressionFromTokenTests(cases []ExpressionTokenSyntaxTest, expectFail b
 		_, err = NewEvaluableExpressionFromTokens(testCase.Input)
 
 		if err != nil {
-			if(expectFail) {
+			if expectFail {
 
 				if !strings.Contains(err.Error(), testCase.Expected) {
 
@@ -192,7 +192,7 @@ func runExpressionFromTokenTests(cases []ExpressionTokenSyntaxTest, expectFail b
 			test.Fail()
 			continue
 		} else {
-			if(expectFail) {
+			if expectFail {
 
 				test.Logf("Test '%s' failed", testCase.Name)
 				test.Logf("Expected error, found none\n")

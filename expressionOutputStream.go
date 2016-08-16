@@ -19,7 +19,7 @@ func (this *expressionOutputStream) add(transaction string) {
 
 func (this *expressionOutputStream) rollback() string {
 
-	index := len(this.transactions)-1
+	index := len(this.transactions) - 1
 	ret := this.transactions[index]
 
 	this.transactions = this.transactions[:index]
@@ -31,7 +31,7 @@ func (this *expressionOutputStream) createString(delimiter string) string {
 	var retBuffer bytes.Buffer
 	var transaction string
 
-	penultimate := len(this.transactions)-1
+	penultimate := len(this.transactions) - 1
 
 	for i := 0; i < penultimate; i++ {
 

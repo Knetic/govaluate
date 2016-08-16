@@ -1,14 +1,13 @@
 package govaluate
 
 import (
-
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 type lexerState struct {
 	isEOF          bool
-	isNullable	   bool
+	isNullable     bool
 	kind           TokenKind
 	validNextKinds []TokenKind
 }
@@ -19,8 +18,8 @@ var validLexerStates = []lexerState{
 
 	lexerState{
 
-		kind:  CLAUSE,
-		isEOF: false,
+		kind:       CLAUSE,
+		isEOF:      false,
 		isNullable: true,
 		validNextKinds: []TokenKind{
 
@@ -39,8 +38,8 @@ var validLexerStates = []lexerState{
 
 	lexerState{
 
-		kind:  CLAUSE_CLOSE,
-		isEOF: true,
+		kind:       CLAUSE_CLOSE,
+		isEOF:      true,
 		isNullable: true,
 		validNextKinds: []TokenKind{
 
@@ -63,8 +62,8 @@ var validLexerStates = []lexerState{
 
 	lexerState{
 
-		kind:  NUMERIC,
-		isEOF: true,
+		kind:       NUMERIC,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -78,8 +77,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  BOOLEAN,
-		isEOF: true,
+		kind:       BOOLEAN,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -93,8 +92,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  STRING,
-		isEOF: true,
+		kind:       STRING,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -108,8 +107,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  TIME,
-		isEOF: true,
+		kind:       TIME,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -122,8 +121,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  PATTERN,
-		isEOF: true,
+		kind:       PATTERN,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -136,8 +135,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  VARIABLE,
-		isEOF: true,
+		kind:       VARIABLE,
+		isEOF:      true,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -151,8 +150,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  MODIFIER,
-		isEOF: false,
+		kind:       MODIFIER,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -168,8 +167,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  COMPARATOR,
-		isEOF: false,
+		kind:       COMPARATOR,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -187,8 +186,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  LOGICALOP,
-		isEOF: false,
+		kind:       LOGICALOP,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -205,8 +204,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  PREFIX,
-		isEOF: false,
+		kind:       PREFIX,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -221,8 +220,8 @@ var validLexerStates = []lexerState{
 
 	lexerState{
 
-		kind:  TERNARY,
-		isEOF: false,
+		kind:       TERNARY,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 
@@ -239,8 +238,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  FUNCTION,
-		isEOF: false,
+		kind:       FUNCTION,
+		isEOF:      false,
 		isNullable: false,
 		validNextKinds: []TokenKind{
 			CLAUSE,
@@ -248,8 +247,8 @@ var validLexerStates = []lexerState{
 	},
 	lexerState{
 
-		kind:  SEPARATOR,
-		isEOF: false,
+		kind:       SEPARATOR,
+		isEOF:      false,
 		isNullable: true,
 		validNextKinds: []TokenKind{
 
@@ -296,11 +295,11 @@ func checkExpressionSyntax(tokens []ExpressionToken) error {
 		}
 
 		state, err = getLexerStateForToken(token.Kind)
-		if(err != nil) {
+		if err != nil {
 			return err
 		}
 
-		if(!state.isNullable && token.Value == nil) {
+		if !state.isNullable && token.Value == nil {
 
 			errorMsg := fmt.Sprintf("Token kind '%v' cannot have a nil value", GetTokenKindString(token.Kind))
 			return errors.New(errorMsg)

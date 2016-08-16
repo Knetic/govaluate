@@ -49,17 +49,17 @@ func NewEvaluableExpressionFromTokens(tokens []ExpressionToken) (*EvaluableExpre
 	ret.QueryDateFormat = isoDateFormat
 
 	err = checkBalance(tokens)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
 	err = checkExpressionSyntax(tokens)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
 	ret.tokens, err = optimizeTokens(tokens)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -90,7 +90,7 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 	}
 
 	err = checkExpressionSyntax(ret.tokens)
-	if(err != nil) {
+	if err != nil {
 		return nil, err
 	}
 

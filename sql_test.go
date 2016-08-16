@@ -164,26 +164,26 @@ func TestSQLSerialization(test *testing.T) {
 		},
 		QueryTest{
 
-			Name: 	  "Full ternary",
-			Input:	  "[foo] ? 1 : 2",
+			Name:     "Full ternary",
+			Input:    "[foo] ? 1 : 2",
 			Expected: "IF([foo] = 0, 1, 2)",
 		},
 		QueryTest{
 
-			Name: 	  "Half ternary",
-			Input:	  "[foo] ? 1",
+			Name:     "Half ternary",
+			Input:    "[foo] ? 1",
 			Expected: "IF([foo] = 0, 1)",
 		},
 		QueryTest{
 
-			Name: 	  "Regex equals",
-			Input:	  "'foo' =~ '[fF][oO]+'",
+			Name:     "Regex equals",
+			Input:    "'foo' =~ '[fF][oO]+'",
 			Expected: "'foo' RLIKE '[fF][oO]+'",
 		},
 		QueryTest{
 
-			Name: 	  "Regex not-equals",
-			Input:	  "'foo' !~ '[fF][oO]+'",
+			Name:     "Regex not-equals",
+			Input:    "'foo' !~ '[fF][oO]+'",
 			Expected: "'foo' NOT RLIKE '[fF][oO]+'",
 		},
 	}
@@ -224,7 +224,7 @@ func runQueryTests(testCases []QueryTest, test *testing.T) {
 
 		if actualQuery != testCase.Expected {
 
-			test.Logf("Test '%s' did not create expected query. Actual: '%s'", testCase.Name, actualQuery)
+			test.Logf("Test '%s' did not create expected query.", testCase.Name, actualQuery)
 			test.Logf("Actual: '%s', expected '%s'", actualQuery, testCase.Expected)
 			test.Fail()
 			continue

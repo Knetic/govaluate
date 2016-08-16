@@ -35,7 +35,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 		}
 
 		state, err = getLexerStateForToken(token.Kind)
-		if(err != nil) {
+		if err != nil {
 			return ret, err
 		}
 
