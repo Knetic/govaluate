@@ -224,7 +224,7 @@ func runQueryTests(testCases []QueryTest, test *testing.T) {
 
 		if actualQuery != testCase.Expected {
 
-			test.Logf("Test '%s' did not create expected query.", testCase.Name, actualQuery)
+			test.Logf("Test '%s' did not create expected query.", testCase.Name)
 			test.Logf("Actual: '%s', expected '%s'", actualQuery, testCase.Expected)
 			test.Fail()
 			continue
