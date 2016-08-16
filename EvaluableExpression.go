@@ -259,7 +259,13 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 			}
 
 		case PREFIX:
-			toWrite = fmt.Sprintf("%s", token.Value.(string))
+			switch PREFIX_SYMBOLS[token.Value.(string)] {
+
+			case INVERT:
+				toWrite = fmt.Sprintf("NOT ")
+			default:
+				toWrite = fmt.Sprintf("%s", token.Value.(string))
+			}
 		case MODIFIER:
 			toWrite = fmt.Sprintf("%s ", token.Value.(string))
 		case CLAUSE:
