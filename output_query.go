@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"errors"
+	"regexp"
 )
 
 /*
@@ -52,6 +53,8 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 
 	case STRING:
 		ret = fmt.Sprintf("'%v'", token.Value)
+	case PATTERN:
+		ret = fmt.Sprintf("'%s'", token.Value.(*regexp.Regexp).String())
 	case TIME:
 		ret = fmt.Sprintf("'%s'", token.Value.(time.Time).Format(this.QueryDateFormat))
 
@@ -84,10 +87,28 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 			ret = "="
 		case NEQ:
 			ret = "<>"
+		case REQ:
+			ret = "RLIKE"
+		case NREQ:
+			ret = "NOT RLIKE"
 		default:
 			ret = fmt.Sprintf("%s", token.Value.(string))
 		}
 
+	case TERNARY:
+
+		switch TERNARY_SYMBOLS[token.Value.(string)] {
+
+		case COALESCE:
+
+			left := transactions.rollback()
+			right, err := this.findNextSQLString(stream, transactions)
+			if(err != nil) {
+				return "", err
+			}
+
+			ret = fmt.Sprintf("COALESCE(%v, %v)", left, right)
+		}
 	case PREFIX:
 		switch PREFIX_SYMBOLS[token.Value.(string)] {
 
@@ -99,7 +120,7 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 			if(err != nil) {
 				return "", err
 			}
-			
+
 			ret = fmt.Sprintf("%s%s", token.Value.(string), right)
 		}
 	case MODIFIER:
@@ -131,6 +152,8 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 		ret = "("
 	case CLAUSE_CLOSE:
 		ret = ")"
+	case SEPARATOR:
+		ret = ","
 
 	default:
 		errorMsg := fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind)
