@@ -3,7 +3,6 @@ package govaluate
 import (
 
 	"fmt"
-	"bytes"
 	"time"
 	"errors"
 )
@@ -22,82 +21,121 @@ import (
 func (this EvaluableExpression) ToSQLQuery() (string, error) {
 
 	var stream *tokenStream
-	var token ExpressionToken
-	var retBuffer bytes.Buffer
-	var toWrite, ret string
+	var transactions *expressionOutputStream
+	var transaction string
+	var err error
 
 	stream = newTokenStream(this.tokens)
+	transactions = new(expressionOutputStream)
 
 	for stream.hasNext() {
 
-		token = stream.next()
-
-		switch token.Kind {
-
-		case STRING:
-			toWrite = fmt.Sprintf("'%v' ", token.Value)
-		case TIME:
-			toWrite = fmt.Sprintf("'%s' ", token.Value.(time.Time).Format(this.QueryDateFormat))
-
-		case LOGICALOP:
-			switch LOGICAL_SYMBOLS[token.Value.(string)] {
-
-			case AND:
-				toWrite = "AND "
-			case OR:
-				toWrite = "OR "
-			}
-
-		case BOOLEAN:
-			if token.Value.(bool) {
-				toWrite = "1 "
-			} else {
-				toWrite = "0 "
-			}
-
-		case VARIABLE:
-			toWrite = fmt.Sprintf("[%s] ", token.Value.(string))
-
-		case NUMERIC:
-			toWrite = fmt.Sprintf("%g ", token.Value.(float64))
-
-		case COMPARATOR:
-			switch COMPARATOR_SYMBOLS[token.Value.(string)] {
-
-			case EQ:
-				toWrite = "= "
-			case NEQ:
-				toWrite = "<> "
-			default:
-				toWrite = fmt.Sprintf("%s ", token.Value.(string))
-			}
-
-		case PREFIX:
-			switch PREFIX_SYMBOLS[token.Value.(string)] {
-
-			case INVERT:
-				toWrite = fmt.Sprintf("NOT ")
-			default:
-				toWrite = fmt.Sprintf("%s", token.Value.(string))
-			}
-		case MODIFIER:
-			toWrite = fmt.Sprintf("%s ", token.Value.(string))
-		case CLAUSE:
-			toWrite = "( "
-		case CLAUSE_CLOSE:
-			toWrite = ") "
-
-		default:
-			toWrite = fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind)
-			return "", errors.New(toWrite)
+		transaction, err = this.findNextSQLString(stream, transactions)
+		if(err != nil) {
+			return "", err
 		}
 
-		retBuffer.WriteString(toWrite)
+		transactions.add(transaction)
 	}
 
-	// trim last space.
-	ret = retBuffer.String()
-	ret = ret[:len(ret)-1]
+	return transactions.createString(" "), nil
+}
+
+func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transactions *expressionOutputStream) (string, error) {
+
+	var token ExpressionToken
+	var ret string
+
+	token = stream.next()
+
+	switch token.Kind {
+
+	case STRING:
+		ret = fmt.Sprintf("'%v'", token.Value)
+	case TIME:
+		ret = fmt.Sprintf("'%s'", token.Value.(time.Time).Format(this.QueryDateFormat))
+
+	case LOGICALOP:
+		switch LOGICAL_SYMBOLS[token.Value.(string)] {
+
+		case AND:
+			ret = "AND"
+		case OR:
+			ret = "OR"
+		}
+
+	case BOOLEAN:
+		if token.Value.(bool) {
+			ret = "1"
+		} else {
+			ret = "0"
+		}
+
+	case VARIABLE:
+		ret = fmt.Sprintf("[%s]", token.Value.(string))
+
+	case NUMERIC:
+		ret = fmt.Sprintf("%g", token.Value.(float64))
+
+	case COMPARATOR:
+		switch COMPARATOR_SYMBOLS[token.Value.(string)] {
+
+		case EQ:
+			ret = "="
+		case NEQ:
+			ret = "<>"
+		default:
+			ret = fmt.Sprintf("%s", token.Value.(string))
+		}
+
+	case PREFIX:
+		switch PREFIX_SYMBOLS[token.Value.(string)] {
+
+		case INVERT:
+			ret = fmt.Sprintf("NOT")
+		default:
+
+			right, err := this.findNextSQLString(stream, transactions)
+			if(err != nil) {
+				return "", err
+			}
+			
+			ret = fmt.Sprintf("%s%s", token.Value.(string), right)
+		}
+	case MODIFIER:
+
+		switch MODIFIER_SYMBOLS[token.Value.(string)] {
+
+		case EXPONENT:
+
+			left := transactions.rollback()
+			right, err := this.findNextSQLString(stream, transactions)
+			if(err != nil) {
+				return "", err
+			}
+
+			ret = fmt.Sprintf("POW(%s, %s)", left, right)
+		case MODULUS:
+
+			left := transactions.rollback()
+			right, err := this.findNextSQLString(stream, transactions)
+			if(err != nil) {
+				return "", err
+			}
+
+			ret = fmt.Sprintf("MOD(%s, %s)", left, right)
+		default:
+			ret = fmt.Sprintf("%s", token.Value.(string))
+		}
+	case CLAUSE:
+		ret = "("
+	case CLAUSE_CLOSE:
+		ret = ")"
+
+	default:
+		errorMsg := fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind)
+		return "", errors.New(errorMsg)
+	}
 
 	return ret, nil
 }
