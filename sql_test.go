@@ -165,12 +165,24 @@ func TestSQLSerialization(test *testing.T) {
 		QueryTest{
 
 			Name:     "Full ternary",
+			Input:    "[foo] == 5 ? 1 : 2",
+			Expected: "IF([foo] = 5, 1, 2)",
+		},
+		QueryTest{
+
+			Name:     "Half ternary",
+			Input:    "[foo] == 5 ? 1",
+			Expected: "IF([foo] = 5, 1)",
+		},
+		QueryTest{
+
+			Name:     "Full ternary with implicit bool",
 			Input:    "[foo] ? 1 : 2",
 			Expected: "IF([foo] = 0, 1, 2)",
 		},
 		QueryTest{
 
-			Name:     "Half ternary",
+			Name:     "Half ternary with implicit bool",
 			Input:    "[foo] ? 1",
 			Expected: "IF([foo] = 0, 1)",
 		},
