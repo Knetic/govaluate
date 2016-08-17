@@ -108,32 +108,9 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 
 			ret = fmt.Sprintf("COALESCE(%v, %v)", left, right)
 		case TERNARY_TRUE:
-
-			left := transactions.rollback()
-			right, err := this.findNextSQLString(stream, transactions)
-			if err != nil {
-				return "", err
-			}
-
-			// ternaries are weird, in that we handle the else case slightly differently than the half case.
-
-			if !stream.hasNext() {
-				break
-			}
-
-			nextToken := stream.next()
-			if nextToken.Kind == TERNARY {
-
-				last, err := this.findNextSQLString(stream, transactions)
-				if err != nil {
-					return "", err
-				}
-
-				ret = fmt.Sprintf("IF(%s, %s, %s)", left, right, last)
-				break
-			}
-
-			ret = fmt.Sprintf("IF(%s, %s)", left, right)
+			fallthrough
+		case TERNARY_FALSE:
+			return "", errors.New("Ternary operators are unsupported in SQL output")
 		}
 	case PREFIX:
 		switch PREFIX_SYMBOLS[token.Value.(string)] {
