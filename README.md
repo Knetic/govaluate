@@ -2,6 +2,7 @@ govaluate
 ====
 
 [![Build Status](https://travis-ci.org/Knetic/govaluate.svg?branch=master)](https://travis-ci.org/Knetic/govaluate)
+[![Coverage](http://gocover.io/_badge/github.com/knetic/govaluate)](http://gocover.io/_badge/github.com/knetic/govaluate)
 [![Godoc](https://godoc.org/github.com/Knetic/govaluate?status.png)](https://godoc.org/github.com/Knetic/govaluate)
 
 
