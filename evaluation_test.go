@@ -962,6 +962,18 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 			Expected: "2awesome",
 		},
+		EvaluationTest{
+
+			Name:     "Absent parameter alone",
+			Input:    "[foo]",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:     "Negated absent parameter",
+			Input:    "! [foo]",
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
