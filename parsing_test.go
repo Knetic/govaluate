@@ -290,6 +290,31 @@ func TestConstantParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+			Name:      "Function with modifier afterwards (#28)",
+			Input:     "foo() + 1",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+				ExpressionToken{
+					Kind: MODIFIER,
+					Value: "+",
+				},
+				ExpressionToken{
+					Kind: NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)

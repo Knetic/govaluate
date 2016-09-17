@@ -3,6 +3,7 @@ package govaluate
 import (
 	"errors"
 	"time"
+	"fmt"
 )
 
 var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
@@ -337,8 +338,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 
 	case CLAUSE_CLOSE:
 
-		// when functions do not have anything within the parens, the CLAUSE_CLOSE is not consumed. This consumes it.
-		return planTokens(stream)
+		// when functions have empty params, this will be hit. In this case, we don't have any evaluation stage to do,
+		// so we just return nil so that the stage planner continues on its way.
+		stream.rewind()
+		return nil, nil
 
 	case VARIABLE:
 		operator = makeParameterStage(token.Value.(string))
@@ -360,7 +363,8 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	}
 
 	if operator == nil {
-		return nil, errors.New("Unable to plan token kind: " + GetTokenKindString(token.Kind))
+		errorMsg := fmt.Sprintf("Unable to plan token kind: '%s', value: '%v'", GetTokenKindString(token.Kind), token.Value)
+		return nil, errors.New(errorMsg)
 	}
 
 	return &evaluationStage{
