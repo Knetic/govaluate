@@ -611,6 +611,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Expected: true,
 		},
+		EvaluationTest{
+
+			Name:  "Enclosed empty function with modifier and comparator (#28)",
+			Input: "(ten() - 1) > 3",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+			},
+
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
