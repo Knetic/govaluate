@@ -45,7 +45,6 @@ var validLexerStates = []lexerState{
 
 			COMPARATOR,
 			MODIFIER,
-			PREFIX,
 			NUMERIC,
 			BOOLEAN,
 			VARIABLE,

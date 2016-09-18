@@ -515,6 +515,102 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Expected: 14.0,
 		},
+		EvaluationTest{
+
+			Name:  "Empty function and modifier, compared",
+			Input: "numeric()-1 > 0",
+			Functions: map[string]ExpressionFunction{
+				"numeric": func(arguments ...interface{}) (interface{}, error) {
+					return 2.0, nil
+				},
+			},
+
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function comparator",
+			Input: "numeric() > 0",
+			Functions: map[string]ExpressionFunction{
+				"numeric": func(arguments ...interface{}) (interface{}, error) {
+					return 2.0, nil
+				},
+			},
+
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function logical operator",
+			Input: "success() && !false",
+			Functions: map[string]ExpressionFunction{
+				"success": func(arguments ...interface{}) (interface{}, error) {
+					return true, nil
+				},
+			},
+
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function ternary",
+			Input: "nope() ? 1 : 2.0",
+			Functions: map[string]ExpressionFunction{
+				"nope": func(arguments ...interface{}) (interface{}, error) {
+					return false, nil
+				},
+			},
+
+			Expected: 2.0,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function null coalesce",
+			Input: "null() ?? 2",
+			Functions: map[string]ExpressionFunction{
+				"null": func(arguments ...interface{}) (interface{}, error) {
+					return nil, nil
+				},
+			},
+
+			Expected: 2.0,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function with prefix",
+			Input: "-ten()",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+			},
+
+			Expected: -10.0,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function as part of chain",
+			Input: "10 - numeric() - 2",
+			Functions: map[string]ExpressionFunction{
+				"numeric": func(arguments ...interface{}) (interface{}, error) {
+					return 5.0, nil
+				},
+			},
+
+			Expected: 3.0,
+		},
+		EvaluationTest{
+
+			Name:  "Empty function near separator",
+			Input: "10 in (1, 2, 3, ten(), 8)",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+			},
+
+			Expected: true,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
