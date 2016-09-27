@@ -331,6 +331,30 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Lexicographic LT",
+			Input:    "'ab' < 'abc'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Lexicographic LTE",
+			Input:    "'ab' <= 'abc'",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Lexicographic GT",
+			Input:    "'aba' > 'abc'",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:     "Lexicographic GTE",
+			Input:    "'aba' >= 'abc'",
+			Expected: false,
+		},
+		EvaluationTest{
+
 			Name:     "Boolean sign prefix comparison",
 			Input:    "!true == false",
 			Expected: true,

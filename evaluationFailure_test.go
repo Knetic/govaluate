@@ -269,31 +269,6 @@ func TestComparatorTyping(test *testing.T) {
 
 		EvaluationFailureTest{
 
-			Name:     "GT string to string",
-			Input:    "string > string",
-			Expected: INVALID_COMPARATOR_TYPES,
-		},
-		EvaluationFailureTest{
-
-			Name:     "GTE string to string",
-			Input:    "string >= string",
-			Expected: INVALID_COMPARATOR_TYPES,
-		},
-		EvaluationFailureTest{
-
-			Name:     "LT string to string",
-			Input:    "string < string",
-			Expected: INVALID_COMPARATOR_TYPES,
-		},
-		EvaluationFailureTest{
-
-			Name:     "LTE string to string",
-			Input:    "string <= string",
-			Expected: INVALID_COMPARATOR_TYPES,
-		},
-
-		EvaluationFailureTest{
-
 			Name:     "GT number to string",
 			Input:    "number > string",
 			Expected: INVALID_COMPARATOR_TYPES,

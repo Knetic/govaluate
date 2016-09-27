@@ -82,15 +82,27 @@ func modulusStage(left interface{}, right interface{}, parameters Parameters) (i
 	return math.Mod(left.(float64), right.(float64)), nil
 }
 func gteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	if(isString(left) && isString(right)) {
+		return left.(string) >= right.(string), nil
+	}
 	return left.(float64) >= right.(float64), nil
 }
 func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	if(isString(left) && isString(right)) {
+		return left.(string) > right.(string), nil
+	}
 	return left.(float64) > right.(float64), nil
 }
 func lteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	if(isString(left) && isString(right)) {
+		return left.(string) <= right.(string), nil
+	}
 	return left.(float64) <= right.(float64), nil
 }
 func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	if(isString(left) && isString(right)) {
+		return left.(string) < right.(string), nil
+	}
 	return left.(float64) < right.(float64), nil
 }
 func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
@@ -282,6 +294,21 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 		return false
 	}
 	return true
+}
+
+/*
+	Comparison can either be between numbers, or lexicographic between two strings,
+	but never between the two.
+*/
+func comparatorTypeCheck(left interface{}, right interface{}) bool {
+
+	if isFloat64(left) && isFloat64(right) {
+		return true
+	}
+	if isString(left) && isString(right) {
+		return true
+	}
+	return false
 }
 
 func isArray(value interface{}) bool {

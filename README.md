@@ -165,7 +165,7 @@ Note that this table shows what each type supports - if you use an operator then
 | >>                          | Bitwise right shift   | **X**           	| **X**           	| **X**							|
 | **                         	| Takes to the power of | **X**           	| **X**           	| **X**							|
 | %                          	| Modulo                | **X**           	| **X**           	| **X**							|
-| Greater/Lesser (> >= < <=) 	| Compares              | **X**           	| **X**           	| **X**							|
+| Greater/Lesser (> >= < <=) 	| Compares only numbers | Lexicographic   	| **X**           	| **X**							|
 | Null Coalesce	(??)					| Gets first non-nil		| Gets first non-nil| Gets first non-nil| Gets first non-nil|
 | Equality (== !=)           	| Checks by value       | Checks by value 	| Checks by value 	| Checks by value   |
 | Membership									|  Checks if in array		| Checks if in array| Checks if in array| Checks if in      |

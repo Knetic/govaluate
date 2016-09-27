@@ -396,8 +396,7 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		fallthrough
 	case LTE:
 		return typeChecks{
-			left:  isFloat64,
-			right: isFloat64,
+			combined: comparatorTypeCheck,
 		}
 	case REQ:
 		fallthrough

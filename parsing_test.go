@@ -555,6 +555,82 @@ func TestComparatorParsing(test *testing.T) {
 		},
 		TokenParsingTest{
 
+			Name:  "String LT",
+			Input: "'ab.cd' < 'abc.def'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "ab.cd",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "<",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "abc.def",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "String LTE",
+			Input: "'ab.cd' <= 'abc.def'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "ab.cd",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "<=",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "abc.def",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "String GT",
+			Input: "'ab.cd' > 'abc.def'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "ab.cd",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "abc.def",
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "String GTE",
+			Input: "'ab.cd' >= 'abc.def'",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "ab.cd",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: ">=",
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "abc.def",
+				},
+			},
+		},
+		TokenParsingTest{
+
 			Name:  "String REQ",
 			Input: "'foobar' =~ 'bar'",
 			Expected: []ExpressionToken{
