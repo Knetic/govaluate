@@ -1069,6 +1069,54 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Multiple comparator/logical operators (#30)",
+			Input: "(foo >= 2887057408 && foo <= 2887122943) || (foo >= 168100864 && foo <= 168118271)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 2887057409,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Multiple comparator/logical operators, opposite order (#30)",
+			Input: "(foo >= 168100864 && foo <= 168118271) || (foo >= 2887057408 && foo <= 2887122943)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 2887057409,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Multiple comparator/logical operators, small value (#30)",
+			Input: "(foo >= 2887057408 && foo <= 2887122943) || (foo >= 168100864 && foo <= 168118271)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 168100865,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Multiple comparator/logical operators, small value, opposite order (#30)",
+			Input: "(foo >= 168100864 && foo <= 168118271) || (foo >= 2887057408 && foo <= 2887122943)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 168100865,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Mixed function and parameters",
 			Input: "sum(1.2, amount) + name",
 			Functions: map[string]ExpressionFunction{
