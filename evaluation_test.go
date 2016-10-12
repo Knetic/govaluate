@@ -487,6 +487,24 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Logical operator reordering (#30)",
+			Input: "(true && true) || (true && false)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Logical operator reordering without parens (#30)",
+			Input: "true && true || true && false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Logical operator reordering with multiple OR (#30)",
+			Input: "false || true && true || false",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Single function",
 			Input: "foo()",
 			Functions: map[string]ExpressionFunction{
