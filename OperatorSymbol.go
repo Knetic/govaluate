@@ -7,7 +7,8 @@ package govaluate
 type OperatorSymbol int
 
 const (
-	NOOP OperatorSymbol = iota
+	VALUE OperatorSymbol = iota
+	NOOP
 	EQ
 	NEQ
 	GT
@@ -48,7 +49,8 @@ const (
 type OperatorPrecedence int
 
 const (
-	VALUE_PRECEDENCE OperatorPrecedence = iota
+	NOOP_PRECEDENCE OperatorPrecedence = iota
+	VALUE_PRECEDENCE
 	FUNCTIONAL_PRECEDENCE
 	PREFIX_PRECEDENCE
 	EXPONENTIAL_PRECEDENCE
@@ -65,6 +67,10 @@ const (
 func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 
 	switch symbol {
+	case NOOP:
+		return NOOP_PRECEDENCE
+	case VALUE:
+		return VALUE_PRECEDENCE
 	case EQ:
 		fallthrough
 	case NEQ:
@@ -265,6 +271,10 @@ func (this OperatorSymbol) IsModifierType(candidate []OperatorSymbol) bool {
 func (this OperatorSymbol) String() string {
 
 	switch this {
+	case NOOP:
+		return "NOOP"
+	case VALUE:
+		return "VALUE"
 	case EQ:
 		return "="
 	case NEQ:

@@ -334,6 +334,16 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 
 		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
 		stream.next()
+
+		// the stage we got represents all of the logic contained within the parens
+		// but for technical reasons, we need to wrap this stage in a "noop" stage which breaks long chains of precedence.
+		// see github #33.
+		ret = &evaluationStage {
+			rightStage: ret,
+			operator: noopStageRight,
+			symbol: NOOP,
+		}
+
 		return ret, nil
 
 	case CLAUSE_CLOSE:
@@ -498,11 +508,9 @@ func reorderStages(rootStage *evaluationStage) {
 		nextStage = currentStage.rightStage
 
 		currentPrecedence = findOperatorPrecedenceForSymbol(currentStage.symbol)
-
+		
 		// do not reorder some operators, since they aren't actually "in a row" in the sense that this reordering works with.
 		switch currentPrecedence {
-		case COMPARATOR_PRECEDENCE:
-			fallthrough
 		case LOGICAL_PRECEDENCE:
 			continue
 		}

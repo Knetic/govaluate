@@ -62,6 +62,10 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 	this.typeErrorFormat = other.typeErrorFormat
 }
 
+func noopStageRight(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return right, nil
+}
+
 func addStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	// string concat if either are strings

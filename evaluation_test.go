@@ -433,6 +433,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Nested ternaries (#33)",
+			Input:    "true ? (true ? 5) : (false ? 0 : 2)",
+			Expected: 5.0,
+		},
+		EvaluationTest{
+
 			Name:     "String to string concat",
 			Input:    "'foo' + 'bar' == 'foobar'",
 			Expected: true,
