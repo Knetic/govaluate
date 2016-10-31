@@ -22,3 +22,5 @@ _testmain.go
 *.exe
 *.test
 coverage.out
+
+manual_test.go
