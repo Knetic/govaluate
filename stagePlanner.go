@@ -495,7 +495,7 @@ func reorderStages(rootStage *evaluationStage) {
 
 	// traverse every rightStage until we find multiples in a row of the same precedence.
 	var identicalPrecedences []*evaluationStage
-	var currentStage, nextStage, lastStage *evaluationStage
+	var currentStage, nextStage *evaluationStage
 	var precedence, currentPrecedence OperatorPrecedence
 
 	nextStage = rootStage
@@ -503,9 +503,13 @@ func reorderStages(rootStage *evaluationStage) {
 
 	for nextStage != nil {
 
-		lastStage = currentStage
 		currentStage = nextStage
 		nextStage = currentStage.rightStage
+
+		// left depth first, since this entire method only looks for precedences down the right side of the tree
+		if currentStage.leftStage != nil {
+			reorderStages(currentStage.leftStage)
+		}
 
 		currentPrecedence = findOperatorPrecedenceForSymbol(currentStage.symbol)
 		
@@ -524,10 +528,6 @@ func reorderStages(rootStage *evaluationStage) {
 		// See how many in a row we had, and reorder if there's more than one.
 		if len(identicalPrecedences) > 1 {
 			mirrorStageSubtree(identicalPrecedences)
-		} else {
-			if lastStage.leftStage != nil {
-				reorderStages(lastStage.leftStage)
-			}
 		}
 
 		identicalPrecedences = []*evaluationStage{currentStage}

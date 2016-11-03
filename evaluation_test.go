@@ -511,6 +511,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Left-side multiple consecutive (should be reordered) operators",
+			Input: "(10 * 10 * 10) > 10",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Single function",
 			Input: "foo()",
 			Functions: map[string]ExpressionFunction{
