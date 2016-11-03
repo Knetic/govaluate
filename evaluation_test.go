@@ -433,9 +433,21 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:     "Nested ternaries (#33)",
-			Input:    "true ? (true ? 5) : (false ? 0 : 2)",
-			Expected: 5.0,
+			Name:     "Nested ternaries (#32)",
+			Input:    "(2 == 2) ? 1 : (true ? 2 : 3)",
+			Expected: 1.0,
+		},
+		EvaluationTest{
+
+			Name:     "Nested ternaries, right case (#32)",
+			Input:    "false ? 1 : (true ? 2 : 3)",
+			Expected: 2.0,
+		},
+		EvaluationTest{
+
+			Name:     "Doubly-nested ternaries (#32)",
+			Input:    "true ? (false ? 1 : (false ? 2 : 3)) : (false ? 4 : 5)",
+			Expected: 3.0,
 		},
 		EvaluationTest{
 
