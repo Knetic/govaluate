@@ -100,10 +100,12 @@ Similar to the C# operator. If the left value is non-nil, it returns that. If no
 
 ## Comparators
 
-### Numeric comparators `>` `<` `>=` `<=`
+### Numeric/lexicographic comparators `>` `<` `>=` `<=`
 
-* _Left side_: numeric
-* _Right side_: numeric
+If both sides are numeric, this returns the usual greater/lesser behavior that would be expected.
+If both sides are string, this returns the lexicographic comparison of the strings. This uses Go's standard lexicographic compare.
+
+* _Accepts_: Left and right side must either be both string, or both numeric.
 * _Returns_: bool
 
 ### Regex comparators `=~` `!~`
