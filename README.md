@@ -121,6 +121,34 @@ Or you can use backslashes to escape only the minus sign.
 
 Backslashes can be used anywhere in an expression to escape the very next character. Square bracketed parameter names can be used instead of plain parameter names at any time.
 
+Functions
+--
+
+You may have cases where you want to call a function on a parameter during execution of the expression. Perhaps you want to aggregate some set of data, but don't know the exact aggregation you want to use until you're writing the expression itself. Or maybe you have a mathematical operation you want to perform, for which there is no operator; like `log` or `tan` or `sqrt`. For cases like this, you can provide a map of functions to `NewEvaluableExpressionWithFunctions`, which will then be able to use them during execution. For instance;
+
+```go
+	functions := map[string]govaluate.ExpressionFunction {
+		"strlen": func(args ...interface{}) (interface{}, error) {
+			length := len(args[0].(string))
+			return (float64)(length), nil
+		},
+	}
+
+	expString := "strlen('someReallyLongInputString') <= 16"
+	expression, _ := govaluate.NewEvaluableExpressionWithFunctions(expString, functions)
+
+	result, _ := expression.Evaluate(nil)
+	// result is now "false", the boolean value
+```
+
+Functions can accept any number of arguments, correctly handles nested functions, and arguments can be of any type (even if none of this library's operators support evaluation of that type). For instance, each of these usages of functions in an expression are valid (assuming that the appropriate functions and parameters are given):
+
+```go
+"sqrt(x1 ** y1, x2 ** y2)"
+"max(someValue, abs(anotherValue), 10 * lastValue)"
+```
+
+Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
 
 What operators and types does this support?
 --
@@ -177,35 +205,6 @@ Note that this table shows what each type supports - if you use an operator then
 It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
 
 Complex types, arrays, and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
-
-Functions
---
-
-You may have cases where you want to call a function on a parameter during execution of the expression. Perhaps you want to aggregate some set of data, but don't know the exact aggregation you want to use until you're writing the expression itself. Or maybe you have a mathematical operation you want to perform, for which there is no operator; like `log` or `tan` or `sqrt`. For cases like this, you can provide a map of functions to `NewEvaluableExpressionWithFunctions`, which will then be able to use them during execution. For instance;
-
-```go
-	functions := map[string]govaluate.ExpressionFunction {
-		"strlen": func(args ...interface{}) (interface{}, error) {
-			length := len(args[0].(string))
-			return (float64)(length), nil
-		},
-	}
-
-	expString := "strlen('someReallyLongInputString') <= 16"
-	expression, _ := govaluate.NewEvaluableExpressionWithFunctions(expString, functions)
-
-	result, _ := expression.Evaluate(nil)
-	// result is now "false", the boolean value
-```
-
-Functions can accept any number of arguments, correctly handles nested functions, and arguments can be of any type (even if none of this library's operators support evaluation of that type). For instance, each of these usages of functions in an expression are valid (assuming that the appropriate functions and parameters are given):
-
-```go
-"sqrt(x1 ** y1, x2 ** y2)"
-"max(someValue, abs(anotherValue), 10 * lastValue)"
-```
-
-Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
 
 Benchmarks
 --
