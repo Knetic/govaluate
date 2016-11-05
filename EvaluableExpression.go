@@ -21,6 +21,16 @@ type EvaluableExpression struct {
 	*/
 	QueryDateFormat string
 
+	/*
+		Whether or not to safely check types when evaluating.
+		If true, this library will return error messages when invalid types are used.
+		If false, the library will panic when operators encounter types they can't use.
+
+		This is exclusively for users who need to squeeze every ounce of speed out of the library as they can,
+		and you should only set this to false if you know exactly what you're doing.
+	*/
+	ChecksTypes bool
+
 	tokens           []ExpressionToken
 	evaluationStages *evaluationStage
 	inputExpression  string
@@ -68,6 +78,7 @@ func NewEvaluableExpressionFromTokens(tokens []ExpressionToken) (*EvaluableExpre
 		return nil, err
 	}
 
+	ret.ChecksTypes = true
 	return ret, nil
 }
 
@@ -89,7 +100,17 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 		return nil, err
 	}
 
+	err = checkBalance(ret.tokens)
+	if err != nil {
+		return nil, err
+	}
+
 	err = checkExpressionSyntax(ret.tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	ret.tokens, err = optimizeTokens(ret.tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +120,7 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 		return nil, err
 	}
 
+	ret.ChecksTypes = true
 	return ret, nil
 }
 
@@ -133,45 +155,46 @@ func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error)
 	if parameters != nil {
 		parameters = &sanitizedParameters{parameters}
 	}
-	return evaluateStage(this.evaluationStages, parameters)
+	return this.evaluateStage(this.evaluationStages, parameters)
 }
 
-func evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, error) {
+func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, error) {
 
 	var left, right interface{}
 	var err error
 
 	if stage.leftStage != nil {
-		left, err = evaluateStage(stage.leftStage, parameters)
+		left, err = this.evaluateStage(stage.leftStage, parameters)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	if stage.rightStage != nil {
-		right, err = evaluateStage(stage.rightStage, parameters)
+		right, err = this.evaluateStage(stage.rightStage, parameters)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// type checks
-	if stage.typeCheck == nil {
+	if this.ChecksTypes {
+		if stage.typeCheck == nil {
 
-		err = typeCheck(stage.leftTypeCheck, left, stage.symbol, stage.typeErrorFormat)
-		if err != nil {
-			return nil, err
-		}
+			err = typeCheck(stage.leftTypeCheck, left, stage.symbol, stage.typeErrorFormat)
+			if err != nil {
+				return nil, err
+			}
 
-		err = typeCheck(stage.rightTypeCheck, right, stage.symbol, stage.typeErrorFormat)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// special case where the type check needs to know both sides to determine if the operator can handle it
-		if !stage.typeCheck(left, right) {
-			errorMsg := fmt.Sprintf(stage.typeErrorFormat, left, stage.symbol.String())
-			return nil, errors.New(errorMsg)
+			err = typeCheck(stage.rightTypeCheck, right, stage.symbol, stage.typeErrorFormat)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// special case where the type check needs to know both sides to determine if the operator can handle it
+			if !stage.typeCheck(left, right) {
+				errorMsg := fmt.Sprintf(stage.typeErrorFormat, left, stage.symbol.String())
+				return nil, errors.New(errorMsg)
+			}
 		}
 	}
 
