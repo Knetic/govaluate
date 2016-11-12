@@ -306,11 +306,11 @@ func TestConstantParsing(test *testing.T) {
 					Kind: CLAUSE_CLOSE,
 				},
 				ExpressionToken{
-					Kind: MODIFIER,
+					Kind:  MODIFIER,
 					Value: "+",
 				},
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 			},
@@ -334,22 +334,22 @@ func TestConstantParsing(test *testing.T) {
 					Kind: CLAUSE_CLOSE,
 				},
 				ExpressionToken{
-					Kind: MODIFIER,
+					Kind:  MODIFIER,
 					Value: "-",
 				},
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 				ExpressionToken{
 					Kind: CLAUSE_CLOSE,
 				},
 				ExpressionToken{
-					Kind: COMPARATOR,
+					Kind:  COMPARATOR,
 					Value: ">",
 				},
 				ExpressionToken{
-					Kind: NUMERIC,
+					Kind:  NUMERIC,
 					Value: 3.0,
 				},
 			},
@@ -1376,6 +1376,47 @@ func TestOriginalString(test *testing.T) {
 
 	if expression.String() != expressionString {
 		test.Logf("String() did not give the same expression as given to parse")
+		test.Fail()
+	}
+}
+
+/*
+	Tests to make sure that the Vars() reprsentation of an expression identifies all variables contained within the expression.
+*/
+func TestOriginalVars(test *testing.T) {
+
+	// include all the token types, to be sure there's no shenaniganery going on.
+	expressionString := "2 > 1 &&" +
+		"'something' != 'nothing' || " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false"
+
+	expectedVars := [3]string{"escapedVariable name with spaces",
+		"modifierTest",
+		"unescaped-variableName"}
+
+	expression, err := NewEvaluableExpression(expressionString)
+	if err != nil {
+
+		test.Logf("failed to parse original var test: %v", err)
+		test.Fail()
+		return
+	}
+
+	if len(expression.Vars()) == len(expectedVars) {
+		variableMap := make(map[string]string)
+		for _, v := range expression.Vars() {
+			variableMap[v] = v
+		}
+		for _, v := range expectedVars {
+			if _, ok := variableMap[v]; !ok {
+				test.Logf("Vars() did not correctly identify all variables contained within the expression")
+				test.Fail()
+			}
+		}
+	} else {
+		test.Logf("Vars() did not correctly identify all variables contained within the expression")
 		test.Fail()
 	}
 }
