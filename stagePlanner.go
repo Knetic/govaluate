@@ -183,6 +183,8 @@ func planStages(tokens []ExpressionToken) (*evaluationStage, error) {
 	// while we're now fully-planned, we now need to re-order same-precedence operators.
 	// this could probably be avoided with a different planning method
 	reorderStages(stage)
+
+	stage = elideLiterals(stage)
 	return stage, nil
 }
 
@@ -317,6 +319,7 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 func planValue(stream *tokenStream) (*evaluationStage, error) {
 
 	var token ExpressionToken
+	var symbol OperatorSymbol
 	var ret *evaluationStage
 	var operator evaluationOperator
 	var err error
@@ -363,8 +366,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	case PATTERN:
 		fallthrough
 	case BOOLEAN:
+		symbol = LITERAL
 		operator = makeLiteralStage(token.Value)
 	case TIME:
+		symbol = LITERAL
 		operator = makeLiteralStage(float64(token.Value.(time.Time).Unix()))
 
 	case PREFIX:
@@ -378,6 +383,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	}
 
 	return &evaluationStage{
+		symbol: symbol,
 		operator: operator,
 	}, nil
 }
@@ -512,7 +518,7 @@ func reorderStages(rootStage *evaluationStage) {
 		}
 
 		currentPrecedence = findOperatorPrecedenceForSymbol(currentStage.symbol)
-		
+
 		// do not reorder some operators, since they aren't actually "in a row" in the sense that this reordering works with.
 		switch currentPrecedence {
 		case LOGICAL_PRECEDENCE:
@@ -583,5 +589,82 @@ func mirrorStageSubtree(stages []*evaluationStage) {
 		frontStage = stages[i]
 		inverseStage = stages[stagesLength-i-1]
 		frontStage.swapWith(inverseStage)
+	}
+}
+
+/*
+	Recurses through all operators in the entire tree, eliding operators where both sides are literals.
+*/
+func elideLiterals(root *evaluationStage) *evaluationStage {
+
+	if root.leftStage != nil {
+		root.leftStage = elideLiterals(root.leftStage)
+	}
+
+	if root.rightStage != nil {
+		root.rightStage = elideLiterals(root.rightStage)
+	}
+
+	return elideStage(root)
+}
+
+/*
+	Elides a specific stage, if possible.
+	Returns the unmodified [root] stage if it cannot or should not be elided.
+	Otherwise, returns a new stage representing the condensed value from the elided stages.
+*/
+func elideStage(root *evaluationStage) *evaluationStage {
+
+	var leftValue, rightValue, result interface{}
+	var err error
+
+	// right side must be a non-nil value. Left side must be nil or a value.
+	if root.rightStage == nil ||
+		root.rightStage.symbol != LITERAL ||
+		root.leftStage == nil ||
+		root.leftStage.symbol != LITERAL {
+		return root
+	}
+
+	// don't elide some operators
+	switch root.symbol {
+	case SEPARATE:
+		fallthrough
+	case IN:
+		return root
+	}
+
+	// both sides are values, get their actual values.
+	// errors should be near-impossible here. If we encounter them, just abort this optimization.
+	leftValue, err = root.leftStage.operator(nil, nil, nil)
+	if err != nil {
+		return root
+	}
+
+	rightValue, err = root.rightStage.operator(nil, nil, nil)
+	if err != nil {
+		return root
+	}
+
+	// typcheck, since the grammar checker is a bit loose with which operator symbols go together.
+	err = typeCheck(root.leftTypeCheck, leftValue, root.symbol, root.typeErrorFormat)
+	if err != nil {
+		return root
+	}
+
+	err = typeCheck(root.rightTypeCheck, rightValue, root.symbol, root.typeErrorFormat)
+	if err != nil {
+		return root
+	}
+
+	// pre-calculate, and return a new stage representing the result.
+	result, err = root.operator(leftValue, rightValue, nil)
+	if err != nil {
+		return root
+	}
+
+	return &evaluationStage {
+		symbol: LITERAL,
+		operator: makeLiteralStage(result),
 	}
 }

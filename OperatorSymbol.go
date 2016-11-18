@@ -8,6 +8,7 @@ type OperatorSymbol int
 
 const (
 	VALUE OperatorSymbol = iota
+	LITERAL
 	NOOP
 	EQ
 	NEQ
