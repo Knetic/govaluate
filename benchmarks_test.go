@@ -62,7 +62,7 @@ func BenchmarkEvaluationSingle(bench *testing.B) {
 */
 func BenchmarkEvaluationNumericLiteral(bench *testing.B) {
 
-	expression, _ := NewEvaluableExpression("2 > 1")
+	expression, _ := NewEvaluableExpression("(2) > (1)")
 
 	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
@@ -75,7 +75,7 @@ func BenchmarkEvaluationNumericLiteral(bench *testing.B) {
 */
 func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 
-	expression, _ := NewEvaluableExpression("2 + 2 == 4")
+	expression, _ := NewEvaluableExpression("(2) + (2) == (4)")
 
 	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
