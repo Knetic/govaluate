@@ -214,7 +214,7 @@ func (this EvaluableExpression) String() string {
 func (this EvaluableExpression) Vars() []string {
 	var varlist []string
 	for _, val := range this.Tokens() {
-		if val.Kind == 7 {
+		if val.Kind == VARIABLE {
 			varlist = append(varlist, val.Value.(string))
 		}
 	}
