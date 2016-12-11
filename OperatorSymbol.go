@@ -45,6 +45,7 @@ const (
 
 	FUNCTIONAL
 	SEPARATE
+	CONTAINS
 )
 
 type OperatorPrecedence int
@@ -89,6 +90,8 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 	case NREQ:
 		fallthrough
 	case IN:
+		return COMPARATOR_PRECEDENCE
+	case CONTAINS:
 		return COMPARATOR_PRECEDENCE
 	case AND:
 		fallthrough
@@ -143,15 +146,16 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 	Also used during evaluation to determine exactly which comparator is being used.
 */
 var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
-	"==": EQ,
-	"!=": NEQ,
-	">":  GT,
-	">=": GTE,
-	"<":  LT,
-	"<=": LTE,
-	"=~": REQ,
-	"!~": NREQ,
-	"in": IN,
+	"==":       EQ,
+	"!=":       NEQ,
+	">":        GT,
+	">=":       GTE,
+	"<":        LT,
+	"<=":       LTE,
+	"=~":       REQ,
+	"!~":       NREQ,
+	"in":       IN,
+	"contains": CONTAINS,
 }
 
 var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
@@ -298,6 +302,8 @@ func (this OperatorSymbol) String() string {
 		return "||"
 	case IN:
 		return "in"
+	case CONTAINS:
+		return "contains"
 	case BITWISE_AND:
 		return "&"
 	case BITWISE_OR:

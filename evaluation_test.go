@@ -505,26 +505,38 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering (#30)",
-			Input: "(true && true) || (true && false)",
+			Name:     "Array contains literals",
+			Input:    "'ph' in ('tophat','hohoho','xmas')",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering without parens (#30)",
-			Input: "true && true || true && false",
+			Name:     "Array contains literal with inversion",
+			Input:    "!('ph' in ('tophat','hohoho','xmas'))",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:     "Logical operator reordering (#30)",
+			Input:    "(true && true) || (true && false)",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering with multiple OR (#30)",
-			Input: "false || true && true || false",
+			Name:     "Logical operator reordering without parens (#30)",
+			Input:    "true && true || true && false",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Left-side multiple consecutive (should be reordered) operators",
-			Input: "(10 * 10 * 10) > 10",
+			Name:     "Logical operator reordering with multiple OR (#30)",
+			Input:    "false || true && true || false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Left-side multiple consecutive (should be reordered) operators",
+			Input:    "(10 * 10 * 10) > 10",
 			Expected: true,
 		},
 		EvaluationTest{

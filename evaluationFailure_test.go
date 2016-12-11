@@ -351,6 +351,24 @@ func TestComparatorTyping(test *testing.T) {
 			Input:    "1 in true",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
+		EvaluationFailureTest{
+
+			Name:     "CONTAINS non-array numeric",
+			Input:    "1 in 2",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "CONTAINS non-array string",
+			Input:    "1 in 'foo'",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "CONTAINS non-array boolean",
+			Input:    "1 in true",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
 	}
 
 	runEvaluationFailureTests(evaluationTests, test)
