@@ -166,45 +166,14 @@ What operators and types does this support?
 * Ternary conditional: `?` `:`
 * Null coalescence: `??`
 
-If a ternary operator resolves to false with no else case, it returns nil. So `false ? 10` will return `nil`, whereas `true ? 10` will return `10.0`.
+See [MANUAL.md](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for exacting details on what types each operator supports.
 
 Types
 --
 
 Some operators don't make sense when used with some types. For instance, what does it mean to get the modulo of a string? What happens if you check to see if two numbers are logically AND'ed together?
 
-Everyone has a different intuition about the answers to these questions. To prevent confusion, this library will _refuse to operate_ upon types for which there is not an unambiguous meaning for the operation. The table is listed below.
-
-Any time you attempt to use an operator on a type which doesn't explicitly support it (indicated by a bold "X" in the table below), the expression will fail to evaluate, and return an error indicating the problem.
-
-Note that this table shows what each type supports - if you use an operator then _both_ types need to support the operator, otherwise an error will be returned.
-
-|                            	| Number/Date           | String          	| Boolean         	| Array         		|
-|----------------------------	|-----------------------|-----------------	|-----------------	|-----------------	|
-| +                          	| Adds                  | Concatenates    	| **X**           	| **X**							|
-| -                          	| Subtracts             | **X**           	| **X**           	| **X**							|
-| /                          	| Divides               | **X**           	| **X**           	| **X**							|
-| *                          	| Multiplies            | **X**           	| **X**           	| **X**							|
-| &                          	| Bitwise and           | **X**           	| **X**           	| **X**							|
-|\|                          	| Bitwise or            | **X**           	| **X**           	| **X**							|
-| ^                          	| Bitwise xor           | **X**           	| **X**           	| **X**							|
-| <<                          | Bitwise left shift    | **X**           	| **X**           	| **X**							|
-| >>                          | Bitwise right shift   | **X**           	| **X**           	| **X**							|
-| **                         	| Takes to the power of | **X**           	| **X**           	| **X**							|
-| %                          	| Modulo                | **X**           	| **X**           	| **X**							|
-| Greater/Lesser (> >= < <=) 	| Compares only numbers | Lexicographic   	| **X**           	| **X**							|
-| Null Coalesce	(??)					| Gets first non-nil		| Gets first non-nil| Gets first non-nil| Gets first non-nil|
-| Equality (== !=)           	| Checks by value       | Checks by value 	| Checks by value 	| Checks by value   |
-| Membership									|  Checks if in array		| Checks if in array| Checks if in array| Checks if in      |
-| Ternary (? :)               | **X**                 | **X**             | Checks by value   | **X**							|
-| Regex (=~ !~)               | **X**                 | Regex             | **X**             | **X**							|
-| !                          	| **X**                 | **X**           	| Inverts         	| **X**							|
-| Negate (-)                 	| Multiplies by -1      | **X**           	| **X**           	| **X**							|
-| ~                          	| Bitwise not           | **X**           	| **X**           	| **X**							|
-
-It may, at first, not make sense why a Date supports all the same things as a number. In this library, dates are treated as the unix time. That is, the number of seconds since epoch. In practice this means that sub-second precision with this library is impossible (drop an issue in Github if this is a deal-breaker for you). It also, by association, means that you can do operations that you may not expect, like taking a date to the power of two. The author sees no harm in this. Your date probably appreciates it.
-
-Complex types, arrays, and structs are not supported as literals nor parameters. All numeric constants and variables are converted to float64 for evaluation.
+Everyone has a different intuition about the answers to these questions. To prevent confusion, this library will _refuse to operate_ upon types for which there is not an unambiguous meaning for the operation. See [MANUAL.md](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for details about what operators are valid for which types.
 
 Benchmarks
 --
@@ -235,18 +204,7 @@ While this library has very few cases which will ever result in an API break, it
 
 Releases will explicitly state when an API break happens, and if they do not specify an API break it should be safe to upgrade.
 
-Branching
---
-
-I use green masters, and heavily develop with private feature branches. Full releases are pinned and unchangeable, representing the best available version with the best documentation and test coverage. Master branch, however, should always have all tests pass and implementations considered "working", even if it's just a first pass. Master should never panic.
-
 License
 --
 
 This project is licensed under the MIT general use license. You're free to integrate, fork, and play with this code as you feel fit without consulting the author, as long as you provide proper credit to the author in your works.
-
-
-Activity
---
-
-If this repository hasn't been updated in a while, it's probably because I don't have any outstanding issues to work on - it's not because I've abandoned the project. If you have questions, issues, or patches; I'm completely open to pull requests, issues opened on github, or emails from out of the blue.
