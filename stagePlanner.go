@@ -519,12 +519,6 @@ func reorderStages(rootStage *evaluationStage) {
 
 		currentPrecedence = findOperatorPrecedenceForSymbol(currentStage.symbol)
 
-		// do not reorder some operators, since they aren't actually "in a row" in the sense that this reordering works with.
-		switch currentPrecedence {
-		case LOGICAL_PRECEDENCE:
-			continue
-		}
-
 		if currentPrecedence == precedence {
 			identicalPrecedences = append(identicalPrecedences, currentStage)
 			continue
