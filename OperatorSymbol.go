@@ -61,7 +61,8 @@ const (
 	MULTIPLICATIVE_PRECEDENCE
 	COMPARATOR_PRECEDENCE
 	TERNARY_PRECEDENCE
-	LOGICAL_PRECEDENCE
+	LOGICAL_AND_PRECEDENCE
+	LOGICAL_OR_PRECEDENCE
 	SEPARATE_PRECEDENCE
 )
 
@@ -91,9 +92,9 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 	case IN:
 		return COMPARATOR_PRECEDENCE
 	case AND:
-		fallthrough
+		return LOGICAL_AND_PRECEDENCE
 	case OR:
-		return LOGICAL_PRECEDENCE
+		return LOGICAL_OR_PRECEDENCE
 	case BITWISE_AND:
 		fallthrough
 	case BITWISE_OR:

@@ -513,7 +513,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name:  "Logical operator reordering without parens (#30)",
 			Input: "true && true || true && false",
-			Expected: false,
+			Expected: true,
 		},
 		EvaluationTest{
 
@@ -537,6 +537,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Name:  "Three-part non-paren logical op reordering (#44), second one",
 			Input: "true || false && true",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Logical operator reordering without parens (#45)",
+			Input: "true && true || false && false",
 			Expected: true,
 		},
 		EvaluationTest{

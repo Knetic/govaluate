@@ -67,7 +67,8 @@ var planAdditive precedent
 var planBitwise precedent
 var planShift precedent
 var planComparator precedent
-var planLogical precedent
+var planLogicalAnd precedent
+var planLogicalOr precedent
 var planTernary precedent
 var planSeparator precedent
 
@@ -118,17 +119,23 @@ func init() {
 		typeErrorFormat: TYPEERROR_COMPARATOR,
 		next:            planBitwise,
 	})
-	planLogical = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    LOGICAL_SYMBOLS,
+	planLogicalAnd = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    map[string]OperatorSymbol{"&&": AND},
 		validKinds:      []TokenKind{LOGICALOP},
 		typeErrorFormat: TYPEERROR_LOGICAL,
 		next:            planComparator,
+	})
+	planLogicalOr = makePrecedentFromPlanner(&precedencePlanner{
+		validSymbols:    map[string]OperatorSymbol{"||": OR},
+		validKinds:      []TokenKind{LOGICALOP},
+		typeErrorFormat: TYPEERROR_LOGICAL,
+		next:            planLogicalAnd,
 	})
 	planTernary = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    TERNARY_SYMBOLS,
 		validKinds:      []TokenKind{TERNARY},
 		typeErrorFormat: TYPEERROR_TERNARY,
-		next:            planLogical,
+		next:            planLogicalOr,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols: SEPARATOR_SYMBOLS,
