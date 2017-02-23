@@ -98,6 +98,12 @@ func TestModifierTyping(test *testing.T) {
 	evaluationTests := []EvaluationFailureTest{
 		EvaluationFailureTest{
 
+			Name:     "PLUS literal number to literal bool",
+			Input:    "1 + true",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
 			Name:     "PLUS number to bool",
 			Input:    "number + bool",
 			Expected: INVALID_MODIFIER_TYPES,
@@ -242,6 +248,12 @@ func TestLogicalOperatorTyping(test *testing.T) {
 func TestComparatorTyping(test *testing.T) {
 
 	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:     "GT literal bool to literal bool",
+			Input:    "true > true",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
 		EvaluationFailureTest{
 
 			Name:     "GT bool to bool",
