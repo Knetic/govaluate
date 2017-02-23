@@ -24,3 +24,5 @@ _testmain.go
 coverage.out
 
 manual_test.go
+*.out
+*.err
