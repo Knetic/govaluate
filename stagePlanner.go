@@ -658,6 +658,10 @@ func elideStage(root *evaluationStage) *evaluationStage {
 		return root
 	}
 
+	if root.typeCheck != nil && !root.typeCheck(leftValue, rightValue) {
+		return root
+	}
+
 	// pre-calculate, and return a new stage representing the result.
 	result, err = root.operator(leftValue, rightValue, nil)
 	if err != nil {
