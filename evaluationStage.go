@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -246,6 +247,16 @@ func inStage(left interface{}, right interface{}, parameters Parameters) (interf
 
 	for _, value := range right.([]interface{}) {
 		if left == value {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func containsStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+
+	for _, value := range right.([]interface{}) {
+		if strings.Contains(value.(string), left.(string)) {
 			return true, nil
 		}
 	}

@@ -132,6 +132,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 	if parameters == nil {
 		return this.Eval(nil)
 	}
+	
 	return this.Eval(MapParameters(parameters))
 }
 
