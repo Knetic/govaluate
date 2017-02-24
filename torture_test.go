@@ -110,7 +110,7 @@ var (
 
 
 const (
-	ITERATIONS = 100000000
+	ITERATIONS = 10000000
 	SEED = 1487873697990155515
 )
 
@@ -138,11 +138,6 @@ func TestPanics(test *testing.T) {
 		}
 
 		checkPanic(expression, test)
-
-		// "keepalive" so that it's clear that the test is still going successfully (and travis doesn't kill it)
-		if i % (ITERATIONS / 5) == 0 {
-			fmt.Printf("(still running)\n")
-		}
 	}
 
 	test.Logf("Done. %d/%d panics.\n", panics, ITERATIONS)
