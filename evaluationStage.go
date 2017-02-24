@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"reflect"
 )
 
 const (
@@ -115,10 +116,10 @@ func ltStage(left interface{}, right interface{}, parameters Parameters) (interf
 	return boolIface(left.(float64) < right.(float64)), nil
 }
 func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return boolIface(left == right), nil
+	return boolIface(reflect.DeepEqual(left, right)), nil
 }
 func notEqualStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return boolIface(left != right), nil
+	return boolIface(!reflect.DeepEqual(left, right)), nil
 }
 func andStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(left.(bool) && right.(bool)), nil

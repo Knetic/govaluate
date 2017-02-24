@@ -1177,6 +1177,30 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name: "Incomparable array equality comparison",
+			Input: "arr == arr",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name: "arr",
+					Value: []int {0, 0, 0},
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name: "Incomparable array not-equality comparison",
+			Input: "arr != arr",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name: "arr",
+					Value: []int {0, 0, 0},
+				},
+			},
+			Expected: false,
+		},
+		EvaluationTest{
+
 			Name:  "Mixed function and parameters",
 			Input: "sum(1.2, amount) + name",
 			Functions: map[string]ExpressionFunction{
