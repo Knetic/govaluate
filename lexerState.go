@@ -17,6 +17,24 @@ type lexerState struct {
 var validLexerStates = []lexerState{
 
 	lexerState{
+		kind: UNKNOWN,
+		isEOF: false,
+		isNullable: true,
+		validNextKinds: []TokenKind{
+
+			PREFIX,
+			NUMERIC,
+			BOOLEAN,
+			VARIABLE,
+			PATTERN,
+			FUNCTION,
+			STRING,
+			TIME,
+			CLAUSE,
+		},
+	},
+
+	lexerState{
 
 		kind:       CLAUSE,
 		isEOF:      false,

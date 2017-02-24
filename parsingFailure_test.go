@@ -128,6 +128,12 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
+			Name:     "Starting with unbalanced parens",
+			Input:    " ) ( arg2",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+
 			Name:     "Unclosed bracket",
 			Input:    "[foo bar",
 			Expected: UNCLOSED_BRACKETS,
@@ -182,7 +188,7 @@ func runParsingFailureTests(parsingTests []ParsingFailureTest, test *testing.T) 
 		if !strings.Contains(err.Error(), testCase.Expected) {
 
 			test.Logf("Test '%s' failed", testCase.Name)
-			test.Logf("Got error: '%s', expected '%s'", testCase.Expected, err.Error())
+			test.Logf("Got error: '%s', expected '%s'", err.Error(), testCase.Expected)
 			test.Fail()
 			continue
 		}
