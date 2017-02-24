@@ -80,6 +80,18 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
+			Name:     "Hanging REQ",
+			Input:    "'wat' =~",
+			Expected: UNEXPECTED_END,
+		},
+		ParsingFailureTest{
+
+			Name:     "Invalid operator change to REQ",
+			Input:    " / =~",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+
 			Name:     "Invalid starting token, comparator",
 			Input:    "> 10",
 			Expected: INVALID_TOKEN_TRANSITION,

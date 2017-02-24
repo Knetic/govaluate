@@ -48,7 +48,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 		return nil, err
 	}
 
-	return optimizeTokens(ret)
+	return ret, nil
 }
 
 func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
