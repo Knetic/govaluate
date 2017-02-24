@@ -1,4 +1,4 @@
-package main
+package govaluate
 
 /*
 	Courtesy of abrander
@@ -8,11 +8,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strconv"
 	"time"
-
-	// this is horrible and the author knows it. Fortunately, it's just for testing!
-	".."
+	"testing"
 )
 
 var (
@@ -114,12 +111,22 @@ var (
 
 const (
 	ITERATIONS = 100000000
+	SEED = 1487873697990155515
 )
 
-func main() {
+func init() {
+	rand.Seed(SEED)
+}
 
-	seed := seedRandom();
-	fmt.Printf("Beginning torture test, seed: %d, iterations: %d\n", seed, ITERATIONS);
+func TestPanics(test *testing.T) {
+
+	if os.Getenv("GOVALUATE_TORTURE_TEST") == "" {
+		test.Logf("'GOVALUATE_TORTURE_TEST' env var not set - skipping torture test.")
+		test.Skip()
+		return
+	}
+
+	fmt.Printf("Running %d torture test cases...\n", ITERATIONS)
 
 	for i := 0; i < ITERATIONS; i++ {
 
@@ -130,25 +137,27 @@ func main() {
 			expression += fmt.Sprintf(" %s", getRandom(values))
 		}
 
-		tryit(expression)
+		checkPanic(expression, test)
 	}
 
-	fmt.Printf("Done. %d/%d panics.\n", panics, ITERATIONS)
+	test.Logf("Done. %d/%d panics.\n", panics, ITERATIONS)
 	if panics > 0 {
-		os.Exit(1)
+		test.Fail()
 	}
 }
 
-func tryit(expression string) {
+func checkPanic(expression string, test *testing.T) {
+
 	parameters := make(map[string]interface{})
+
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Fprintf(os.Stderr, "Panic: \"%s\". Expression: \"%s\". Parameters: %+v\n", r, expression, parameters)
+			test.Logf("Panic: \"%s\". Expression: \"%s\". Parameters: %+v\n", r, expression, parameters)
 			panics++
 		}
 	}()
 
-	eval, _ := govaluate.NewEvaluableExpression(expression)
+	eval, _ := NewEvaluableExpression(expression)
 	if eval == nil {
 		return
 	}
@@ -161,22 +170,8 @@ func tryit(expression string) {
 	eval.Evaluate(parameters)
 }
 
-func seedRandom() int64 {
-
-	var seed int64
-
-	if len(os.Args) > 1 {
-		seed, _ = strconv.ParseInt(os.Args[1], 10, 64)
-	} else {
-		seed = time.Now().UnixNano()
-	}
-
-	rand.Seed(seed)
-	return seed
-}
-
 func getRandom(haystack []interface{}) interface{} {
-	i := rand.Intn(len(haystack))
 
+	i := rand.Intn(len(haystack))
 	return haystack[i]
 }
