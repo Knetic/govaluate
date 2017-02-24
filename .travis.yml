@@ -1,6 +1,6 @@
 language: go
 
-script: ./test.sh
+script: travis_wait 20 ./test.sh
 
 go:
   - 1.2
