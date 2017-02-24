@@ -1,6 +1,7 @@
 language: go
 
 script: ./test.sh
+install: #
 
 go:
   - 1.2
