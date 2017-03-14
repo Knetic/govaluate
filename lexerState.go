@@ -305,6 +305,11 @@ func checkExpressionSyntax(tokens []ExpressionToken) error {
 
 		if !state.canTransitionTo(token.Kind) {
 
+			// call out a specific error for tokens looking like they want to be functions.
+			if lastToken.Kind == VARIABLE && token.Kind == CLAUSE {
+				return errors.New("Undefined function " + lastToken.Value.(string))
+			}
+
 			firstStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(state.kind), lastToken.Value)
 			nextStateName := fmt.Sprintf("%s [%v]", GetTokenKindString(token.Kind), token.Value)
 

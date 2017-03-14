@@ -15,6 +15,7 @@ const (
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
 	UNBALANCED_PARENTHESIS          = "Unbalanced parenthesis"
 	INVALID_NUMERIC                 = "Unable to parse numeric value"
+	UNDEFINED_FUNCTION							= "Undefined function"
 )
 
 /*
@@ -161,6 +162,12 @@ func TestParsingFailure(test *testing.T) {
 			Name:     "Multiple radix",
 			Input:    "127.0.0.1",
 			Expected: INVALID_NUMERIC,
+		},
+		ParsingFailureTest{
+
+			Name:			"Undefined function",
+			Input:		"foobar()",
+			Expected:	UNDEFINED_FUNCTION,
 		},
 	}
 
