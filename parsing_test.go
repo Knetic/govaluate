@@ -63,7 +63,7 @@ func TestConstantParsing(test *testing.T) {
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  TIME,
-					Value: time.Date(2014, time.January, 2, 0, 0, 0, 0, time.UTC),
+					Value: time.Date(2014, time.January, 2, 0, 0, 0, 0, time.Local),
 				},
 			},
 		},
@@ -74,7 +74,7 @@ func TestConstantParsing(test *testing.T) {
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  TIME,
-					Value: time.Date(2014, time.January, 2, 14, 12, 0, 0, time.UTC),
+					Value: time.Date(2014, time.January, 2, 14, 12, 0, 0, time.Local),
 				},
 			},
 		},
@@ -85,7 +85,7 @@ func TestConstantParsing(test *testing.T) {
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  TIME,
-					Value: time.Date(2014, time.January, 2, 14, 12, 22, 0, time.UTC),
+					Value: time.Date(2014, time.January, 2, 14, 12, 22, 0, time.Local),
 				},
 			},
 		},
