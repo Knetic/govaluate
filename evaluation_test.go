@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"fmt"
+	"time"
 	"regexp"
 	"testing"
 )
@@ -1240,6 +1241,34 @@ func TestNilParameters(test *testing.T) {
 	_, err := expression.Evaluate(nil)
 
 	if err != nil {
+		test.Fail()
+	}
+}
+
+/*
+	Tests functionality related to using functions with a struct method receiver.
+	Created to test #54.
+*/
+func TestStructFunctions(test *testing.T) {
+
+	parseFormat := "2006"
+	y2k, _ := time.Parse(parseFormat, "2000")
+	y2k1, _ := time.Parse(parseFormat, "2001")
+
+	functions := map[string]ExpressionFunction {
+		"func1": func(args ...interface{}) (interface{}, error) {
+			return float64(y2k.Year()), nil
+		},
+		"func2": func(args ...interface{}) (interface{}, error) {
+			return float64(y2k1.Year()), nil
+		},
+	}
+
+	exp, _ := NewEvaluableExpressionWithFunctions("func1() + func2()", functions)
+	result, _ := exp.Evaluate(nil)
+
+	if result != 4001.0 {
+		test.Logf("Function calling method did not return the right value. Got: %v, expected %d\n", result, 4001)
 		test.Fail()
 	}
 }
