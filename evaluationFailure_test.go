@@ -86,7 +86,7 @@ func TestNilParameterUsage(test *testing.T) {
 		EvaluationFailureTest{
 			Name:     "Absent parameter used",
 			Input:    "foo > 1",
-			Expected: ABSENT_PARAMETER,
+			Expected: INVALID_COMPARATOR_TYPES,
 		},
 	}
 
