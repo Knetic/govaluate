@@ -507,44 +507,44 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering (#30)",
-			Input: "(true && true) || (true && false)",
+			Name:     "Logical operator reordering (#30)",
+			Input:    "(true && true) || (true && false)",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering without parens (#30)",
-			Input: "true && true || true && false",
+			Name:     "Logical operator reordering without parens (#30)",
+			Input:    "true && true || true && false",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering with multiple OR (#30)",
-			Input: "false || true && true || false",
+			Name:     "Logical operator reordering with multiple OR (#30)",
+			Input:    "false || true && true || false",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Left-side multiple consecutive (should be reordered) operators",
-			Input: "(10 * 10 * 10) > 10",
+			Name:     "Left-side multiple consecutive (should be reordered) operators",
+			Input:    "(10 * 10 * 10) > 10",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Three-part non-paren logical op reordering (#44)",
-			Input: "false && true || true",
+			Name:     "Three-part non-paren logical op reordering (#44)",
+			Input:    "false && true || true",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Three-part non-paren logical op reordering (#44), second one",
-			Input: "true || false && true",
+			Name:     "Three-part non-paren logical op reordering (#44), second one",
+			Input:    "true || false && true",
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name:  "Logical operator reordering without parens (#45)",
-			Input: "true && true || false && false",
+			Name:     "Logical operator reordering without parens (#45)",
+			Input:    "true && true || false && false",
 			Expected: true,
 		},
 		EvaluationTest{
@@ -708,6 +708,37 @@ func TestNoParameterEvaluation(test *testing.T) {
 			},
 
 			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Join 2 functions",
+			Input: "ten() |> sum(10)",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+				"sum": func(arguments ...interface{}) (interface{}, error) {
+					return arguments[0].(float64) + arguments[1].(float64), nil
+				},
+			},
+
+			Expected: 20.0,
+		},
+
+		EvaluationTest{
+
+			Name:  "Join 3 functions",
+			Input: "ten() |> sum(10) |> sum(10)",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+				"sum": func(arguments ...interface{}) (interface{}, error) {
+					return arguments[0].(float64) + arguments[1].(float64), nil
+				},
+			},
+
+			Expected: 30.0,
 		},
 	}
 
@@ -1179,24 +1210,24 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name: "Incomparable array equality comparison",
+			Name:  "Incomparable array equality comparison",
 			Input: "arr == arr",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
-					Name: "arr",
-					Value: []int {0, 0, 0},
+					Name:  "arr",
+					Value: []int{0, 0, 0},
 				},
 			},
 			Expected: true,
 		},
 		EvaluationTest{
 
-			Name: "Incomparable array not-equality comparison",
+			Name:  "Incomparable array not-equality comparison",
 			Input: "arr != arr",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
-					Name: "arr",
-					Value: []int {0, 0, 0},
+					Name:  "arr",
+					Value: []int{0, 0, 0},
 				},
 			},
 			Expected: false,

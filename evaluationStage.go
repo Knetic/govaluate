@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"regexp"
 	"reflect"
+	"regexp"
 )
 
 const (

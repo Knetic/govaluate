@@ -150,6 +150,14 @@ Functions can accept any number of arguments, correctly handles nested functions
 
 Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
 
+Simple syntax for functions conjunction
+
+```go
+"foo() |> bar(10) |> woo(20)
+// it is same as
+"woo(20, bar(10, foo()))"
+```
+
 What operators and types does this support?
 --
 
@@ -165,6 +173,7 @@ What operators and types does this support?
 * Prefixes: `!` `-` `~`
 * Ternary conditional: `?` `:`
 * Null coalescence: `??`
+* Functions conjunction: `|>`
 
 See [MANUAL.md](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for exacting details on what types each operator supports.
 
