@@ -45,6 +45,8 @@ const (
 
 	FUNCTIONAL
 	SEPARATE
+
+	PIPE
 )
 
 type OperatorPrecedence int
@@ -217,6 +219,10 @@ var SEPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	",": SEPARATE,
 }
 
+var PIPE_SYMBOLS = map[string]OperatorSymbol{
+	"|>": PIPE,
+}
+
 var ADDITIVE_MODIFIERS = []OperatorSymbol{
 	PLUS, MINUS,
 }
@@ -247,6 +253,10 @@ var NUMERIC_COMPARATORS = []OperatorSymbol{
 
 var STRING_COMPARATORS = []OperatorSymbol{
 	REQ, NREQ,
+}
+
+var PIPE_OPERATORS = []OperatorSymbol{
+	PIPE,
 }
 
 /*
@@ -333,6 +343,8 @@ func (this OperatorSymbol) String() string {
 		return ":"
 	case COALESCE:
 		return "??"
+	case PIPE:
+		return "|>"
 	}
 	return ""
 }

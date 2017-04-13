@@ -2,8 +2,8 @@ package govaluate
 
 import (
 	"errors"
-	"time"
 	"fmt"
+	"time"
 )
 
 var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
@@ -348,10 +348,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		// the stage we got represents all of the logic contained within the parens
 		// but for technical reasons, we need to wrap this stage in a "noop" stage which breaks long chains of precedence.
 		// see github #33.
-		ret = &evaluationStage {
+		ret = &evaluationStage{
 			rightStage: ret,
-			operator: noopStageRight,
-			symbol: NOOP,
+			operator:   noopStageRight,
+			symbol:     NOOP,
 		}
 
 		return ret, nil
@@ -390,7 +390,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	}
 
 	return &evaluationStage{
-		symbol: symbol,
+		symbol:   symbol,
 		operator: operator,
 	}, nil
 }
@@ -668,8 +668,8 @@ func elideStage(root *evaluationStage) *evaluationStage {
 		return root
 	}
 
-	return &evaluationStage {
-		symbol: LITERAL,
+	return &evaluationStage{
+		symbol:   LITERAL,
 		operator: makeLiteralStage(result),
 	}
 }

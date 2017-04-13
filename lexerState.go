@@ -17,8 +17,8 @@ type lexerState struct {
 var validLexerStates = []lexerState{
 
 	lexerState{
-		kind: UNKNOWN,
-		isEOF: false,
+		kind:       UNKNOWN,
+		isEOF:      false,
 		isNullable: true,
 		validNextKinds: []TokenKind{
 
@@ -74,6 +74,7 @@ var validLexerStates = []lexerState{
 			LOGICALOP,
 			TERNARY,
 			SEPARATOR,
+			CONJUNCTION,
 		},
 	},
 
@@ -277,6 +278,14 @@ var validLexerStates = []lexerState{
 			VARIABLE,
 			FUNCTION,
 			CLAUSE,
+		},
+	},
+	lexerState{
+		kind:       CONJUNCTION,
+		isEOF:      false,
+		isNullable: false,
+		validNextKinds: []TokenKind{
+			FUNCTION,
 		},
 	},
 }
