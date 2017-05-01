@@ -47,32 +47,32 @@ const (
 	SEPARATE
 )
 
-type OperatorPrecedence int
+type operatorPrecedence int
 
 const (
-	NOOP_PRECEDENCE OperatorPrecedence = iota
-	VALUE_PRECEDENCE
-	FUNCTIONAL_PRECEDENCE
-	PREFIX_PRECEDENCE
-	EXPONENTIAL_PRECEDENCE
-	ADDITIVE_PRECEDENCE
-	BITWISE_PRECEDENCE
-	BITWISE_SHIFTPRECEDENCE
-	MULTIPLICATIVE_PRECEDENCE
-	COMPARATOR_PRECEDENCE
-	TERNARY_PRECEDENCE
-	LOGICAL_AND_PRECEDENCE
-	LOGICAL_OR_PRECEDENCE
-	SEPARATE_PRECEDENCE
+	noopPrecedence operatorPrecedence = iota
+	valuePrecedence
+	functionalPrecedence
+	prefixPrecedence
+	exponentialPrecedence
+	additivePrecedence
+	bitwisePrecedence
+	bitwiseShiftPrecedence
+	multiplicativePrecedence
+	comparatorPrecedence
+	ternaryPrecedence
+	logicalAndPrecedence
+	logicalOrPrecedence
+	separatePrecedence
 )
 
-func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
+func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 
 	switch symbol {
 	case NOOP:
-		return NOOP_PRECEDENCE
+		return noopPrecedence
 	case VALUE:
-		return VALUE_PRECEDENCE
+		return valuePrecedence
 	case EQ:
 		fallthrough
 	case NEQ:
@@ -90,52 +90,52 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) OperatorPrecedence {
 	case NREQ:
 		fallthrough
 	case IN:
-		return COMPARATOR_PRECEDENCE
+		return comparatorPrecedence
 	case AND:
-		return LOGICAL_AND_PRECEDENCE
+		return logicalAndPrecedence
 	case OR:
-		return LOGICAL_OR_PRECEDENCE
+		return logicalOrPrecedence
 	case BITWISE_AND:
 		fallthrough
 	case BITWISE_OR:
 		fallthrough
 	case BITWISE_XOR:
-		return BITWISE_PRECEDENCE
+		return bitwisePrecedence
 	case BITWISE_LSHIFT:
 		fallthrough
 	case BITWISE_RSHIFT:
-		return BITWISE_SHIFTPRECEDENCE
+		return bitwiseShiftPrecedence
 	case PLUS:
 		fallthrough
 	case MINUS:
-		return ADDITIVE_PRECEDENCE
+		return additivePrecedence
 	case MULTIPLY:
 		fallthrough
 	case DIVIDE:
 		fallthrough
 	case MODULUS:
-		return MULTIPLICATIVE_PRECEDENCE
+		return multiplicativePrecedence
 	case EXPONENT:
-		return EXPONENTIAL_PRECEDENCE
+		return exponentialPrecedence
 	case BITWISE_NOT:
 		fallthrough
 	case NEGATE:
 		fallthrough
 	case INVERT:
-		return PREFIX_PRECEDENCE
+		return prefixPrecedence
 	case COALESCE:
 		fallthrough
 	case TERNARY_TRUE:
 		fallthrough
 	case TERNARY_FALSE:
-		return TERNARY_PRECEDENCE
+		return ternaryPrecedence
 	case FUNCTIONAL:
-		return FUNCTIONAL_PRECEDENCE
+		return functionalPrecedence
 	case SEPARATE:
-		return SEPARATE_PRECEDENCE
+		return separatePrecedence
 	}
 
-	return VALUE_PRECEDENCE
+	return valuePrecedence
 }
 
 /*

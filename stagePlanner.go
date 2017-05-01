@@ -509,7 +509,7 @@ func reorderStages(rootStage *evaluationStage) {
 	// traverse every rightStage until we find multiples in a row of the same precedence.
 	var identicalPrecedences []*evaluationStage
 	var currentStage, nextStage *evaluationStage
-	var precedence, currentPrecedence OperatorPrecedence
+	var precedence, currentPrecedence operatorPrecedence
 
 	nextStage = rootStage
 	precedence = findOperatorPrecedenceForSymbol(rootStage.symbol)
