@@ -80,61 +80,61 @@ func init() {
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    PREFIX_SYMBOLS,
 		validKinds:      []TokenKind{PREFIX},
-		typeErrorFormat: TYPEERROR_PREFIX,
+		typeErrorFormat: prefixErrorFormat,
 		nextRight:       planFunction,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    EXPONENTIAL_SYMBOLS,
 		validKinds:      []TokenKind{MODIFIER},
-		typeErrorFormat: TYPEERROR_MODIFIER,
+		typeErrorFormat: modifierErrorFormat,
 		next:            planFunction,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    MULTIPLICATIVE_SYMBOLS,
 		validKinds:      []TokenKind{MODIFIER},
-		typeErrorFormat: TYPEERROR_MODIFIER,
+		typeErrorFormat: modifierErrorFormat,
 		next:            planExponential,
 	})
 	planAdditive = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    ADDITIVE_SYMBOLS,
 		validKinds:      []TokenKind{MODIFIER},
-		typeErrorFormat: TYPEERROR_MODIFIER,
+		typeErrorFormat: modifierErrorFormat,
 		next:            planMultiplicative,
 	})
 	planShift = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SHIFT_SYMBOLS,
 		validKinds:      []TokenKind{MODIFIER},
-		typeErrorFormat: TYPEERROR_MODIFIER,
+		typeErrorFormat: modifierErrorFormat,
 		next:            planAdditive,
 	})
 	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    BITWISE_SYMBOLS,
 		validKinds:      []TokenKind{MODIFIER},
-		typeErrorFormat: TYPEERROR_MODIFIER,
+		typeErrorFormat: modifierErrorFormat,
 		next:            planShift,
 	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    COMPARATOR_SYMBOLS,
 		validKinds:      []TokenKind{COMPARATOR},
-		typeErrorFormat: TYPEERROR_COMPARATOR,
+		typeErrorFormat: comparatorErrorFormat,
 		next:            planBitwise,
 	})
 	planLogicalAnd = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    map[string]OperatorSymbol{"&&": AND},
 		validKinds:      []TokenKind{LOGICALOP},
-		typeErrorFormat: TYPEERROR_LOGICAL,
+		typeErrorFormat: logicalErrorFormat,
 		next:            planComparator,
 	})
 	planLogicalOr = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    map[string]OperatorSymbol{"||": OR},
 		validKinds:      []TokenKind{LOGICALOP},
-		typeErrorFormat: TYPEERROR_LOGICAL,
+		typeErrorFormat: logicalErrorFormat,
 		next:            planLogicalAnd,
 	})
 	planTernary = makePrecedentFromPlanner(&precedencePlanner{
 		validSymbols:    TERNARY_SYMBOLS,
 		validKinds:      []TokenKind{TERNARY},
-		typeErrorFormat: TYPEERROR_TERNARY,
+		typeErrorFormat: ternaryErrorFormat,
 		next:            planLogicalOr,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{

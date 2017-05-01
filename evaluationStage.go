@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	TYPEERROR_LOGICAL    string = "Value '%v' cannot be used with the logical operator '%v', it is not a bool"
-	TYPEERROR_MODIFIER   string = "Value '%v' cannot be used with the modifier '%v', it is not a number"
-	TYPEERROR_COMPARATOR string = "Value '%v' cannot be used with the comparator '%v', it is not a number"
-	TYPEERROR_TERNARY    string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
-	TYPEERROR_PREFIX     string = "Value '%v' cannot be used with the prefix '%v'"
+	logicalErrorFormat    string = "Value '%v' cannot be used with the logical operator '%v', it is not a bool"
+	modifierErrorFormat   string = "Value '%v' cannot be used with the modifier '%v', it is not a number"
+	comparatorErrorFormat string = "Value '%v' cannot be used with the comparator '%v', it is not a number"
+	ternaryErrorFormat    string = "Value '%v' cannot be used with the ternary operator '%v', it is not a bool"
+	prefixErrorFormat     string = "Value '%v' cannot be used with the prefix '%v'"
 )
 
 type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
