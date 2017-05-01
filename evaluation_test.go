@@ -1250,6 +1250,28 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Expected: false,
 		},
+		EvaluationTest{
+
+			Name:  "Short-circuit ternary",
+			Input: "true ? 1 : fail()",
+			Functions: map[string]ExpressionFunction{
+				"fail": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Did not short-circuit")
+				},
+			},
+			Expected: 1.0,
+		},
+		EvaluationTest{
+
+			Name:  "Short-circuit coalesce",
+			Input: "'foo' ?? fail()",
+			Functions: map[string]ExpressionFunction{
+				"fail": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Did not short-circuit")
+				},
+			},
+			Expected: "foo",
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
