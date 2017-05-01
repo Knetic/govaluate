@@ -64,7 +64,7 @@ Prefix only. This can never have a left-hand value.
 
 ## Logical Operators
 
-Unlike others, this library does not currently do short-circuit evaluation. The author isn't opposed to the idea, but hasn't implemented it. All logical operators evaluate both sides in their entirety before deciding what to do.
+For all logical operators, this library will short-circuit the operation if the left-hand side is sufficient to determine what to do. For instance, `true || expensiveOperation()` will not actually call `expensiveOperation()`, since it knows the left-hand side is `true`.
 
 ### Logical AND/OR `&&` `||`
 
