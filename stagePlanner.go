@@ -385,7 +385,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	}
 
 	if operator == nil {
-		errorMsg := fmt.Sprintf("Unable to plan token kind: '%s', value: '%v'", GetTokenKindString(token.Kind), token.Value)
+		errorMsg := fmt.Sprintf("Unable to plan token kind: '%s', value: '%v'", token.Kind.String(), token.Value)
 		return nil, errors.New(errorMsg)
 	}
 

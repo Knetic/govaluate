@@ -1513,8 +1513,8 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 			actualToken = actualTokens[i]
 			if actualToken.Kind != expectedToken.Kind {
 
-				actualTokenKindString = GetTokenKindString(actualToken.Kind)
-				expectedTokenKindString = GetTokenKindString(expectedToken.Kind)
+				actualTokenKindString = actualToken.Kind.String()
+				expectedTokenKindString = expectedToken.Kind.String()
 
 				test.Logf("Test '%s' failed:", parsingTest.Name)
 				test.Logf("Expected token kind '%v' does not match '%v'", expectedTokenKindString, actualTokenKindString)

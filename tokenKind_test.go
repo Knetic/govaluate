@@ -32,7 +32,7 @@ func TestTokenKindStrings(test *testing.T) {
 
 	for _, kind := range kinds {
 
-		kindString = GetTokenKindString(kind)
+		kindString = kind.String()
 
 		for _, extantKind := range kindStrings {
 			if extantKind == kindString {
