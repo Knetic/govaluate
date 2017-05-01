@@ -5,6 +5,7 @@ import (
 	"time"
 	"regexp"
 	"testing"
+	"errors"
 )
 
 /*
@@ -1226,6 +1227,28 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 
 			Expected: "2awesome",
+		},
+		EvaluationTest{
+
+			Name:  "Short-circuit OR",
+			Input: "true || fail()",
+			Functions: map[string]ExpressionFunction{
+				"fail": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Did not short-circuit")
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Short-circuit AND",
+			Input: "false && fail()",
+			Functions: map[string]ExpressionFunction{
+				"fail": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Did not short-circuit")
+				},
+			},
+			Expected: false,
 		},
 	}
 

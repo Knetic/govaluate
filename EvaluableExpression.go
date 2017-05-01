@@ -162,11 +162,28 @@ func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters
 
 	var left, right interface{}
 	var err error
+	var shortResult bool
 
 	if stage.leftStage != nil {
 		left, err = this.evaluateStage(stage.leftStage, parameters)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	if stage.isShortCircuitable() && isBool(left) {
+
+		shortResult = left.(bool)
+
+		switch stage.symbol {
+			case AND:
+				if !shortResult {
+					return false, nil
+				}
+			case OR:
+				if shortResult {
+					return true, nil
+				}
 		}
 	}
 

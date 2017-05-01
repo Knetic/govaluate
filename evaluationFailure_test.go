@@ -232,8 +232,8 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
-			Name:     "OR bool to string",
-			Input:    "bool || string",
+			Name:     "OR string to bool",
+			Input:    "string || bool",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 	}
