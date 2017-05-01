@@ -217,38 +217,6 @@ var SEPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	",": SEPARATE,
 }
 
-var ADDITIVE_MODIFIERS = []OperatorSymbol{
-	PLUS, MINUS,
-}
-
-var BITWISE_MODIFIERS = []OperatorSymbol{
-	BITWISE_AND, BITWISE_OR, BITWISE_XOR,
-}
-
-var BITWISE_SHIFT_MODIFIERS = []OperatorSymbol{
-	BITWISE_LSHIFT, BITWISE_RSHIFT,
-}
-
-var MULTIPLICATIVE_MODIFIERS = []OperatorSymbol{
-	MULTIPLY, DIVIDE, MODULUS,
-}
-
-var EXPONENTIAL_MODIFIERS = []OperatorSymbol{
-	EXPONENT,
-}
-
-var PREFIX_MODIFIERS = []OperatorSymbol{
-	NEGATE, INVERT, BITWISE_NOT,
-}
-
-var NUMERIC_COMPARATORS = []OperatorSymbol{
-	GT, GTE, LT, LTE,
-}
-
-var STRING_COMPARATORS = []OperatorSymbol{
-	REQ, NREQ,
-}
-
 /*
 	Returns true if this operator is contained by the given array of candidate symbols.
 	False otherwise.
