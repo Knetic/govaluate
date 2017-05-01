@@ -45,6 +45,7 @@ func TestComplexParameter(test *testing.T) {
 
 	var expression *EvaluableExpression
 	var err error
+	var v interface{}
 
 	parameters := map[string]interface{}{
 		"complex64":  complex64(0),
@@ -52,31 +53,33 @@ func TestComplexParameter(test *testing.T) {
 	}
 
 	expression, _ = NewEvaluableExpression("complex64")
-	_, err = expression.Evaluate(parameters)
-	if err == nil {
-		test.Logf("Expected to fail when giving a complex64 value, did not")
-		test.Fail()
+	v, err = expression.Evaluate(parameters)
+	if err != nil {
+		test.Errorf("Expected no error, but have %s", err)
+	}
+	if v.(complex64) != complex64(0) {
+		test.Errorf("Expected %v == %v", v, complex64(0))
 	}
 
 	expression, _ = NewEvaluableExpression("complex128")
-	_, err = expression.Evaluate(parameters)
-	if err == nil {
-		test.Logf("Expected to fail when giving a complex128 value, did not")
-		test.Fail()
+	v, err = expression.Evaluate(parameters)
+	if err != nil {
+		test.Errorf("Expected no error, but have %s", err)
+	}
+	if v.(complex128) != complex128(0) {
+		test.Errorf("Expected %v == %v", v, complex128(0))
 	}
 }
 
-func TestStructParameter(test *testing.T) {
-
+func TestStructParameter(t *testing.T) {
+	expected := DebugStruct{}
 	expression, _ := NewEvaluableExpression("foo")
-	parameters := map[string]interface{}{
-		"foo": DebugStruct{},
-	}
-
-	_, err := expression.Evaluate(parameters)
-	if err == nil {
-		test.Logf("Expected to  fail when giving a struct value, did not")
-		test.Fail()
+	parameters := map[string]interface{}{"foo": expected}
+	v, err := expression.Evaluate(parameters)
+	if err != nil {
+		t.Errorf("Expected no error, but have %s", err)
+	} else if v.(DebugStruct) != expected {
+		t.Errorf("Values mismatch: %v != %v", expected, v)
 	}
 }
 
