@@ -143,7 +143,7 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 	Used during parsing of expressions to determine if a symbol is, in fact, a comparator.
 	Also used during evaluation to determine exactly which comparator is being used.
 */
-var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
+var comparatorSymbols = map[string]OperatorSymbol{
 	"==": EQ,
 	"!=": NEQ,
 	">":  GT,
@@ -155,51 +155,51 @@ var COMPARATOR_SYMBOLS = map[string]OperatorSymbol{
 	"in": IN,
 }
 
-var LOGICAL_SYMBOLS = map[string]OperatorSymbol{
+var logicalSymbols = map[string]OperatorSymbol{
 	"&&": AND,
 	"||": OR,
 }
 
-var BITWISE_SYMBOLS = map[string]OperatorSymbol{
+var bitwiseSymbols = map[string]OperatorSymbol{
 	"^": BITWISE_XOR,
 	"&": BITWISE_AND,
 	"|": BITWISE_OR,
 }
 
-var BITWISE_SHIFT_SYMBOLS = map[string]OperatorSymbol{
+var bitwiseShiftSymbols = map[string]OperatorSymbol{
 	">>": BITWISE_RSHIFT,
 	"<<": BITWISE_LSHIFT,
 }
 
-var ADDITIVE_SYMBOLS = map[string]OperatorSymbol{
+var additiveSymbols = map[string]OperatorSymbol{
 	"+": PLUS,
 	"-": MINUS,
 }
 
-var MULTIPLICATIVE_SYMBOLS = map[string]OperatorSymbol{
+var multiplicativeSymbols = map[string]OperatorSymbol{
 	"*": MULTIPLY,
 	"/": DIVIDE,
 	"%": MODULUS,
 }
 
-var EXPONENTIAL_SYMBOLS = map[string]OperatorSymbol{
+var exponentialSymbolsS = map[string]OperatorSymbol{
 	"**": EXPONENT,
 }
 
-var PREFIX_SYMBOLS = map[string]OperatorSymbol{
+var prefixSymbols = map[string]OperatorSymbol{
 	"-": NEGATE,
 	"!": INVERT,
 	"~": BITWISE_NOT,
 }
 
-var TERNARY_SYMBOLS = map[string]OperatorSymbol{
+var ternarySymbols = map[string]OperatorSymbol{
 	"?":  TERNARY_TRUE,
 	":":  TERNARY_FALSE,
 	"??": COALESCE,
 }
 
-// this is defined separately from ADDITIVE_SYMBOLS et al because it's needed for parsing, not stage planning.
-var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
+// this is defined separately from additiveSymbols et al because it's needed for parsing, not stage planning.
+var modifierSymbols = map[string]OperatorSymbol{
 	"+":  PLUS,
 	"-":  MINUS,
 	"*":  MULTIPLY,
@@ -213,7 +213,7 @@ var MODIFIER_SYMBOLS = map[string]OperatorSymbol{
 	"<<": BITWISE_LSHIFT,
 }
 
-var SEPARATOR_SYMBOLS = map[string]OperatorSymbol{
+var separatorSymbols = map[string]OperatorSymbol{
 	",": SEPARATE,
 }
 

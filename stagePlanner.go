@@ -78,43 +78,43 @@ func init() {
 	// they simply need different type checks, symbols, and recursive precedents.
 	// While not all precedent phases are listed here, most can be represented this way.
 	planPrefix = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    PREFIX_SYMBOLS,
+		validSymbols:    prefixSymbols,
 		validKinds:      []TokenKind{PREFIX},
 		typeErrorFormat: prefixErrorFormat,
 		nextRight:       planFunction,
 	})
 	planExponential = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    EXPONENTIAL_SYMBOLS,
+		validSymbols:    exponentialSymbolsS,
 		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: modifierErrorFormat,
 		next:            planFunction,
 	})
 	planMultiplicative = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    MULTIPLICATIVE_SYMBOLS,
+		validSymbols:    multiplicativeSymbols,
 		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: modifierErrorFormat,
 		next:            planExponential,
 	})
 	planAdditive = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    ADDITIVE_SYMBOLS,
+		validSymbols:    additiveSymbols,
 		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: modifierErrorFormat,
 		next:            planMultiplicative,
 	})
 	planShift = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    BITWISE_SHIFT_SYMBOLS,
+		validSymbols:    bitwiseShiftSymbols,
 		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: modifierErrorFormat,
 		next:            planAdditive,
 	})
 	planBitwise = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    BITWISE_SYMBOLS,
+		validSymbols:    bitwiseSymbols,
 		validKinds:      []TokenKind{MODIFIER},
 		typeErrorFormat: modifierErrorFormat,
 		next:            planShift,
 	})
 	planComparator = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    COMPARATOR_SYMBOLS,
+		validSymbols:    comparatorSymbols,
 		validKinds:      []TokenKind{COMPARATOR},
 		typeErrorFormat: comparatorErrorFormat,
 		next:            planBitwise,
@@ -132,13 +132,13 @@ func init() {
 		next:            planLogicalAnd,
 	})
 	planTernary = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    TERNARY_SYMBOLS,
+		validSymbols:    ternarySymbols,
 		validKinds:      []TokenKind{TERNARY},
 		typeErrorFormat: ternaryErrorFormat,
 		next:            planLogicalOr,
 	})
 	planSeparator = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols: SEPARATOR_SYMBOLS,
+		validSymbols: separatorSymbols,
 		validKinds:   []TokenKind{SEPARATOR},
 		next:         planTernary,
 	})
