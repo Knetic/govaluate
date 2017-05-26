@@ -165,7 +165,7 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
-			Name:			"Undefined function",
+			Name:		"Undefined function",
 			Input:		"foobar()",
 			Expected:	UNDEFINED_FUNCTION,
 		},

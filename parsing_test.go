@@ -354,6 +354,24 @@ func TestConstantParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+			Name:      "Double-quoted string added to square-brackted param (#59)",
+			Input:     "\"a\" + [foo]",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind: STRING,
+					Value: "a",
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "+",
+				},
+				ExpressionToken{
+					Kind: VARIABLE,
+					Value: "foo",
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)

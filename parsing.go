@@ -383,6 +383,8 @@ func isNotAlphanumeric(character rune) bool {
 		unicode.IsLetter(character) ||
 		character == '(' ||
 		character == ')' ||
+		character == '[' ||
+		character == ']' || // starting to feel like there needs to be an `isOperation` func (#59)
 		!isNotQuote(character))
 }
 
