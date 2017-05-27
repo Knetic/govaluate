@@ -26,6 +26,8 @@ const (
 	CLAUSE_CLOSE
 
 	TERNARY
+
+	CONJUNCTION
 )
 
 /*
@@ -66,6 +68,8 @@ func (kind TokenKind) String() string {
 		return "CLAUSE_CLOSE"
 	case TERNARY:
 		return "TERNARY"
+	case CONJUNCTION:
+		return "CONJUNCTION"
 	}
 
 	return "UNKNOWN"

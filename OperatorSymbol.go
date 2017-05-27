@@ -45,6 +45,8 @@ const (
 
 	FUNCTIONAL
 	SEPARATE
+
+	PIPE
 )
 
 type operatorPrecedence int
@@ -217,6 +219,10 @@ var separatorSymbols = map[string]OperatorSymbol{
 	",": SEPARATE,
 }
 
+var pipeSymbols = map[string]OperatorSymbol{
+	"|>": PIPE,
+}
+
 /*
 	Returns true if this operator is contained by the given array of candidate symbols.
 	False otherwise.
@@ -301,6 +307,8 @@ func (this OperatorSymbol) String() string {
 		return ":"
 	case COALESCE:
 		return "??"
+	case PIPE:
+		return "|>"
 	}
 	return ""
 }

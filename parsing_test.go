@@ -1064,6 +1064,84 @@ func TestModifierParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+			Name:      "Join 2 functions without parameters",
+			Input:     "foo() |> foo()",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:      "Join 3 functions with parameters",
+			Input:     "foo() |> foo(10) |> foo(20)",
+			Functions: map[string]ExpressionFunction{"foo": noop},
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 20.0,
+				},
+				ExpressionToken{
+					Kind: SEPARATOR,
+				},
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 10.0,
+				},
+				ExpressionToken{
+					Kind: SEPARATOR,
+				},
+				ExpressionToken{
+					Kind:  FUNCTION,
+					Value: noop,
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)

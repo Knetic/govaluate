@@ -18,6 +18,8 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 	var state lexerState
 	var err error
 	var found bool
+	var lastFuncIndex int = -1
+	var fcall []ExpressionToken
 
 	stream = newLexerStream(expression)
 	state = validLexerStates[0]
@@ -32,6 +34,28 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 
 		if !found {
 			break
+		}
+		switch token.Kind {
+		case FUNCTION:
+			lastFuncIndex = len(ret)
+		case CLAUSE_CLOSE:
+			if len(fcall) != 0 {
+				if ret[len(ret)-1].Kind != CLAUSE {
+					// need to add separator
+					ret = append(ret, ExpressionToken{Kind: SEPARATOR, Value: ","})
+				}
+				ret = append(ret, fcall...)
+				fcall = nil
+			}
+		case CONJUNCTION:
+			// conjuction is just syntax sugar and func1() |> func2() means func2(func1())
+			if lastFuncIndex == -1 {
+				return ret, errors.New("Unable to parse, '|>' does not leading by function")
+			}
+			fcall = make([]ExpressionToken, len(ret)-lastFuncIndex)
+			copy(fcall, ret[lastFuncIndex:])
+			ret = ret[:lastFuncIndex]
+			continue
 		}
 
 		state, err = getLexerStateForToken(token.Kind)
@@ -231,6 +255,12 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			break
 		}
 
+		_, found = pipeSymbols[tokenString]
+		if found {
+			kind = CONJUNCTION
+			break
+		}
+
 		errorMessage := fmt.Sprintf("Invalid token: '%s'", tokenString)
 		return ret, errors.New(errorMessage), false
 	}
@@ -238,7 +268,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	ret.Kind = kind
 	ret.Value = tokenValue
 
-	return ret, nil, (kind != UNKNOWN)
+	return ret, nil, kind != UNKNOWN
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
