@@ -302,10 +302,10 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 
 	if token.Kind != FUNCTION {
 		stream.rewind()
-		return planValue(stream)
+		return planAccessor(stream)
 	}
 
-	rightStage, err = planValue(stream)
+	rightStage, err = planAccessor(stream)
 	if err != nil {
 		return nil, err
 	}
@@ -316,6 +316,37 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 		rightStage:      rightStage,
 		operator:        makeFunctionStage(token.Value.(ExpressionFunction)),
 		typeErrorFormat: "Unable to run function '%v': %v",
+	}, nil
+}
+
+func planAccessor(stream *tokenStream) (*evaluationStage, error) {
+
+	var token ExpressionToken
+	var rightStage *evaluationStage
+	var err error
+
+	if !stream.hasNext() {
+		return nil, nil
+	}
+
+	token = stream.next()
+
+	if token.Kind != ACCESSOR {
+		stream.rewind()
+		return planValue(stream)
+	}
+
+	rightStage, err = planValue(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	return &evaluationStage{
+
+		symbol:          ACCESS,
+		rightStage:      rightStage,
+		operator:        makeAccessorStage(token.Value.([]string)),
+		typeErrorFormat: "Unable to access parameter field or method '%v': %v",
 	}, nil
 }
 
@@ -331,6 +362,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	var operator evaluationOperator
 	var err error
 
+	if !stream.hasNext() {
+		return nil, nil
+	}
+	
 	token = stream.next()
 
 	switch token.Kind {

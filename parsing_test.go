@@ -372,6 +372,32 @@ func TestConstantParsing(test *testing.T) {
 				},
 			},
 		},
+		TokenParsingTest{
+			Name:      "Accessor variable",
+			Input:     "foo.Var",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind: ACCESSOR,
+					Value: []string {"foo", "Var"},
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:      "Accessor function",
+			Input:     "foo.Operation()",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind: ACCESSOR,
+					Value: []string {"foo", "Operation"},
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+			},
+		},
 	}
 
 	tokenParsingTests = combineWhitespaceExpressions(tokenParsingTests)
@@ -1487,6 +1513,7 @@ func stripUnquotedWhitespace(expression string) string {
 
 func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) {
 
+	var parsingTest TokenParsingTest
 	var expression *EvaluableExpression
 	var actualTokens []ExpressionToken
 	var actualToken ExpressionToken
@@ -1495,9 +1522,15 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	var err error
 
 	fmt.Printf("Running %d parsing test cases...\n", len(tokenParsingTests))
+	// defer func() {
+    //     if r := recover(); r != nil {
+    //         test.Logf("Panic in test '%s': %v", parsingTest.Name, r)
+	// 		test.Fail()
+    //     }
+    // }()
 
 	// Run the test cases.
-	for _, parsingTest := range tokenParsingTests {
+	for _, parsingTest = range tokenParsingTests {
 
 		if parsingTest.Functions != nil {
 			expression, err = NewEvaluableExpressionWithFunctions(parsingTest.Input, parsingTest.Functions)
@@ -1540,9 +1573,36 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				continue
 			}
 
-			if expectedToken.Value == nil || reflect.TypeOf(expectedToken.Value).Kind() == reflect.Func {
+			if expectedToken.Value == nil {
 				continue
 			}
+
+			reflectedKind := reflect.TypeOf(expectedToken.Value).Kind()
+			if reflectedKind == reflect.Func {
+				continue
+			}
+
+			// gotta be an accessor
+			if reflectedKind == reflect.Slice {
+
+				if actualToken.Value == nil {
+					test.Logf("Test '%s' failed:", parsingTest.Name)
+					test.Logf("Expected token value '%v' does not match nil", expectedToken.Value)
+					test.Fail()
+				}
+
+				for z, actual := range actualToken.Value.([]string) {
+
+					if actual != expectedToken.Value.([]string)[z] {
+
+						test.Logf("Test '%s' failed:", parsingTest.Name)
+						test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
+						test.Fail()
+					}
+				}
+				continue
+			}
+
 			if actualToken.Value != expectedToken.Value {
 
 				test.Logf("Test '%s' failed:", parsingTest.Name)

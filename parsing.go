@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 	"unicode"
+	"strings"
 )
 
 func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
@@ -152,6 +153,13 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			if found {
 				kind = FUNCTION
 				tokenValue = function
+			}
+
+			// accessor?
+			accessorIndex := strings.Index(tokenString, ".")
+			if accessorIndex > 0 {
+				kind = ACCESSOR
+				tokenValue = strings.Split(tokenString, ".")
 			}
 			break
 		}
@@ -392,7 +400,8 @@ func isVariableName(character rune) bool {
 
 	return unicode.IsLetter(character) ||
 		unicode.IsDigit(character) ||
-		character == '_'
+		character == '_' ||
+		character == '.'
 }
 
 func isNotClosingBracket(character rune) bool {

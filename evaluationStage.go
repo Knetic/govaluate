@@ -70,7 +70,7 @@ func (this *evaluationStage) isShortCircuitable() bool {
 			fallthrough
 		case OR:
 			fallthrough
-		case TERNARY_TRUE: 
+		case TERNARY_TRUE:
 			fallthrough
 		case TERNARY_FALSE:
 			fallthrough
@@ -243,7 +243,65 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 		default:
 			return function(right)
 		}
+	}
+}
 
+func makeAccessorStage(pair []string) evaluationOperator {
+
+	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+
+		var params []reflect.Value
+
+		value, err := parameters.Get(pair[0])
+		if err != nil {
+			return nil, err
+		}
+
+		coreValue := reflect.ValueOf(value)
+		if coreValue.Kind() != reflect.Struct {
+			return nil, errors.New("Unable to access '"+pair[1]+"', '"+pair[0]+"' is not a struct");
+		}
+
+		field := coreValue.FieldByName(pair[1])
+		if field != (reflect.Value{}) {
+			return field.Interface(), nil
+		}
+
+		method := coreValue.MethodByName(pair[1])
+		if method == (reflect.Value{}) {
+			return nil, errors.New("No method or field '"+pair[1]+"' present on parameter '"+pair[0]+"'")
+		}
+
+		switch right.(type) {
+		case []interface{}:
+
+			givenParams := right.([]interface{})
+			params = make([]reflect.Value, len(givenParams))
+			for i, _ := range givenParams {
+				params[i] = reflect.ValueOf(givenParams[i])
+			}
+
+		default:
+			params = []reflect.Value {reflect.ValueOf(right.(interface{}))}
+		}
+
+		returned := method.Call(params)
+		if len(returned) == 0 {
+			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return any values.")
+		}
+
+		if len(returned) == 1 {
+			return returned[0], nil
+		}
+
+		if len(returned) == 2 {
+			err, validType :=  returned[1].Interface().(error)
+			if validType {
+				return returned[0].Interface(), err
+			}
+		}
+
+		return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return either one value, or a value and an error. Cannot interpret meaning.")
 	}
 }
 
