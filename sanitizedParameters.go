@@ -13,11 +13,7 @@ func (p sanitizedParameters) Get(key string) (interface{}, error) {
 	}
 
 	// should be converted to fixed point?
-	if isFixedPoint(value) {
-		return castFixedPoint(value), nil
-	}
-
-	return value, nil
+	return castFixedPoint(value), nil
 }
 
 func isFixedPoint(value interface{}) bool {
@@ -45,7 +41,7 @@ func isFixedPoint(value interface{}) bool {
 	return false
 }
 
-func castFixedPoint(value interface{}) float64 {
+func castFixedPoint(value interface{}) interface{} {
 	switch value.(type) {
 	case uint8:
 		return float64(value.(uint8))
@@ -67,5 +63,5 @@ func castFixedPoint(value interface{}) float64 {
 		return float64(value.(int))
 	}
 
-	return 0.0
+	return value
 }

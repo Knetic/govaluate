@@ -323,6 +323,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return either one value, or a value and an error. Cannot interpret meaning.")
 		}
 
+		value = castFixedPoint(value)
 		return value, nil
 	}
 }

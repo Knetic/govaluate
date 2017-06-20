@@ -6,6 +6,8 @@ package govaluate
 type dummyParameter struct {
 	String string
 	Int int
+	BoolFalse bool
+	Nil interface{}
 	Nested dummyNestedParameter
 }
 
@@ -34,6 +36,8 @@ var fooParameter = EvaluationParameter {
 	Value: dummyParameter {
 		String: "string!",
 		Int: 101,
+		BoolFalse: false,
+		Nil: nil,
 		Nested: dummyNestedParameter {
 			Funk: "funkalicious",
 		},

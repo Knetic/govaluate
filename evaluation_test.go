@@ -1294,7 +1294,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Expected: false,
 		},
 		EvaluationTest{
-		
+
 			Name:  "Simple parameter call with modifier",
 			Input: "foo.String + 'hi'",
 			Parameters: []EvaluationParameter{fooParameter},
@@ -1334,6 +1334,27 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Input: "foo.Nested.Funk",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected: "funkalicious",
+		},
+		EvaluationTest{
+
+			Name:  "Parameter call with + modifier",
+			Input: "1 + foo.Int",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: 102.0,
+		},
+		EvaluationTest{
+
+			Name:  "Parameter call with && operator",
+			Input: "true && foo.BoolFalse",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:  "Null coalesce nested parameter",
+			Input: "foo.Nil ?? false",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: false,
 		},
 	}
 
