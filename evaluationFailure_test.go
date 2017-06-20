@@ -33,6 +33,9 @@ const (
 	ABSENT_PARAMETER                = "No parameter"
 	INVALID_REGEX                   = "Unable to compile regexp pattern"
 	INVALID_PARAMETER_CALL			= "No method or field"
+	TOO_FEW_ARGS					= "reflect: Call with too few input arguments"
+	TOO_MANY_ARGS					= "reflect: Call with too many input arguments"
+	MISMATCHED_PARAMETERS			= "reflect: Call using"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -467,6 +470,27 @@ func TestInvalidParameterCalls(test *testing.T) {
 			Input: "foo.AlwaysFail()",
 			Parameters: fooFailureParameters,
 			Expected: "function should always fail",
+		},
+		EvaluationFailureTest{
+
+			Name:  "Too few arguments to parameter call",
+			Input: "foo.FuncArgStr()",
+			Parameters: fooFailureParameters,
+			Expected: TOO_FEW_ARGS,
+		},
+		EvaluationFailureTest{
+
+			Name:  "Too many arguments to parameter call",
+			Input: "foo.FuncArgStr('foo', 'bar', 15)",
+			Parameters: fooFailureParameters,
+			Expected: TOO_MANY_ARGS,
+		},
+		EvaluationFailureTest{
+
+			Name:  "Mismatched parameters",
+			Input: "foo.FuncArgStr(5)",
+			Parameters: fooFailureParameters,
+			Expected: MISMATCHED_PARAMETERS,
 		},
 	}
 

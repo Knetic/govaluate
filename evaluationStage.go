@@ -6,6 +6,7 @@ import (
 	"math"
 	"regexp"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -248,7 +249,9 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 
 func makeAccessorStage(pair []string) evaluationOperator {
 
-	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	reconstructed := strings.Join(pair, ".")
+
+	return func(left interface{}, right interface{}, parameters Parameters) (ret interface{}, err error) {
 
 		var params []reflect.Value
 
@@ -256,6 +259,17 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		if err != nil {
 			return nil, err
 		}
+
+		// while this library generally tries to handle panic-inducing cases on its own,
+		// accessors are a sticky case which have a lot of possible ways to fail.
+		// therefore every call to an accessor sets up a defer that tries to recover from panics, converting them to errors.
+		defer func() {
+			if r := recover(); r != nil {
+				errorMsg := fmt.Sprintf("Failed to access '%s': %v", reconstructed, r.(string))
+  				err = errors.New(errorMsg)
+				ret = nil
+			}
+		}()
 
 		for i := 1; i < len(pair); i++ {
 
