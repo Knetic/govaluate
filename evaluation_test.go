@@ -24,31 +24,6 @@ type EvaluationParameter struct {
 	Value interface{}
 }
 
-type dummyParameterStruct struct {
-	String string
-	Int int
-}
-
-func (this dummyParameterStruct) Func() string {
-	return "funk"
-}
-
-func (this dummyParameterStruct) Func2() (string, error) {
-	return "frink", nil
-}
-
-func (this dummyParameterStruct) FuncArgStr(arg1 string) string {
-	return arg1
-}
-
-var fooParameter = EvaluationParameter {
-	Name: "foo",
-	Value: dummyParameterStruct {
-		String: "string!",
-		Int: 101,
-	},
-}
-
 func TestNoParameterEvaluation(test *testing.T) {
 
 	evaluationTests := []EvaluationTest{
@@ -1302,7 +1277,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Name:  "Simple parameter call",
 			Input: "foo.String",
 			Parameters: []EvaluationParameter{fooParameter},
-			Expected: fooParameter.Value.(dummyParameterStruct).String,
+			Expected: fooParameter.Value.(dummyParameter).String,
 		},
 		EvaluationTest{
 
@@ -1323,7 +1298,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Name:  "Simple parameter call with modifier",
 			Input: "foo.String + 'hi'",
 			Parameters: []EvaluationParameter{fooParameter},
-			Expected: fooParameter.Value.(dummyParameterStruct).String + "hi",
+			Expected: fooParameter.Value.(dummyParameter).String + "hi",
 		},
 		EvaluationTest{
 
@@ -1345,6 +1320,20 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Input: "foo.FuncArgStr('boop') + 'hi'",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected: "boophi",
+		},
+		EvaluationTest{
+
+			Name:  "Nested parameter function call",
+			Input: "foo.Nested.Dunk('boop')",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "boopdunk",
+		},
+		EvaluationTest{
+
+			Name:  "Nested parameter call",
+			Input: "foo.Nested.Funk",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "funkalicious",
 		},
 	}
 

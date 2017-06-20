@@ -257,62 +257,73 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			return nil, err
 		}
 
-		coreValue := reflect.ValueOf(value)
-		if coreValue.Kind() != reflect.Struct {
-			return nil, errors.New("Unable to access '"+pair[1]+"', '"+pair[0]+"' is not a struct");
-		}
+		for i := 1; i < len(pair); i++ {
 
-		field := coreValue.FieldByName(pair[1])
-		if field != (reflect.Value{}) {
-			return field.Interface(), nil
-		}
-
-		method := coreValue.MethodByName(pair[1])
-		if method == (reflect.Value{}) {
-			return nil, errors.New("No method or field '"+pair[1]+"' present on parameter '"+pair[0]+"'")
-		}
-
-		switch right.(type) {
-		case []interface{}:
-
-			givenParams := right.([]interface{})
-			params = make([]reflect.Value, len(givenParams))
-			for i, _ := range givenParams {
-				params[i] = reflect.ValueOf(givenParams[i])
+			coreValue := reflect.ValueOf(value)
+			if coreValue.Kind() != reflect.Struct {
+				return nil, errors.New("Unable to access '"+pair[i]+"', '"+pair[i-1]+"' is not a struct");
 			}
 
-		default:
-
-			if right == nil {
-				params = []reflect.Value{}
-				break
+			field := coreValue.FieldByName(pair[i])
+			if field != (reflect.Value{}) {
+				value = field.Interface()
+				continue
 			}
 
-			params = []reflect.Value {reflect.ValueOf(right.(interface{}))}
-		}
-
-		returned := method.Call(params)
-		retLength := len(returned)
-
-		if retLength == 0 {
-			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return any values.")
-		}
-
-		if retLength == 1 {
-			return returned[0].Interface(), nil
-		}
-
-		if retLength == 2 {
-
-			iface := returned[1].Interface()
-			err, validType := iface.(error)
-
-			if validType || iface == nil {
-				return returned[0].Interface(), err
+			method := coreValue.MethodByName(pair[i])
+			if method == (reflect.Value{}) {
+				return nil, errors.New("No method or field '"+pair[i]+"' present on parameter '"+pair[i-1]+"'")
 			}
+
+			switch right.(type) {
+			case []interface{}:
+
+				givenParams := right.([]interface{})
+				params = make([]reflect.Value, len(givenParams))
+				for idx, _ := range givenParams {
+					params[idx] = reflect.ValueOf(givenParams[idx])
+				}
+
+			default:
+
+				if right == nil {
+					params = []reflect.Value{}
+					break
+				}
+
+				params = []reflect.Value {reflect.ValueOf(right.(interface{}))}
+			}
+
+			returned := method.Call(params)
+			retLength := len(returned)
+
+			if retLength == 0 {
+				return nil, errors.New("Method call '"+pair[i-1]+"."+pair[i]+"' did not return any values.")
+			}
+
+			if retLength == 1 {
+
+				value = returned[0].Interface()
+				continue
+			}
+
+			if retLength == 2 {
+
+				errIface := returned[1].Interface()
+				err, validType := errIface.(error)
+
+				if validType && errIface != nil {
+					return returned[0].Interface(), err
+				}
+
+				value = returned[0].Interface()
+				continue
+			}
+
+			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return either one value, or a value and an error. Cannot interpret meaning.")
 		}
 
-		return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return either one value, or a value and an error. Cannot interpret meaning.")
+		return value, nil
 	}
 }
 
