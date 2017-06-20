@@ -1,5 +1,9 @@
 package govaluate
 
+import (
+	"errors"
+)
+
 /*
 	Struct used to test "parameter calls".
 */
@@ -23,6 +27,10 @@ func (this dummyParameter) FuncArgStr(arg1 string) string {
 	return arg1
 }
 
+func (this dummyParameter) AlwaysFail() (interface{}, error) {
+	return nil, errors.New("function should always fail")
+}
+
 type dummyNestedParameter struct {
 	Funk string
 }
@@ -42,4 +50,8 @@ var fooParameter = EvaluationParameter {
 			Funk: "funkalicious",
 		},
 	},
+}
+
+var fooFailureParameters map[string]interface{} = map[string]interface{} {
+	"foo": fooParameter.Value,
 }

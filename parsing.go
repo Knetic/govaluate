@@ -158,6 +158,13 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			// accessor?
 			accessorIndex := strings.Index(tokenString, ".")
 			if accessorIndex > 0 {
+
+				// check that it doesn't end with a hanging period
+				if tokenString[len(tokenString)-1] == '.' {
+					errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
+					return ExpressionToken{}, errors.New(errorMsg), false
+				}
+
 				kind = ACCESSOR
 				tokenValue = strings.Split(tokenString, ".")
 			}

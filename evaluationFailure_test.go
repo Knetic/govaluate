@@ -32,6 +32,7 @@ const (
 	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
 	INVALID_REGEX                   = "Unable to compile regexp pattern"
+	INVALID_PARAMETER_CALL			= "No method or field"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -430,6 +431,42 @@ func TestFunctionExecution(test *testing.T) {
 				},
 			},
 			Expected: "Huge problems",
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
+func TestInvalidParameterCalls(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:  "Missing parameter field reference",
+			Input: "foo.NotExists",
+			Parameters: fooFailureParameters,
+			Expected: INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:  "Parameter method call on missing function",
+			Input: "foo.NotExist()",
+			Parameters: fooFailureParameters,
+			Expected: INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:  "Nested missing parameter field reference",
+			Input: "foo.Nested.NotExists",
+			Parameters: fooFailureParameters,
+			Expected: INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:  "Parameter method call returns error",
+			Input: "foo.AlwaysFail()",
+			Parameters: fooFailureParameters,
+			Expected: "function should always fail",
 		},
 	}
 
