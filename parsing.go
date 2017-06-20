@@ -166,7 +166,19 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				}
 
 				kind = ACCESSOR
-				tokenValue = strings.Split(tokenString, ".")
+				splits :=  strings.Split(tokenString, ".")
+				tokenValue = splits
+
+				// check that none of them are unexported
+				for i := 1; i < len(splits); i++ {
+
+					firstCharacter := getFirstRune(splits[i])
+
+					if unicode.ToUpper(firstCharacter) != firstCharacter {
+						errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
+						return ExpressionToken{}, errors.New(errorMsg), false
+					}
+				}
 			}
 			break
 		}
@@ -465,4 +477,13 @@ func tryParseExactTime(candidate string, format string) (time.Time, bool) {
 	}
 
 	return ret, true
+}
+
+func getFirstRune(candidate string) rune {
+
+	for _, character := range candidate {
+	    return character
+	}
+
+	return 0
 }
