@@ -321,7 +321,7 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 
 func planAccessor(stream *tokenStream) (*evaluationStage, error) {
 
-	var token ExpressionToken
+	var token, otherToken ExpressionToken
 	var rightStage *evaluationStage
 	var err error
 
@@ -336,9 +336,23 @@ func planAccessor(stream *tokenStream) (*evaluationStage, error) {
 		return planValue(stream)
 	}
 
-	rightStage, err = planTokens(stream)
-	if err != nil {
-		return nil, err
+	// check if this is meant to be a function or a field.
+	// fields have a clause next to them, functions do not.
+	// if it's a function, parse the arguments. Otherwise leave the right stage null.
+	if stream.hasNext() {
+
+		otherToken = stream.next()
+		if otherToken.Kind == CLAUSE {
+
+			stream.rewind()
+
+			rightStage, err = planTokens(stream)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			stream.rewind()
+		}
 	}
 
 	return &evaluationStage{

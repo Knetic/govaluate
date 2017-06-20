@@ -1311,20 +1311,20 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected: "funk",
 		},
-		// EvaluationTest{
-		//
-		// 	Name:  "Simple parameter call",
-		// 	Input: "foo.String == 'hi'",
-		// 	Parameters: []EvaluationParameter{fooParameter},
-		// 	Expected: fooParameter.Value.(dummyParameterStruct).String,
-		// },
-		// EvaluationTest{
-		//
-		// 	Name:  "Simple parameter call with modifier",
-		// 	Input: "foo.String + 'hi'",
-		// 	Parameters: []EvaluationParameter{fooParameter},
-		// 	Expected: fooParameter.Value.(dummyParameterStruct).String,
-		// },
+		EvaluationTest{
+
+			Name:  "Simple parameter call",
+			Input: "foo.String == 'hi'",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: false,
+		},
+		EvaluationTest{
+		
+			Name:  "Simple parameter call with modifier",
+			Input: "foo.String + 'hi'",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: fooParameter.Value.(dummyParameterStruct).String + "hi",
+		},
 		EvaluationTest{
 
 			Name:  "Simple parameter function call, two-arg return",
@@ -1338,6 +1338,13 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Input: "foo.FuncArgStr('boop')",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected: "boop",
+		},
+		EvaluationTest{
+
+			Name:  "Simple parameter function call, one arg",
+			Input: "foo.FuncArgStr('boop') + 'hi'",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "boophi",
 		},
 	}
 

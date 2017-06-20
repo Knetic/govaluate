@@ -282,6 +282,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			}
 
 		default:
+
 			if right == nil {
 				params = []reflect.Value{}
 				break
