@@ -291,17 +291,22 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		}
 
 		returned := method.Call(params)
-		if len(returned) == 0 {
+		retLength := len(returned)
+
+		if retLength == 0 {
 			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return any values.")
 		}
 
-		if len(returned) == 1 {
+		if retLength == 1 {
 			return returned[0].Interface(), nil
 		}
 
-		if len(returned) == 2 {
-			err, validType :=  returned[1].Interface().(error)
-			if validType {
+		if retLength == 2 {
+
+			iface := returned[1].Interface()
+			err, validType := iface.(error)
+
+			if validType || iface == nil {
 				return returned[0].Interface(), err
 			}
 		}

@@ -33,6 +33,14 @@ func (this dummyParameterStruct) Func() string {
 	return "funk"
 }
 
+func (this dummyParameterStruct) Func2() (string, error) {
+	return "frink", nil
+}
+
+func (this dummyParameterStruct) FuncArgStr(arg1 string) string {
+	return arg1
+}
+
 var fooParameter = EvaluationParameter {
 	Name: "foo",
 	Value: dummyParameterStruct {
@@ -1317,6 +1325,20 @@ func TestParameterizedEvaluation(test *testing.T) {
 		// 	Parameters: []EvaluationParameter{fooParameter},
 		// 	Expected: fooParameter.Value.(dummyParameterStruct).String,
 		// },
+		EvaluationTest{
+
+			Name:  "Simple parameter function call, two-arg return",
+			Input: "foo.Func2()",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "frink",
+		},
+		EvaluationTest{
+
+			Name:  "Simple parameter function call, one arg",
+			Input: "foo.FuncArgStr('boop')",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "boop",
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
