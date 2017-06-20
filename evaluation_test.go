@@ -24,6 +24,23 @@ type EvaluationParameter struct {
 	Value interface{}
 }
 
+type dummyParameterStruct struct {
+	String string
+	Int int
+}
+
+func (this dummyParameterStruct) Func() string {
+	return "funk"
+}
+
+var fooParameter = EvaluationParameter {
+	Name: "foo",
+	Value: dummyParameterStruct {
+		String: "string!",
+		Int: 101,
+	},
+}
+
 func TestNoParameterEvaluation(test *testing.T) {
 
 	evaluationTests := []EvaluationTest{
@@ -1272,6 +1289,34 @@ func TestParameterizedEvaluation(test *testing.T) {
 			},
 			Expected: "foo",
 		},
+		EvaluationTest{
+
+			Name:  "Simple parameter call",
+			Input: "foo.String",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: fooParameter.Value.(dummyParameterStruct).String,
+		},
+		EvaluationTest{
+
+			Name:  "Simple parameter function call",
+			Input: "foo.Func()",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "funk",
+		},
+		// EvaluationTest{
+		//
+		// 	Name:  "Simple parameter call",
+		// 	Input: "foo.String == 'hi'",
+		// 	Parameters: []EvaluationParameter{fooParameter},
+		// 	Expected: fooParameter.Value.(dummyParameterStruct).String,
+		// },
+		// EvaluationTest{
+		//
+		// 	Name:  "Simple parameter call with modifier",
+		// 	Input: "foo.String + 'hi'",
+		// 	Parameters: []EvaluationParameter{fooParameter},
+		// 	Expected: fooParameter.Value.(dummyParameterStruct).String,
+		// },
 	}
 
 	runEvaluationTests(evaluationTests, test)

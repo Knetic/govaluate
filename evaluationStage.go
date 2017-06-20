@@ -282,6 +282,11 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			}
 
 		default:
+			if right == nil {
+				params = []reflect.Value{}
+				break
+			}
+
 			params = []reflect.Value {reflect.ValueOf(right.(interface{}))}
 		}
 
@@ -291,7 +296,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		}
 
 		if len(returned) == 1 {
-			return returned[0], nil
+			return returned[0].Interface(), nil
 		}
 
 		if len(returned) == 2 {

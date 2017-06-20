@@ -336,7 +336,7 @@ func planAccessor(stream *tokenStream) (*evaluationStage, error) {
 		return planValue(stream)
 	}
 
-	rightStage, err = planValue(stream)
+	rightStage, err = planTokens(stream)
 	if err != nil {
 		return nil, err
 	}
@@ -365,7 +365,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	if !stream.hasNext() {
 		return nil, nil
 	}
-	
+
 	token = stream.next()
 
 	switch token.Kind {
