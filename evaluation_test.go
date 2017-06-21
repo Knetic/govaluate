@@ -1344,6 +1344,13 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Parameter string call with + modifier",
+			Input: "'woop' + (foo.String)",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected: "woopstring!",
+		},
+		EvaluationTest{
+
 			Name:  "Parameter call with && operator",
 			Input: "true && foo.BoolFalse",
 			Parameters: []EvaluationParameter{fooParameter},
