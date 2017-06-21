@@ -150,6 +150,28 @@ Functions can accept any number of arguments, correctly handles nested functions
 
 Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
 
+Accessors
+--
+
+If you have structs in your parameters, you can access their fields and methods in the usual way. For instance, given a struct that has a method "Echo", present in the parameters as `foo`, the following is valid:
+
+	"foo.Echo('hello world')"
+
+Fields are accessed in a similar way. Assuming `foo` has a field called "Length":
+
+	"foo.Length > 9000"
+
+Accessors can be nested to any depth, like the following
+
+	"foo.Bar.Baz.SomeFunction()"
+
+However it is not _currently_ supported to access values in `map`s. So the following will not work
+
+	"foo.SomeMap['key']"
+
+This may be convenient, but note that using accessors involves a _lot_ of reflection. This makes the expression about four times slower than just using a parameter (consult the benchmarks for more precise measurements on your system).
+If at all reasonable, the author recommends extracting the values you care about into a parameter map beforehand, or defining a struct that implements the `Parameters` interface, and which grabs fields as required. If there are functions you want to use, it's better to pass them as expression functions (see the above section). These approaches use no reflection, and are designed to be fast and clean.
+
 What operators and types does this support?
 --
 
