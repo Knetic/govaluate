@@ -39,19 +39,27 @@ func (this dummyNestedParameter) Dunk(arg1 string) string {
 	return arg1 + "dunk"
 }
 
-var fooParameter = EvaluationParameter {
-	Name: "foo",
-	Value: dummyParameter {
-		String: "string!",
-		Int: 101,
-		BoolFalse: false,
-		Nil: nil,
-		Nested: dummyNestedParameter {
-			Funk: "funkalicious",
-		},
+var dummyParameterInstance = dummyParameter {
+	String: "string!",
+	Int: 101,
+	BoolFalse: false,
+	Nil: nil,
+	Nested: dummyNestedParameter {
+		Funk: "funkalicious",
 	},
 }
 
-var fooFailureParameters map[string]interface{} = map[string]interface{} {
+var fooParameter = EvaluationParameter {
+	Name: "foo",
+	Value: dummyParameterInstance,
+}
+
+var fooPtrParameter = EvaluationParameter {
+	Name: "fooptr",
+	Value: &dummyParameterInstance,
+}
+
+var fooFailureParameters = map[string]interface{} {
 	"foo": fooParameter.Value,
+	"fooptr": &fooPtrParameter.Value,
 }

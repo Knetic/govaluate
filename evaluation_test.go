@@ -1288,6 +1288,20 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Simple parameter call from pointer",
+			Input: "fooptr.String",
+			Parameters: []EvaluationParameter{fooPtrParameter},
+			Expected: fooParameter.Value.(dummyParameter).String,
+		},
+		EvaluationTest{
+
+			Name:  "Simple parameter function call from pointer",
+			Input: "fooptr.Func()",
+			Parameters: []EvaluationParameter{fooPtrParameter},
+			Expected: "funk",
+		},
+		EvaluationTest{
+
 			Name:  "Simple parameter call",
 			Input: "foo.String == 'hi'",
 			Parameters: []EvaluationParameter{fooParameter},

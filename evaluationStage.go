@@ -274,6 +274,12 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		for i := 1; i < len(pair); i++ {
 
 			coreValue := reflect.ValueOf(value)
+
+			// if this is a pointer, resolve it.
+			if coreValue.Kind() == reflect.Ptr {
+				coreValue = coreValue.Elem()
+			}
+
 			if coreValue.Kind() != reflect.Struct {
 				return nil, errors.New("Unable to access '"+pair[i]+"', '"+pair[i-1]+"' is not a struct");
 			}
