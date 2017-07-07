@@ -184,6 +184,12 @@ func TestParsingFailure(test *testing.T) {
 			Input:		"foo.bar",
 			Expected:	UNEXPORTED_ACCESSOR,
 		},
+		ParsingFailureTest{
+
+			Name:		"Hex literal (#63)",
+			Input:		"0x10 > 0",
+			Expected:	INVALID_TOKEN_TRANSITION,
+		},
 	}
 
 	runParsingFailureTests(parsingTests, test)
