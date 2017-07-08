@@ -27,6 +27,7 @@ then
 fi
 
 # coverage
-go tool cover -func=coverage.out
+# disabled because travis go1.4 seems not to support it suddenly?
+#go tool cover -func=coverage.out
 
 popd
