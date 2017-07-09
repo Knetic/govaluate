@@ -47,6 +47,37 @@ func TestConstantParsing(test *testing.T) {
 		},
 		TokenParsingTest{
 
+			Name:  "Zero",
+			Input: "0",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 0.0,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "One digit hex",
+			Input: "0x1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Two digit hex",
+			Input: "0x10",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 16.0,
+				},
+			},
+		},
+		TokenParsingTest{
+
 			Name:  "Single string",
 			Input: "'foo'",
 			Expected: []ExpressionToken{
@@ -355,11 +386,11 @@ func TestConstantParsing(test *testing.T) {
 			},
 		},
 		TokenParsingTest{
-			Name:      "Double-quoted string added to square-brackted param (#59)",
-			Input:     "\"a\" + [foo]",
+			Name:  "Double-quoted string added to square-brackted param (#59)",
+			Input: "\"a\" + [foo]",
 			Expected: []ExpressionToken{
 				ExpressionToken{
-					Kind: STRING,
+					Kind:  STRING,
 					Value: "a",
 				},
 				ExpressionToken{
@@ -367,28 +398,28 @@ func TestConstantParsing(test *testing.T) {
 					Value: "+",
 				},
 				ExpressionToken{
-					Kind: VARIABLE,
+					Kind:  VARIABLE,
 					Value: "foo",
 				},
 			},
 		},
 		TokenParsingTest{
-			Name:      "Accessor variable",
-			Input:     "foo.Var",
+			Name:  "Accessor variable",
+			Input: "foo.Var",
 			Expected: []ExpressionToken{
 				ExpressionToken{
-					Kind: ACCESSOR,
-					Value: []string {"foo", "Var"},
+					Kind:  ACCESSOR,
+					Value: []string{"foo", "Var"},
 				},
 			},
 		},
 		TokenParsingTest{
-			Name:      "Accessor function",
-			Input:     "foo.Operation()",
+			Name:  "Accessor function",
+			Input: "foo.Operation()",
 			Expected: []ExpressionToken{
 				ExpressionToken{
-					Kind: ACCESSOR,
-					Value: []string {"foo", "Operation"},
+					Kind:  ACCESSOR,
+					Value: []string{"foo", "Operation"},
 				},
 				ExpressionToken{
 					Kind: CLAUSE,
@@ -1523,11 +1554,11 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 	fmt.Printf("Running %d parsing test cases...\n", len(tokenParsingTests))
 	// defer func() {
-    //     if r := recover(); r != nil {
-    //         test.Logf("Panic in test '%s': %v", parsingTest.Name, r)
+	//     if r := recover(); r != nil {
+	//         test.Logf("Panic in test '%s': %v", parsingTest.Name, r)
 	// 		test.Fail()
-    //     }
-    // }()
+	//     }
+	// }()
 
 	// Run the test cases.
 	for _, parsingTest = range tokenParsingTests {
