@@ -18,7 +18,7 @@ pushd "${TEMPORARY_PATH}/src/govaluate"
 
 # run the actual tests.
 export GOVALUATE_TORTURE_TEST="true"
-go test -bench=. -benchmem -coverprofile coverage.out
+go test -bench=. -benchmem #-coverprofile coverage.out
 status=$?
 
 if [ "${status}" != 0 ];
