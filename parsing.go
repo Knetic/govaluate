@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
-	"strings"
 )
 
 func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
@@ -65,7 +65,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	var completed bool
 	var err error
 
-	// numeric is 0-9, or .
+	// numeric is 0-9, or . or 0x followed by digits
 	// string starts with '
 	// variable is alphanumeric, always starts with a letter
 	// bracket always means variable
@@ -83,6 +83,26 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 		// numeric constant
 		if isNumeric(character) {
+
+			if stream.canRead() && character == '0' {
+				character = stream.readCharacter()
+
+				if stream.canRead() && character == 'x' {
+					tokenString, _ = readUntilFalse(stream, false, true, true, isDigit)
+					tokenValueInt, err := strconv.ParseUint(tokenString, 16, 64)
+
+					if err != nil {
+						errorMsg := fmt.Sprintf("Unable to parse hex value '%v' to uint64\n", tokenString)
+						return ExpressionToken{}, errors.New(errorMsg), false
+					}
+
+					kind = NUMERIC
+					tokenValue = float64(tokenValueInt)
+					break
+				} else {
+					stream.rewind(1)
+				}
+			}
 
 			tokenString = readTokenUntilFalse(stream, isNumeric)
 			tokenValue, err = strconv.ParseFloat(tokenString, 64)
@@ -166,7 +186,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				}
 
 				kind = ACCESSOR
-				splits :=  strings.Split(tokenString, ".")
+				splits := strings.Split(tokenString, ".")
 				tokenValue = splits
 
 				// check that none of them are unexported
@@ -394,6 +414,10 @@ func checkBalance(tokens []ExpressionToken) error {
 	return nil
 }
 
+func isDigit(character rune) bool {
+	return unicode.IsDigit(character)
+}
+
 func isNumeric(character rune) bool {
 
 	return unicode.IsDigit(character) || character == '.'
@@ -482,7 +506,7 @@ func tryParseExactTime(candidate string, format string) (time.Time, bool) {
 func getFirstRune(candidate string) rune {
 
 	for _, character := range candidate {
-	    return character
+		return character
 	}
 
 	return 0
