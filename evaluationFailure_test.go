@@ -89,15 +89,13 @@ func TestStructParameter(t *testing.T) {
 
 func TestNilParameterUsage(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest{
-		EvaluationFailureTest{
-			Name:     "Absent parameter used",
-			Input:    "foo > 1",
-			Expected: ABSENT_PARAMETER,
-		},
-	}
+	expression, err := NewEvaluableExpression("2 > 1");	
+	_, err = expression.Evaluate(nil)
 
-	runEvaluationFailureTests(evaluationTests, test)
+	if err != nil {
+		test.Errorf("Expected no error from nil parameter evaluation, got %v\n", err)
+		return
+	}
 }
 
 func TestModifierTyping(test *testing.T) {

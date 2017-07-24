@@ -133,6 +133,7 @@ func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (int
 	if parameters == nil {
 		return this.Eval(nil)
 	}
+
 	return this.Eval(MapParameters(parameters))
 }
 
@@ -155,7 +156,10 @@ func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error)
 
 	if parameters != nil {
 		parameters = &sanitizedParameters{parameters}
+	} else {
+		parameters = DUMMY_PARAMETERS
 	}
+	
 	return this.evaluateStage(this.evaluationStages, parameters)
 }
 
