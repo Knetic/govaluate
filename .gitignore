@@ -26,3 +26,9 @@ coverage.out
 manual_test.go
 *.out
 *.err
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea
