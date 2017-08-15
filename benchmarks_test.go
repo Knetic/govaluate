@@ -87,7 +87,7 @@ func BenchmarkEvaluationParameter(bench *testing.B) {
 
 	expression, _ := NewEvaluableExpression("requests_made")
 	parameters := map[string]interface{}{
-		"requests_made":      99.0,
+		"requests_made": 99.0,
 	}
 
 	bench.ResetTimer()

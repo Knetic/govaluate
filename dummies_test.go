@@ -8,11 +8,11 @@ import (
 	Struct used to test "parameter calls".
 */
 type dummyParameter struct {
-	String string
-	Int int
+	String    string
+	Int       int
 	BoolFalse bool
-	Nil interface{}
-	Nested dummyNestedParameter
+	Nil       interface{}
+	Nested    dummyNestedParameter
 }
 
 func (this dummyParameter) Func() string {
@@ -39,27 +39,27 @@ func (this dummyNestedParameter) Dunk(arg1 string) string {
 	return arg1 + "dunk"
 }
 
-var dummyParameterInstance = dummyParameter {
-	String: "string!",
-	Int: 101,
+var dummyParameterInstance = dummyParameter{
+	String:    "string!",
+	Int:       101,
 	BoolFalse: false,
-	Nil: nil,
-	Nested: dummyNestedParameter {
+	Nil:       nil,
+	Nested: dummyNestedParameter{
 		Funk: "funkalicious",
 	},
 }
 
-var fooParameter = EvaluationParameter {
-	Name: "foo",
+var fooParameter = EvaluationParameter{
+	Name:  "foo",
 	Value: dummyParameterInstance,
 }
 
-var fooPtrParameter = EvaluationParameter {
-	Name: "fooptr",
+var fooPtrParameter = EvaluationParameter{
+	Name:  "fooptr",
 	Value: &dummyParameterInstance,
 }
 
-var fooFailureParameters = map[string]interface{} {
-	"foo": fooParameter.Value,
+var fooFailureParameters = map[string]interface{}{
+	"foo":    fooParameter.Value,
 	"fooptr": &fooPtrParameter.Value,
 }

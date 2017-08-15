@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"regexp"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -67,16 +67,16 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 func (this *evaluationStage) isShortCircuitable() bool {
 
 	switch this.symbol {
-		case AND:
-			fallthrough
-		case OR:
-			fallthrough
-		case TERNARY_TRUE:
-			fallthrough
-		case TERNARY_FALSE:
-			fallthrough
-		case COALESCE:
-			return true
+	case AND:
+		fallthrough
+	case OR:
+		fallthrough
+	case TERNARY_TRUE:
+		fallthrough
+	case TERNARY_FALSE:
+		fallthrough
+	case COALESCE:
+		return true
 	}
 
 	return false
@@ -266,7 +266,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		defer func() {
 			if r := recover(); r != nil {
 				errorMsg := fmt.Sprintf("Failed to access '%s': %v", reconstructed, r.(string))
-  				err = errors.New(errorMsg)
+				err = errors.New(errorMsg)
 				ret = nil
 			}
 		}()
@@ -281,7 +281,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			}
 
 			if coreValue.Kind() != reflect.Struct {
-				return nil, errors.New("Unable to access '"+pair[i]+"', '"+pair[i-1]+"' is not a struct");
+				return nil, errors.New("Unable to access '" + pair[i] + "', '" + pair[i-1] + "' is not a struct")
 			}
 
 			field := coreValue.FieldByName(pair[i])
@@ -292,7 +292,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 			method := coreValue.MethodByName(pair[i])
 			if method == (reflect.Value{}) {
-				return nil, errors.New("No method or field '"+pair[i]+"' present on parameter '"+pair[i-1]+"'")
+				return nil, errors.New("No method or field '" + pair[i] + "' present on parameter '" + pair[i-1] + "'")
 			}
 
 			switch right.(type) {
@@ -311,14 +311,14 @@ func makeAccessorStage(pair []string) evaluationOperator {
 					break
 				}
 
-				params = []reflect.Value {reflect.ValueOf(right.(interface{}))}
+				params = []reflect.Value{reflect.ValueOf(right.(interface{}))}
 			}
 
 			returned := method.Call(params)
 			retLength := len(returned)
 
 			if retLength == 0 {
-				return nil, errors.New("Method call '"+pair[i-1]+"."+pair[i]+"' did not return any values.")
+				return nil, errors.New("Method call '" + pair[i-1] + "." + pair[i] + "' did not return any values.")
 			}
 
 			if retLength == 1 {
@@ -340,7 +340,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 				continue
 			}
 
-			return nil, errors.New("Method call '"+pair[0]+"."+pair[1]+"' did not return either one value, or a value and an error. Cannot interpret meaning.")
+			return nil, errors.New("Method call '" + pair[0] + "." + pair[1] + "' did not return either one value, or a value and an error. Cannot interpret meaning.")
 		}
 
 		value = castFixedPoint(value)

@@ -32,10 +32,10 @@ const (
 	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
 	INVALID_REGEX                   = "Unable to compile regexp pattern"
-	INVALID_PARAMETER_CALL			= "No method or field"
-	TOO_FEW_ARGS					= "reflect: Call with too few input arguments"
-	TOO_MANY_ARGS					= "reflect: Call with too many input arguments"
-	MISMATCHED_PARAMETERS			= "reflect: Call using"
+	INVALID_PARAMETER_CALL          = "No method or field"
+	TOO_FEW_ARGS                    = "reflect: Call with too few input arguments"
+	TOO_MANY_ARGS                   = "reflect: Call with too many input arguments"
+	MISMATCHED_PARAMETERS           = "reflect: Call using"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -89,7 +89,7 @@ func TestStructParameter(t *testing.T) {
 
 func TestNilParameterUsage(test *testing.T) {
 
-	expression, err := NewEvaluableExpression("2 > 1");	
+	expression, err := NewEvaluableExpression("2 > 1")
 	_, err = expression.Evaluate(nil)
 
 	if err != nil {
@@ -443,52 +443,52 @@ func TestInvalidParameterCalls(test *testing.T) {
 	evaluationTests := []EvaluationFailureTest{
 		EvaluationFailureTest{
 
-			Name:  "Missing parameter field reference",
-			Input: "foo.NotExists",
+			Name:       "Missing parameter field reference",
+			Input:      "foo.NotExists",
 			Parameters: fooFailureParameters,
-			Expected: INVALID_PARAMETER_CALL,
+			Expected:   INVALID_PARAMETER_CALL,
 		},
 		EvaluationFailureTest{
 
-			Name:  "Parameter method call on missing function",
-			Input: "foo.NotExist()",
+			Name:       "Parameter method call on missing function",
+			Input:      "foo.NotExist()",
 			Parameters: fooFailureParameters,
-			Expected: INVALID_PARAMETER_CALL,
+			Expected:   INVALID_PARAMETER_CALL,
 		},
 		EvaluationFailureTest{
 
-			Name:  "Nested missing parameter field reference",
-			Input: "foo.Nested.NotExists",
+			Name:       "Nested missing parameter field reference",
+			Input:      "foo.Nested.NotExists",
 			Parameters: fooFailureParameters,
-			Expected: INVALID_PARAMETER_CALL,
+			Expected:   INVALID_PARAMETER_CALL,
 		},
 		EvaluationFailureTest{
 
-			Name:  "Parameter method call returns error",
-			Input: "foo.AlwaysFail()",
+			Name:       "Parameter method call returns error",
+			Input:      "foo.AlwaysFail()",
 			Parameters: fooFailureParameters,
-			Expected: "function should always fail",
+			Expected:   "function should always fail",
 		},
 		EvaluationFailureTest{
 
-			Name:  "Too few arguments to parameter call",
-			Input: "foo.FuncArgStr()",
+			Name:       "Too few arguments to parameter call",
+			Input:      "foo.FuncArgStr()",
 			Parameters: fooFailureParameters,
-			Expected: TOO_FEW_ARGS,
+			Expected:   TOO_FEW_ARGS,
 		},
 		EvaluationFailureTest{
 
-			Name:  "Too many arguments to parameter call",
-			Input: "foo.FuncArgStr('foo', 'bar', 15)",
+			Name:       "Too many arguments to parameter call",
+			Input:      "foo.FuncArgStr('foo', 'bar', 15)",
 			Parameters: fooFailureParameters,
-			Expected: TOO_MANY_ARGS,
+			Expected:   TOO_MANY_ARGS,
 		},
 		EvaluationFailureTest{
 
-			Name:  "Mismatched parameters",
-			Input: "foo.FuncArgStr(5)",
+			Name:       "Mismatched parameters",
+			Input:      "foo.FuncArgStr(5)",
 			Parameters: fooFailureParameters,
-			Expected: MISMATCHED_PARAMETERS,
+			Expected:   MISMATCHED_PARAMETERS,
 		},
 	}
 

@@ -419,9 +419,9 @@ func isDigit(character rune) bool {
 }
 
 func isHexDigit(character rune) bool {
-	
+
 	character = unicode.ToLower(character)
-	
+
 	return unicode.IsDigit(character) ||
 		character == 'a' ||
 		character == 'b' ||
