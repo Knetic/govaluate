@@ -88,7 +88,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				character = stream.readCharacter()
 
 				if stream.canRead() && character == 'x' {
-					tokenString, _ = readUntilFalse(stream, false, true, true, isDigit)
+					tokenString, _ = readUntilFalse(stream, false, true, true, isHexDigit)
 					tokenValueInt, err := strconv.ParseUint(tokenString, 16, 64)
 
 					if err != nil {
@@ -416,6 +416,19 @@ func checkBalance(tokens []ExpressionToken) error {
 
 func isDigit(character rune) bool {
 	return unicode.IsDigit(character)
+}
+
+func isHexDigit(character rune) bool {
+	
+	character = unicode.ToLower(character)
+	
+	return unicode.IsDigit(character) ||
+		character == 'a' ||
+		character == 'b' ||
+		character == 'c' ||
+		character == 'd' ||
+		character == 'e' ||
+		character == 'f'
 }
 
 func isNumeric(character rune) bool {

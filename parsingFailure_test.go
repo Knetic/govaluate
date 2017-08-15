@@ -200,6 +200,11 @@ func TestParsingFailure(test *testing.T) {
 			Input:    "0x1.1",
 			Expected: INVALID_TOKEN_TRANSITION,
 		},
+		ParsingFailureTest{
+			Name:     "Hex invalid letter",
+			Input:    "0x12g1",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
 	}
 
 	runParsingFailureTests(parsingTests, test)

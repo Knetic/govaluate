@@ -77,6 +77,26 @@ func TestConstantParsing(test *testing.T) {
 			},
 		},
 		TokenParsingTest{
+			Name:  "Hex with lowercase",
+			Input: "0xabcdef",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 11259375.0,
+				},
+			},
+		},
+		TokenParsingTest{
+			Name:  "Hex with uppercase",
+			Input: "0xABCDEF",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 11259375.0,
+				},
+			},
+		},
+		TokenParsingTest{
 
 			Name:  "Single string",
 			Input: "'foo'",
