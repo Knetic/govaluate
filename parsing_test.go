@@ -19,6 +19,47 @@ type TokenParsingTest struct {
 	Expected  []ExpressionToken
 }
 
+func TestXXX(test *testing.T) {
+
+	var ret *EvaluableExpression
+	var err error
+
+	ret = new(EvaluableExpression)
+	ret.QueryDateFormat = isoDateFormat
+	ret.inputExpression = "1 ?? 2"
+
+	ret.tokens, err = parseTokens(ret.inputExpression, map[string]ExpressionFunction{"func": nil})
+	if err != nil {
+		panic(err)
+	}
+
+	err = checkBalance(ret.tokens)
+	if err != nil {
+		panic(err)
+	}
+
+	err = checkExpressionSyntax(ret.tokens)
+	if err != nil {
+		panic(err)
+	}
+
+	ret.tokens, err = optimizeTokens(ret.tokens)
+	if err != nil {
+		panic(err)
+	}
+
+	ret.evaluationStages, err = planStages(ret.tokens)
+	if err != nil {
+		panic(err)
+	}
+
+	ret.ChecksTypes = true
+
+	if err != nil {
+		test.Fail()
+	}
+}
+
 func TestConstantParsing(test *testing.T) {
 
 	tokenParsingTests := []TokenParsingTest{
@@ -1363,7 +1404,7 @@ func TestEscapedParameters(test *testing.T) {
 		TokenParsingTest{
 
 			Name:  "String literal uses backslash to escape",
-			Input: "\"foo\\'bar\"",
+			Input: "\"foo'bar\"",
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  STRING,

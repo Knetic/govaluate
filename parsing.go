@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"text/scanner"
 	"time"
 	"unicode"
 )
@@ -15,17 +16,19 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 
 	var ret []ExpressionToken
 	var token ExpressionToken
-	var stream *lexerStream
+	var stream scanner.Scanner
 	var state lexerState
 	var err error
 	var found bool
 
-	stream = newLexerStream(expression)
+	reader := strings.NewReader(expression)
+	stream.Init(reader)
+	stream.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments | scanner.SkipComments
 	state = validLexerStates[0]
 
-	for stream.canRead() {
+	for stream.Peek() != scanner.EOF {
 
-		token, err, found = readToken(stream, state, functions)
+		token, err, found = readToken(&stream, state, functions)
 
 		if err != nil {
 			return ret, err
@@ -52,7 +55,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 	return ret, nil
 }
 
-func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
+func readToken(stream *scanner.Scanner, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
 
 	var function ExpressionFunction
 	var ret ExpressionToken
@@ -60,7 +63,6 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	var tokenTime time.Time
 	var tokenString string
 	var kind TokenKind
-	var character rune
 	var found bool
 	var completed bool
 	var err error
@@ -71,173 +73,161 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	// bracket always means variable
 	// symbols are anything non-alphanumeric
 	// all others read into a buffer until they reach the end of the stream
-	for stream.canRead() {
+	kind = UNKNOWN
+	switch stream.Scan() {
+	case scanner.EOF:
+		break
+	case scanner.Float:
+		kind = NUMERIC
+		tokenValue, err = strconv.ParseFloat(stream.TokenText(), 64)
+		if err != nil {
+			errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", stream.TokenText())
+			return ExpressionToken{}, errors.New(errorMsg), false
+		}
+	case scanner.Int:
+		kind = NUMERIC
+		i, err := strconv.ParseInt(stream.TokenText(), 0, 64)
+		tokenValue = float64(i)
+		if err != nil {
+			errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", stream.TokenText())
+			return ExpressionToken{}, errors.New(errorMsg), false
+		}
+	case ',':
+		tokenValue = ","
+		kind = SEPARATOR
+	case '[':
+		tokenValue, completed = readUntilFalse(stream, true, isNotClosingBracket)
+		kind = VARIABLE
 
-		character = stream.readCharacter()
-
-		if unicode.IsSpace(character) {
-			continue
+		if !completed {
+			return ExpressionToken{}, errors.New("Unclosed parameter bracket"), false
 		}
 
-		kind = UNKNOWN
+		// above method normally rewinds us to the closing bracket, which we want to skip.
+		stream.Next()
+		break
 
-		// numeric constant
-		if isNumeric(character) {
-
-			if stream.canRead() && character == '0' {
-				character = stream.readCharacter()
-
-				if stream.canRead() && character == 'x' {
-					tokenString, _ = readUntilFalse(stream, false, true, true, isHexDigit)
-					tokenValueInt, err := strconv.ParseUint(tokenString, 16, 64)
-
-					if err != nil {
-						errorMsg := fmt.Sprintf("Unable to parse hex value '%v' to uint64\n", tokenString)
-						return ExpressionToken{}, errors.New(errorMsg), false
-					}
-
-					kind = NUMERIC
-					tokenValue = float64(tokenValueInt)
-					break
-				} else {
-					stream.rewind(1)
-				}
-			}
-
-			tokenString = readTokenUntilFalse(stream, isNumeric)
-			tokenValue, err = strconv.ParseFloat(tokenString, 64)
-
-			if err != nil {
-				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
-				return ExpressionToken{}, errors.New(errorMsg), false
-			}
-			kind = NUMERIC
-			break
-		}
-
-		// comma, separator
-		if character == ',' {
-
-			tokenValue = ","
-			kind = SEPARATOR
-			break
-		}
-
-		// escaped variable
-		if character == '[' {
-
-			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotClosingBracket)
-			kind = VARIABLE
-
-			if !completed {
-				return ExpressionToken{}, errors.New("Unclosed parameter bracket"), false
-			}
-
-			// above method normally rewinds us to the closing bracket, which we want to skip.
-			stream.rewind(-1)
-			break
-		}
-
+	case scanner.Ident:
 		// regular variable - or function?
-		if unicode.IsLetter(character) {
 
-			tokenString = readTokenUntilFalse(stream, isVariableName)
+		tokenString = stream.TokenText()
 
-			tokenValue = tokenString
-			kind = VARIABLE
+		//Hack for crazy escapes in variable names
+		if stream.Peek() == '\\' {
+			s, _ := readUntilFalse(stream, true, isVariableName)
+			tokenString = tokenString + s
+		}
 
-			// boolean?
-			if tokenValue == "true" {
+		tokenValue = tokenString
+		kind = VARIABLE
 
-				kind = BOOLEAN
-				tokenValue = true
-			} else {
+		switch tokenValue {
+		// boolean?
+		case "true":
 
-				if tokenValue == "false" {
+			kind = BOOLEAN
+			tokenValue = true
+		case "false":
+			kind = BOOLEAN
+			tokenValue = false
+		// textual operator?
+		case "in", "IN":
 
-					kind = BOOLEAN
-					tokenValue = false
-				}
-			}
+			// force lower case for consistency
+			tokenValue = "in"
+			kind = COMPARATOR
 
-			// textual operator?
-			if tokenValue == "in" || tokenValue == "IN" {
-
-				// force lower case for consistency
-				tokenValue = "in"
-				kind = COMPARATOR
-			}
+		default:
 
 			// function?
 			function, found = functions[tokenString]
 			if found {
 				kind = FUNCTION
 				tokenValue = function
+				break
 			}
 
 			// accessor?
-			accessorIndex := strings.Index(tokenString, ".")
-			if accessorIndex > 0 {
+			if stream.Peek() == '.' {
 
-				// check that it doesn't end with a hanging period
-				if tokenString[len(tokenString)-1] == '.' {
-					errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
-					return ExpressionToken{}, errors.New(errorMsg), false
+				splits := []string{tokenString}
+				for stream.Peek() == '.' {
+					stream.Scan()
+					// check that it doesn't end with a hanging period
+					if stream.Scan() != scanner.Ident {
+						errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
+						return ExpressionToken{}, errors.New(errorMsg), false
+					}
+
+					tokenString = stream.TokenText()
+					//Hack for crazy escapes in variable names
+					if stream.Peek() == '\'' {
+						s, _ := readUntilFalse(stream, true, isVariableName)
+						tokenString = tokenString + s
+					}
+
+					// check that none of them are unexported
+					firstCharacter := getFirstRune(tokenString)
+					if unicode.ToUpper(firstCharacter) != firstCharacter {
+						errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", tokenString, strings.Join(splits, "."))
+						return ExpressionToken{}, errors.New(errorMsg), false
+					}
+
+					splits = append(splits, tokenString)
 				}
 
 				kind = ACCESSOR
-				splits := strings.Split(tokenString, ".")
 				tokenValue = splits
+			}
+		}
 
-				// check that none of them are unexported
-				for i := 1; i < len(splits); i++ {
+	case scanner.String, scanner.RawString, '\'':
+		tokenString = stream.TokenText()
+		if tokenString == "'" {
+			var tokenBuffer bytes.Buffer
 
-					firstCharacter := getFirstRune(splits[i])
-
-					if unicode.ToUpper(firstCharacter) != firstCharacter {
-						errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
-						return ExpressionToken{}, errors.New(errorMsg), false
+			for c := stream.Next(); c != '\''; c = stream.Next() {
+				if c == '\\' {
+					c = stream.Next()
+					if c != '\'' {
+						tokenBuffer.WriteRune('\\')
 					}
 				}
-			}
-			break
-		}
+				if c == scanner.EOF || c == '\n' {
+					return ExpressionToken{}, fmt.Errorf("Unclosed string literal '%s", tokenBuffer.String()), false
+				}
+				tokenBuffer.WriteRune(c)
 
-		if !isNotQuote(character) {
-			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotQuote)
-
-			if !completed {
-				return ExpressionToken{}, errors.New("Unclosed string literal"), false
 			}
 
-			// advance the stream one position, since reading until false assumes the terminator is a real token
-			stream.rewind(-1)
-
-			// check to see if this can be parsed as a time.
-			tokenTime, found = tryParseTime(tokenValue.(string))
-			if found {
-				kind = TIME
-				tokenValue = tokenTime
-			} else {
-				kind = STRING
-			}
-			break
+			tokenString = "\"" + strings.Replace(tokenBuffer.String(), `"`, `\"`, -1) + "\""
 		}
 
-		if character == '(' {
-			tokenValue = character
-			kind = CLAUSE
-			break
+		tokenValue, err = strconv.Unquote(tokenString)
+
+		if err != nil {
+			return ExpressionToken{}, err, false
 		}
 
-		if character == ')' {
-			tokenValue = character
-			kind = CLAUSE_CLOSE
-			break
+		// check to see if this can be parsed as a time.
+		tokenTime, found = tryParseTime(tokenValue.(string))
+		if found {
+			kind = TIME
+			tokenValue = tokenTime
+		} else {
+			kind = STRING
 		}
+	case '(':
+		tokenValue = '('
+		kind = CLAUSE
+	case ')':
+		tokenValue = ')'
+		kind = CLAUSE_CLOSE
+
+	default:
 
 		// must be a known symbol
-		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric)
+		tokenString = readTokenUntilFalse(stream, isOperation)
 		tokenValue = tokenString
 
 		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
@@ -288,20 +278,31 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	return ret, nil, (kind != UNKNOWN)
 }
 
-func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
+func readTokenUntilFalse(stream *scanner.Scanner, condition func(rune) bool) string {
 
-	var ret string
+	var tokenBuffer bytes.Buffer
+	var character rune
 
-	stream.rewind(1)
-	ret, _ = readUntilFalse(stream, false, true, true, condition)
-	return ret
+	tokenBuffer.WriteString(stream.TokenText())
+
+	for {
+		character = stream.Peek()
+		if character == scanner.EOF || !condition(character) {
+			break
+		}
+		stream.Next()
+		tokenBuffer.WriteString(string(character))
+
+	}
+
+	return tokenBuffer.String()
 }
 
 /*
-	Returns the string that was read until the given [condition] was false, or whitespace was broken.
-	Returns false if the stream ended before whitespace was broken or condition was met.
+	Returns the string that was read until the given [condition] was false.
+	Returns false if the stream ended before condition was met.
 */
-func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace bool, allowEscaping bool, condition func(rune) bool) (string, bool) {
+func readUntilFalse(stream *scanner.Scanner, allowEscaping bool, condition func(rune) bool) (string, bool) {
 
 	var tokenBuffer bytes.Buffer
 	var character rune
@@ -309,36 +310,27 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 
 	conditioned = false
 
-	for stream.canRead() {
-
-		character = stream.readCharacter()
-
-		// Use backslashes to escape anything
-		if allowEscaping && character == '\\' {
-
-			character = stream.readCharacter()
-			tokenBuffer.WriteString(string(character))
-			continue
-		}
-
-		if unicode.IsSpace(character) {
-
-			if breakWhitespace && tokenBuffer.Len() > 0 {
-				conditioned = true
-				break
-			}
-			if !includeWhitespace {
-				continue
-			}
-		}
-
-		if condition(character) {
-			tokenBuffer.WriteString(string(character))
-		} else {
-			conditioned = true
-			stream.rewind(1)
+	for {
+		character = stream.Peek()
+		if character == scanner.EOF {
 			break
 		}
+		if allowEscaping && character == '\\' {
+			stream.Next()
+
+			if character == stream.Peek() {
+				break
+			}
+		} else if !condition(character) {
+			conditioned = true
+			break
+		}
+		character = stream.Next()
+
+		// Use backslashes to escape anything
+
+		tokenBuffer.WriteRune(character)
+
 	}
 
 	return tokenBuffer.String(), conditioned
@@ -418,46 +410,20 @@ func isDigit(character rune) bool {
 	return unicode.IsDigit(character)
 }
 
-func isHexDigit(character rune) bool {
-
-	character = unicode.ToLower(character)
-
-	return unicode.IsDigit(character) ||
-		character == 'a' ||
-		character == 'b' ||
-		character == 'c' ||
-		character == 'd' ||
-		character == 'e' ||
-		character == 'f'
-}
-
-func isNumeric(character rune) bool {
-
-	return unicode.IsDigit(character) || character == '.'
-}
-
-func isNotQuote(character rune) bool {
-
-	return character != '\'' && character != '"'
-}
-
-func isNotAlphanumeric(character rune) bool {
-
-	return !(unicode.IsDigit(character) ||
-		unicode.IsLetter(character) ||
-		character == '(' ||
-		character == ')' ||
-		character == '[' ||
-		character == ']' || // starting to feel like there needs to be an `isOperation` func (#59)
-		!isNotQuote(character))
+func isOperation(character rune) bool {
+	switch character {
+	case '=', '!', '<', '>', '~', '&', '|', '+', '-', '*', '/', '^', '%', ':', '?':
+		return true
+	default:
+		return false
+	}
 }
 
 func isVariableName(character rune) bool {
 
 	return unicode.IsLetter(character) ||
 		unicode.IsDigit(character) ||
-		character == '_' ||
-		character == '.'
+		character == '_'
 }
 
 func isNotClosingBracket(character rune) bool {
