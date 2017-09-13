@@ -24,6 +24,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 	reader := strings.NewReader(expression)
 	stream.Init(reader)
 	stream.Mode = scanner.ScanIdents | scanner.ScanFloats | scanner.ScanStrings | scanner.ScanRawStrings | scanner.ScanComments | scanner.SkipComments
+	stream.Error = func(*scanner.Scanner, string) {}
 	state = validLexerStates[0]
 
 	for stream.Peek() != scanner.EOF {
