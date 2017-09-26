@@ -23,6 +23,10 @@ func (this dummyParameter) Func2() (string, error) {
 	return "frink", nil
 }
 
+func (this *dummyParameter) Func3() string {
+	return "fronk"
+}
+
 func (this dummyParameter) FuncArgStr(arg1 string) string {
 	return arg1
 }
