@@ -2,8 +2,9 @@ govaluate
 ====
 
 [![Build Status](https://travis-ci.org/Knetic/govaluate.svg?branch=master)](https://travis-ci.org/Knetic/govaluate)
-[![Godoc](https://godoc.org/github.com/Knetic/govaluate?status.png)](https://godoc.org/github.com/Knetic/govaluate)
-
+[![Godoc](https://img.shields.io/badge/godoc-reference-5272B4.svg)](https://godoc.org/github.com/Knetic/govaluate)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Knetic/govaluate)](https://goreportcard.com/report/github.com/Knetic/govaluate) 
+[![Gocover](https://gocover.io/_badge/github.com/Knetic/govaluate)](https://gocover.io/github.com/Knetic/govaluate)
 
 Provides support for evaluating arbitrary C-like artithmetic/string expressions.
 
