@@ -275,8 +275,11 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 			coreValue := reflect.ValueOf(value)
 
+			var corePtrVal reflect.Value
+
 			// if this is a pointer, resolve it.
 			if coreValue.Kind() == reflect.Ptr {
+				corePtrVal = coreValue
 				coreValue = coreValue.Elem()
 			}
 
@@ -292,7 +295,12 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 			method := coreValue.MethodByName(pair[i])
 			if method == (reflect.Value{}) {
-				return nil, errors.New("No method or field '" + pair[i] + "' present on parameter '" + pair[i-1] + "'")
+				if corePtrVal.IsValid() {
+					method = corePtrVal.MethodByName(pair[i])
+				}
+				if method == (reflect.Value{}) {
+					return nil, errors.New("No method or field '" + pair[i] + "' present on parameter '" + pair[i-1] + "'")
+				}
 			}
 
 			switch right.(type) {
