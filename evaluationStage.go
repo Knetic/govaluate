@@ -247,6 +247,48 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 	}
 }
 
+func typeConvertParam(p reflect.Value, t reflect.Type) (ret reflect.Value, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			errorMsg := fmt.Sprintf("Argument type conversion failed: failed to convert '%s' to '%s'", p.Kind().String(), t.Kind().String())
+			err = errors.New(errorMsg)
+			ret = p
+		}
+	}()
+
+	return p.Convert(t), nil
+}
+
+func typeConvertParams(method reflect.Value, params []reflect.Value) ([]reflect.Value, error) {
+
+	methodType := method.Type()
+	numIn := methodType.NumIn()
+	numParams := len(params)
+
+	if numIn != numParams {
+		if numIn > numParams {
+			return nil, fmt.Errorf("Too few arguments to parameter call: got %d arguments, expected %d", len(params), numIn)
+		}
+		return nil, fmt.Errorf("Too many arguments to parameter call: got %d arguments, expected %d", len(params), numIn)
+	}
+
+	for i := 0; i < numIn; i++ {
+		t := methodType.In(i)
+		p := params[i]
+		pt := p.Type()
+
+		if t.Kind() != pt.Kind() {
+			np, err := typeConvertParam(p, t)
+			if err != nil {
+				return nil, err
+			}
+			params[i] = np
+		}
+	}
+
+	return params, nil
+}
+
 func makeAccessorStage(pair []string) evaluationOperator {
 
 	reconstructed := strings.Join(pair, ".")
@@ -320,6 +362,12 @@ func makeAccessorStage(pair []string) evaluationOperator {
 				}
 
 				params = []reflect.Value{reflect.ValueOf(right.(interface{}))}
+			}
+
+			params, err = typeConvertParams(method, params)
+
+			if err != nil {
+				return nil, errors.New("Method call failed - '" + pair[0] + "." + pair[1] + "': " + err.Error())
 			}
 
 			returned := method.Call(params)
