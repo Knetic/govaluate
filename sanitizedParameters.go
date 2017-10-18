@@ -61,6 +61,8 @@ func castFixedPoint(value interface{}) interface{} {
 		return float64(value.(int64))
 	case int:
 		return float64(value.(int))
+	case float32:
+		return float64(value.(float32))
 	}
 
 	return value
