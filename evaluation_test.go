@@ -1119,6 +1119,22 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Floats",
+			Input: "float32 + float64",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "float32",
+					Value: float32(0.0),
+				},
+				EvaluationParameter{
+					Name:  "float64",
+					Value: float64(0.0),
+				},
+			},
+			Expected: 0.0,
+		},
+		EvaluationTest{
+
 			Name:  "Null coalesce right",
 			Input: "foo ?? 1.0",
 			Parameters: []EvaluationParameter{
