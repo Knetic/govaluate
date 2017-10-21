@@ -709,6 +709,17 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Expected: true,
 		},
+		EvaluationTest{
+			
+			Name:  "Ternary/Java EL ambiguity",
+			Input: "false ? foo:length()",
+			Functions: map[string]ExpressionFunction{
+				"length": func(arguments ...interface{}) (interface{}, error) {
+					return 1.0, nil
+				},
+			},
+			Expected: 1.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
