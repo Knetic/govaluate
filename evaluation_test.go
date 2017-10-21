@@ -709,6 +709,19 @@ func TestNoParameterEvaluation(test *testing.T) {
 
 			Expected: true,
 		},
+		EvaluationTest{
+
+			Name:  "Function with colon in function name",
+			Input: "str:length('abcd')",
+			Functions: map[string]ExpressionFunction{
+				"str:length": func(args ...interface{}) (interface{}, error) {
+					length := len(args[0].(string))
+					return (float64)(length), nil
+				},
+			},
+
+			Expected: 4.0,
+		},
 	}
 
 	runEvaluationTests(evaluationTests, test)
