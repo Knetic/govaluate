@@ -879,7 +879,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:  "Not-regex against right-hand paramter",
+			Name:  "Not-regex against right-hand parameter",
 			Input: "'foobar' !~ foo",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
@@ -891,7 +891,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:  "Regex against two parameter",
+			Name:  "Regex against two parameters",
 			Input: "foo =~ bar",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
@@ -907,7 +907,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:  "Not-regex against two paramter",
+			Name:  "Not-regex against two parameters",
 			Input: "foo !~ bar",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
