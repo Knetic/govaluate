@@ -33,9 +33,9 @@ const (
 	ABSENT_PARAMETER                = "No parameter"
 	INVALID_REGEX                   = "Unable to compile regexp pattern"
 	INVALID_PARAMETER_CALL          = "No method or field"
-	TOO_FEW_ARGS                    = "reflect: Call with too few input arguments"
-	TOO_MANY_ARGS                   = "reflect: Call with too many input arguments"
-	MISMATCHED_PARAMETERS           = "reflect: Call using"
+	TOO_FEW_ARGS                    = "Too few arguments to parameter call"
+	TOO_MANY_ARGS                   = "Too many arguments to parameter call"
+	MISMATCHED_PARAMETERS           = "Argument type conversion failed"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
