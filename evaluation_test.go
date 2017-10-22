@@ -1358,7 +1358,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 		EvaluationTest{
 
 			Name:       "Parameter function call with all argument types",
-			Input:      "foo.TestArgs(\"hello\", 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1.0, 2.0)",
+			Input:      "foo.TestArgs(\"hello\", 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1.0, 2.0, true)",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected:   "hello: 33",
 		},
