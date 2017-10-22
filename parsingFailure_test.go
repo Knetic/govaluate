@@ -164,7 +164,7 @@ func TestParsingFailure(test *testing.T) {
 
 			Name:     "Multiple radix",
 			Input:    "127.0.0.1",
-			Expected: INVALID_NUMERIC,
+			Expected: INVALID_TOKEN_TRANSITION,
 		},
 		ParsingFailureTest{
 
@@ -188,12 +188,12 @@ func TestParsingFailure(test *testing.T) {
 		ParsingFailureTest{
 			Name:     "Incomplete Hex",
 			Input:    "0x",
-			Expected: INVALID_TOKEN_TRANSITION,
+			Expected: INVALID_NUMERIC,
 		},
 		ParsingFailureTest{
 			Name:     "Invalid Hex literal",
 			Input:    "0x > 0",
-			Expected: INVALID_HEX,
+			Expected: INVALID_NUMERIC,
 		},
 		ParsingFailureTest{
 			Name:     "Hex float (Unsupported)",

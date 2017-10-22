@@ -1363,7 +1363,7 @@ func TestEscapedParameters(test *testing.T) {
 		TokenParsingTest{
 
 			Name:  "String literal uses backslash to escape",
-			Input: "\"foo\\'bar\"",
+			Input: "\"foo'bar\"",
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  STRING,
