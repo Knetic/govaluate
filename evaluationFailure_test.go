@@ -71,9 +71,12 @@ func TestNestedParameters(test *testing.T) {
 	if err != nil {
 		test.Fatal(err)
 	}
-	_, err = expression.Evaluate(parameters)
+	result, err := expression.Evaluate(parameters)
 	if err != nil {
 		test.Error(err)
+	}
+	if got, want := result.(bool), true; got != want {
+		test.Errorf("bad result: got %t, want %t", got, want)
 	}
 }
 
