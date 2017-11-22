@@ -189,16 +189,6 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				splits := strings.Split(tokenString, ".")
 				tokenValue = splits
 
-				// check that none of them are unexported
-				for i := 1; i < len(splits); i++ {
-
-					firstCharacter := getFirstRune(splits[i])
-
-					if unicode.ToUpper(firstCharacter) != firstCharacter {
-						errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
-						return ExpressionToken{}, errors.New(errorMsg), false
-					}
-				}
 			}
 			break
 		}

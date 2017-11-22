@@ -45,6 +45,38 @@ var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 	"bool":   true,
 }
 
+func TestUnexportedStructParameter(test *testing.T) {
+	parameters := map[string]interface{}{
+		"foo": struct{ a string }{a: "hello"},
+	}
+	expression, err := NewEvaluableExpression(`foo.a == "hello"`)
+	if err != nil {
+		test.Fatal(err)
+	}
+	_, err = expression.Evaluate(parameters)
+	if err == nil {
+		test.Error("expected non-nil error")
+	}
+}
+
+func TestNestedParameters(test *testing.T) {
+	parameters := map[string]interface{}{
+		"foo": MapParameters{
+			"bar": MapParameters{
+				"baz": 5,
+			},
+		},
+	}
+	expression, err := NewEvaluableExpression(`foo.bar.baz == 5`)
+	if err != nil {
+		test.Fatal(err)
+	}
+	_, err = expression.Evaluate(parameters)
+	if err != nil {
+		test.Error(err)
+	}
+}
+
 func TestComplexParameter(test *testing.T) {
 
 	var expression *EvaluableExpression
