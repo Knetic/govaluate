@@ -710,7 +710,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{
@@ -1416,6 +1416,54 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 			Name:       "Null coalesce nested parameter",
 			Input:      "foo.Nil ?? false",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "Element in string slice",
+			Input:      "'foo' in foo.StringSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "Element not in string slice",
+			Input:      "'foobar' in foo.StringSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "Element in int slice",
+			Input:      "2 in foo.IntSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "Element not in int slice",
+			Input:      "-2 in foo.IntSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "Element in float slice",
+			Input:      "1.5 in foo.FloatSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "Element not in float slice",
+			Input:      "-2.0 in foo.FloatSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "Element in bool slice",
+			Input:      "true in foo.BoolSlice",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "Element not in bool slice",
+			Input:      "false in foo.BoolSlice",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected:   false,
 		},

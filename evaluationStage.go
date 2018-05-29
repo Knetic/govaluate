@@ -17,6 +17,21 @@ const (
 	prefixErrorFormat     string = "Value '%v' cannot be used with the prefix '%v'"
 )
 
+var numberTypes = map[reflect.Kind]struct{}{
+	reflect.Int:     struct{}{},
+	reflect.Int8:    struct{}{},
+	reflect.Int16:   struct{}{},
+	reflect.Int32:   struct{}{},
+	reflect.Int64:   struct{}{},
+	reflect.Uint:    struct{}{},
+	reflect.Uint8:   struct{}{},
+	reflect.Uint16:  struct{}{},
+	reflect.Uint32:  struct{}{},
+	reflect.Uint64:  struct{}{},
+	reflect.Float32: struct{}{},
+	reflect.Float64: struct{}{},
+}
+
 type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
 type stageTypeCheck func(value interface{}) bool
 type stageCombinedTypeCheck func(left interface{}, right interface{}) bool
@@ -419,13 +434,43 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-
-	for _, value := range right.([]interface{}) {
-		if left == value {
+	v := reflect.ValueOf(right)
+	for i := 0; i < v.Len(); i++ {
+		value := reflect.Indirect(v.Index(i)).Interface()
+		if valuesEqual(left, value) {
 			return true, nil
 		}
 	}
 	return false, nil
+}
+
+func coerceFloat(v reflect.Value) float64 {
+	switch kind := v.Kind(); kind {
+	case reflect.Float32, reflect.Float64:
+		return v.Float()
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return float64(v.Uint())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return float64(v.Int())
+	default:
+		panic(fmt.Sprintf("not a number: %s", kind))
+	}
+}
+
+func valuesEqual(x, y interface{}) bool {
+	v1 := reflect.ValueOf(x)
+	v2 := reflect.ValueOf(y)
+	v1Kind := v1.Kind()
+	v2Kind := v2.Kind()
+	if v1Kind == v2Kind {
+		return reflect.DeepEqual(x, y)
+	}
+	if _, ok := numberTypes[v1Kind]; ok {
+		if _, ok := numberTypes[v2Kind]; ok {
+			return coerceFloat(v1) == coerceFloat(v2)
+		}
+	}
+	return false
 }
 
 //
@@ -497,11 +542,7 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 }
 
 func isArray(value interface{}) bool {
-	switch value.(type) {
-	case []interface{}:
-		return true
-	}
-	return false
+	return reflect.ValueOf(value).Kind() == reflect.Slice
 }
 
 /*
