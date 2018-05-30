@@ -65,13 +65,6 @@ var validLexerStates = []lexerState{
 
 			COMPARATOR,
 			MODIFIER,
-			NUMERIC,
-			BOOLEAN,
-			VARIABLE,
-			STRING,
-			PATTERN,
-			TIME,
-			CLAUSE,
 			CLAUSE_CLOSE,
 			LOGICALOP,
 			TERNARY,
@@ -182,7 +175,6 @@ var validLexerStates = []lexerState{
 			STRING,
 			BOOLEAN,
 			CLAUSE,
-			CLAUSE_CLOSE,
 		},
 	},
 	lexerState{
@@ -201,7 +193,6 @@ var validLexerStates = []lexerState{
 			STRING,
 			TIME,
 			CLAUSE,
-			CLAUSE_CLOSE,
 			PATTERN,
 		},
 	},
@@ -221,7 +212,6 @@ var validLexerStates = []lexerState{
 			STRING,
 			TIME,
 			CLAUSE,
-			CLAUSE_CLOSE,
 		},
 	},
 	lexerState{
@@ -237,7 +227,6 @@ var validLexerStates = []lexerState{
 			FUNCTION,
 			ACCESSOR,
 			CLAUSE,
-			CLAUSE_CLOSE,
 		},
 	},
 
