@@ -120,7 +120,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name:     "Mutiple operators",
+			Name:     "Multiple operators",
 			Input:    "20 * 5 - 49",
 			Expected: 51.0,
 		},
