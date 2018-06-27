@@ -32,6 +32,7 @@ var validLexerStates = []lexerState{
 			STRING,
 			TIME,
 			CLAUSE,
+			IP,
 		},
 	},
 
@@ -53,6 +54,7 @@ var validLexerStates = []lexerState{
 			TIME,
 			CLAUSE,
 			CLAUSE_CLOSE,
+			IP,
 		},
 	},
 
@@ -94,8 +96,29 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
 
+	lexerState{
+		kind:       IP,
+		isEOF:      true,
+		isNullable: false,
+		validNextKinds: []TokenKind{
+			SEPARATOR,
+			COMPARATOR,
+			CLAUSE_CLOSE,
+			LOGICALOP,
+		},
+	},
+
+	lexerState{
+		kind:       IPNET,
+		isEOF:      true,
+		isNullable: false,
+		validNextKinds: []TokenKind{
+			CLAUSE_CLOSE,
+		},
+	},
+
+	lexerState{
 		kind:       BOOLEAN,
 		isEOF:      true,
 		isNullable: false,
@@ -203,6 +226,7 @@ var validLexerStates = []lexerState{
 			CLAUSE,
 			CLAUSE_CLOSE,
 			PATTERN,
+			IP,
 		},
 	},
 	lexerState{
@@ -300,6 +324,8 @@ var validLexerStates = []lexerState{
 			FUNCTION,
 			ACCESSOR,
 			CLAUSE,
+			IP,
+			IPNET,
 		},
 	},
 }

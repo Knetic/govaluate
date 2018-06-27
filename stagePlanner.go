@@ -421,6 +421,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		fallthrough
 	case PATTERN:
 		fallthrough
+	case IP:
+		fallthrough
+	case IPNET:
+		fallthrough
 	case BOOLEAN:
 		symbol = LITERAL
 		operator = makeLiteralStage(token.Value)

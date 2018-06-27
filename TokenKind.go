@@ -10,6 +10,8 @@ const (
 
 	PREFIX
 	NUMERIC
+	IP
+	IPNET
 	BOOLEAN
 	STRING
 	PATTERN
@@ -41,6 +43,10 @@ func (kind TokenKind) String() string {
 		return "PREFIX"
 	case NUMERIC:
 		return "NUMERIC"
+	case IP:
+		return "IP"
+	case IPNET:
+		return "IPNET"
 	case BOOLEAN:
 		return "BOOLEAN"
 	case STRING:
