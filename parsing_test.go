@@ -3,6 +3,7 @@ package govaluate
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"reflect"
 	"testing"
 	"time"
@@ -446,6 +447,17 @@ func TestConstantParsing(test *testing.T) {
 				},
 				ExpressionToken{
 					Kind: CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "IP",
+			Input: "127.0.0.1",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  IP,
+					Value: net.ParseIP("127.0.0.1"),
 				},
 			},
 		},
@@ -1633,7 +1645,7 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 				continue
 			}
 
-			// gotta be an accessor
+			// gotta be an accessor or IP
 			if reflectedKind == reflect.Slice {
 
 				if actualToken.Value == nil {
@@ -1641,17 +1653,28 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 					test.Logf("Expected token value '%v' does not match nil", expectedToken.Value)
 					test.Fail()
 				}
+				_, ok := actualToken.Value.([]string)
+				if ok {
+					for z, actual := range actualToken.Value.([]string) {
 
-				for z, actual := range actualToken.Value.([]string) {
+						if actual != expectedToken.Value.([]string)[z] {
 
-					if actual != expectedToken.Value.([]string)[z] {
-
+							test.Logf("Test '%s' failed:", parsingTest.Name)
+							test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
+							test.Fail()
+						}
+					}
+					continue
+				}
+				_, ok = actualToken.Value.(net.IP)
+				if ok {
+					if bytes.Compare(actualToken.Value.(net.IP).To4(), expectedToken.Value.(net.IP).To4()) != 0 {
 						test.Logf("Test '%s' failed:", parsingTest.Name)
 						test.Logf("Expected token value '%v' does not match '%v'", expectedToken.Value, actualToken.Value)
 						test.Fail()
 					}
+					continue
 				}
-				continue
 			}
 
 			if actualToken.Value != expectedToken.Value {
