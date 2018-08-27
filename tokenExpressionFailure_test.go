@@ -29,131 +29,131 @@ type ExpressionTokenSyntaxTest struct {
 func TestNilValues(test *testing.T) {
 
 	cases := []ExpressionTokenSyntaxTest{
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil numeric",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: NUMERIC,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil string",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: STRING,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil bool",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: BOOLEAN,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil time",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: TIME,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil pattern",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: PATTERN,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil variable",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: VARIABLE,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil prefix",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind: PREFIX,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil comparator",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind:  NUMERIC,
 					Value: 1.0,
 				},
-				ExpressionToken{
+				{
 					Kind: COMPARATOR,
 				},
-				ExpressionToken{
+				{
 					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil logicalop",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind:  BOOLEAN,
 					Value: true,
 				},
-				ExpressionToken{
+				{
 					Kind: LOGICALOP,
 				},
-				ExpressionToken{
+				{
 					Kind:  BOOLEAN,
 					Value: true,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil modifer",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind:  NUMERIC,
 					Value: 1.0,
 				},
-				ExpressionToken{
+				{
 					Kind: MODIFIER,
 				},
-				ExpressionToken{
+				{
 					Kind:  NUMERIC,
 					Value: 1.0,
 				},
 			},
 			Expected: EXPERR_NIL_VALUE,
 		},
-		ExpressionTokenSyntaxTest{
+		{
 			Name: "Nil ternary",
 			Input: []ExpressionToken{
-				ExpressionToken{
+				{
 					Kind:  BOOLEAN,
 					Value: true,
 				},
-				ExpressionToken{
+				{
 					Kind: TERNARY,
 				},
-				ExpressionToken{
+				{
 					Kind:  BOOLEAN,
 					Value: true,
 				},
