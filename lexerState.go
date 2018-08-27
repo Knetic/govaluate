@@ -16,7 +16,7 @@ type lexerState struct {
 // Constant for all purposes except compiler.
 var validLexerStates = []lexerState{
 
-	lexerState{
+	{
 		kind:       UNKNOWN,
 		isEOF:      false,
 		isNullable: true,
@@ -35,7 +35,7 @@ var validLexerStates = []lexerState{
 		},
 	},
 
-	lexerState{
+	{
 
 		kind:       CLAUSE,
 		isEOF:      false,
@@ -56,7 +56,7 @@ var validLexerStates = []lexerState{
 		},
 	},
 
-	lexerState{
+	{
 
 		kind:       CLAUSE_CLOSE,
 		isEOF:      true,
@@ -79,7 +79,7 @@ var validLexerStates = []lexerState{
 		},
 	},
 
-	lexerState{
+	{
 
 		kind:       NUMERIC,
 		isEOF:      true,
@@ -94,7 +94,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       BOOLEAN,
 		isEOF:      true,
@@ -109,7 +109,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       STRING,
 		isEOF:      true,
@@ -124,7 +124,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       TIME,
 		isEOF:      true,
@@ -138,7 +138,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       PATTERN,
 		isEOF:      true,
@@ -152,7 +152,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       VARIABLE,
 		isEOF:      true,
@@ -167,7 +167,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       MODIFIER,
 		isEOF:      false,
@@ -185,7 +185,7 @@ var validLexerStates = []lexerState{
 			CLAUSE_CLOSE,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       COMPARATOR,
 		isEOF:      false,
@@ -205,7 +205,7 @@ var validLexerStates = []lexerState{
 			PATTERN,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       LOGICALOP,
 		isEOF:      false,
@@ -224,7 +224,7 @@ var validLexerStates = []lexerState{
 			CLAUSE_CLOSE,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       PREFIX,
 		isEOF:      false,
@@ -241,7 +241,7 @@ var validLexerStates = []lexerState{
 		},
 	},
 
-	lexerState{
+	{
 
 		kind:       TERNARY,
 		isEOF:      false,
@@ -260,7 +260,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       FUNCTION,
 		isEOF:      false,
@@ -269,7 +269,7 @@ var validLexerStates = []lexerState{
 			CLAUSE,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       ACCESSOR,
 		isEOF:      true,
@@ -284,7 +284,7 @@ var validLexerStates = []lexerState{
 			SEPARATOR,
 		},
 	},
-	lexerState{
+	{
 
 		kind:       SEPARATOR,
 		isEOF:      false,
