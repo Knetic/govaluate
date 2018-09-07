@@ -15,6 +15,7 @@ type Parameters interface {
 		Failure to find the given parameter should be indicated by returning an error.
 	*/
 	Get(name string) (interface{}, error)
+	Set(name string, value interface{})
 }
 
 type MapParameters map[string]interface{}
@@ -29,4 +30,8 @@ func (p MapParameters) Get(name string) (interface{}, error) {
 	}
 
 	return value, nil
+}
+
+func (p MapParameters) Set(name string, value interface{}) {
+	p[name] = value
 }
