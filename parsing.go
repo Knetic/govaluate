@@ -124,7 +124,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		}
 
 		// escaped variable
-		if character == '[' {
+		if character == '{' {
 
 			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotClosingBracket)
 			kind = VARIABLE
@@ -462,7 +462,7 @@ func isVariableName(character rune) bool {
 
 func isNotClosingBracket(character rune) bool {
 
-	return character != ']'
+	return character != '}'
 }
 
 /*
