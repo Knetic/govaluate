@@ -64,6 +64,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	var found bool
 	var completed bool
 	var err error
+	var meta interface{}
 
 	// numeric is 0-9, or . or 0x followed by digits
 	// string starts with '
@@ -79,6 +80,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			continue
 		}
 
+		meta = character
 		kind = UNKNOWN
 
 		// numeric constant
@@ -96,6 +98,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 						return ExpressionToken{}, errors.New(errorMsg), false
 					}
 
+					meta = "0x" + tokenString
 					kind = NUMERIC
 					tokenValue = float64(tokenValueInt)
 					break
@@ -111,6 +114,8 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
 				return ExpressionToken{}, errors.New(errorMsg), false
 			}
+
+			meta = tokenString
 			kind = NUMERIC
 			break
 		}
@@ -119,6 +124,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		if character == ',' {
 
 			tokenValue = ","
+			meta = tokenValue
 			kind = SEPARATOR
 			break
 		}
@@ -127,6 +133,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		if character == '[' {
 
 			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotClosingBracket)
+			meta = tokenValue
 			kind = VARIABLE
 
 			if !completed {
@@ -142,22 +149,15 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		if unicode.IsLetter(character) {
 
 			tokenString = readTokenUntilFalse(stream, isVariableName)
-
+			meta = tokenString
 			tokenValue = tokenString
 			kind = VARIABLE
 
 			// boolean?
-			if tokenValue == "true" {
+			if tokenValue == "true" || tokenValue == "false" {
 
 				kind = BOOLEAN
-				tokenValue = true
-			} else {
-
-				if tokenValue == "false" {
-
-					kind = BOOLEAN
-					tokenValue = false
-				}
+				tokenValue = tokenValue == "true"
 			}
 
 			// textual operator?
@@ -205,6 +205,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 		if !isNotQuote(character) {
 			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotQuote)
+			meta = tokenValue
 
 			if !completed {
 				return ExpressionToken{}, errors.New("Unclosed string literal"), false
@@ -225,12 +226,16 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		}
 
 		if character == '(' {
+
+			meta = "("
 			tokenValue = character
 			kind = CLAUSE
 			break
 		}
 
 		if character == ')' {
+
+			meta = ")"
 			tokenValue = character
 			kind = CLAUSE_CLOSE
 			break
@@ -238,6 +243,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 		// must be a known symbol
 		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric)
+		meta = tokenString
 		tokenValue = tokenString
 
 		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
@@ -284,6 +290,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 	ret.Kind = kind
 	ret.Value = tokenValue
+	ret.Meta = meta
 
 	return ret, nil, (kind != UNKNOWN)
 }
