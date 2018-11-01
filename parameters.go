@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"errors"
+	"reflect"
 )
 
 /*
