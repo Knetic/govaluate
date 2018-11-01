@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"errors"
+	"reflect"
 )
 
 /*
@@ -26,6 +27,17 @@ func (p MapParameters) Get(name string) (interface{}, error) {
 	if !found {
 		errorMessage := "No parameter '" + name + "' found."
 		return nil, errors.New(errorMessage)
+	}
+	
+	if value != nil {
+	    s := reflect.ValueOf(value)
+	    if s.Kind() == reflect.Slice {
+		ret := []interface{}{}
+		for i := 0; i < s.Len(); i++ {
+			ret = append(ret, s.Index(i).Interface())
+		}
+		return ret, nil
+	    }
 	}
 
 	return value, nil
