@@ -467,8 +467,9 @@ func isFloat64(value interface{}) bool {
 }
 
 func isSingle(value interface{}) bool {	
-	if value == nil
+	if value == nil {
 	    return false
+	}
 	rt := reflect.TypeOf(value)	
 	switch rt.Kind() {
 	case reflect.Slice:
