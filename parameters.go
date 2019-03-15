@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"errors"
+	"strings"
 )
 
 /*
@@ -21,11 +22,27 @@ type MapParameters map[string]interface{}
 
 func (p MapParameters) Get(name string) (interface{}, error) {
 
-	value, found := p[name]
+	parts := strings.Split(name, ".")
+	var value interface{}
+	current := p
+	for i, p := range parts {
+		var found bool
+		value, found = current[p]
 
-	if !found {
-		errorMessage := "No parameter '" + name + "' found."
-		return nil, errors.New(errorMessage)
+		if !found {
+			errorMessage := "No parameter '" + name + "' found."
+			return nil, errors.New(errorMessage)
+		}
+
+		if i != len(parts) - 1 {
+			var ok bool
+			current, ok = value.(map[string]interface{})
+			if !ok {
+				errorMessage := "No parameter '" + name + "' found."
+				return nil, errors.New(errorMessage)
+			}
+
+		}
 	}
 
 	return value, nil
