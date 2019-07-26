@@ -24,7 +24,7 @@ func (expr EvaluableExpression) Reduce(parameters map[string]interface{}) (Evalu
 		return expr, err
 	}
 
-	// unwrap top-level parens
+	// unwrap top-level parentheses
 	for len(tokens) > 0 && tokens[0].Kind == CLAUSE {
 		tokens = tokens[1 : len(tokens)-1]
 	}
@@ -233,20 +233,24 @@ func buildTokens(stage *evaluationStage) ([]ExpressionToken, error) {
 
 	switch stage.symbol {
 	case VALUE:
-		p := testParameters{}
+		// get variable name: invoke the operator and look what parameter it has queried
+		p := paramCaptor{}
 		if _, err := stage.operator(nil, nil, &p); err != nil {
 			return nil, err
 		}
+		variableName := p.lastParameterName
 		return []ExpressionToken{
-			newToken(VARIABLE, p.lastQueriedKey),
+			newToken(VARIABLE, variableName),
 		}, nil
 
 	case LITERAL:
+		// get literal value
 		value, err := stage.operator(nil, nil, nil)
 		if err != nil {
 			return nil, err
 		}
 		if value == nil {
+			// nil -> null(), because there is no null literal
 			return []ExpressionToken{
 				newToken(FUNCTION, "null"),
 				newToken(CLAUSE, nil),
@@ -265,6 +269,7 @@ func buildTokens(stage *evaluationStage) ([]ExpressionToken, error) {
 		}, nil
 
 	case NOOP:
+		// parentheses
 		rightTokens, err := buildTokens(stage.rightStage)
 		if err != nil {
 			return nil, err
@@ -289,7 +294,7 @@ func buildTokens(stage *evaluationStage) ([]ExpressionToken, error) {
 
 	tokenString := stage.symbol.String()
 	if stage.symbol == EQ {
-		tokenString = "=="
+		tokenString = "==" // for some reason EQ.String() is '='
 	}
 	kind := UNKNOWN
 	if _, found := prefixSymbols[tokenString]; found && stage.leftStage == nil {
@@ -316,11 +321,11 @@ func newToken(kind TokenKind, value interface{}) ExpressionToken {
 	}
 }
 
-type testParameters struct {
-	lastQueriedKey string
+type paramCaptor struct {
+	lastParameterName string
 }
 
-func (p *testParameters) Get(key string) (interface{}, error) {
-	p.lastQueriedKey = key
+func (p *paramCaptor) Get(key string) (interface{}, error) {
+	p.lastParameterName = key
 	return 0.0, nil
 }
