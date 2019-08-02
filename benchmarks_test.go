@@ -2,6 +2,8 @@ package govaluate
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 /*
@@ -247,5 +249,161 @@ func BenchmarkNestedAccessors(bench *testing.B) {
 	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(fooFailureParameters)
+	}
+}
+
+func BenchmarkTokenizer(t *testing.B) {
+	for i := 0; i < t.N; i++ {
+		tokens, err := Tokenize("x + y**2 - 2/(1 + z**2)")
+		if err != nil || len(tokens) != 15 {
+			assert.Equal(t, 15, len(tokens))
+			assert.Nil(t, err)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkTokenizerOld(t *testing.B) {
+	for i := 0; i < t.N; i++ {
+		tokens, err := parseTokens("x + y**2 - 2/(1 + z**2)", map[string]ExpressionFunction{})
+		if err != nil || len(tokens) != 15 {
+			assert.Equal(t, 15, len(tokens))
+			assert.Nil(t, err)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkParseSimple(t *testing.B) {
+	benchmarkParse(t, "a + 1")
+}
+
+func BenchmarkParseSimpleOld(t *testing.B) {
+	benchmarkParseOld(t, "a + 1")
+}
+
+func BenchmarkParseMedium(t *testing.B) {
+	benchmarkParse(t, "foo ? (bar > 0.15 && bar < 0.5) : (baz < -0.15 && baz > -0.5)")
+}
+
+func BenchmarkParseMediumOld(t *testing.B) {
+	benchmarkParseOld(t, "foo ? (bar > 0.15 && bar < 0.5) : (baz < -0.15 && baz > -0.5)")
+}
+
+func BenchmarkParseComplex(t *testing.B) {
+	benchmarkParse(t, "(0 <= x && x < max && ((1 + y) / 2) ** 2 == 0.25 ||"+
+		" ((-a + -b) * -(c / d)) >> 2) && (a != 0 ? (1 + 2) * ((10 - 1) / 3) : ~1)")
+}
+
+func BenchmarkParseComplexOld(t *testing.B) {
+	benchmarkParseOld(t, "(0 <= x && x < max && ((1 + y) / 2) ** 2 == 0.25 ||"+
+		" ((-a + -b) * -(c / d)) >> 2) && (a != 0 ? (1 + 2) * ((10 - 1) / 3) : ~1)")
+}
+
+func benchmarkParse(t *testing.B, input string) {
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		_, err := Parse(input)
+		if err != nil {
+			assert.Nil(t, err)
+			t.FailNow()
+		}
+	}
+}
+
+func benchmarkParseOld(t *testing.B, input string) {
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		_, err := NewEvaluableExpression(input)
+		if err != nil {
+			assert.Nil(t, err)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalSimple(t *testing.B) {
+	expr, err := Parse("a + 1")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Eval(NewEvalParams(map[string]interface{}{"a": 8.0}))
+		if err != nil || result != 9.0 {
+			assert.Nil(t, err)
+			assert.Equal(t, 9.0, result)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalSimpleOld(t *testing.B) {
+	expr, err := NewEvaluableExpression("a + 1")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Evaluate(map[string]interface{}{"a": 8.0})
+		if err != nil || result != 9.0 {
+			assert.Nil(t, err)
+			assert.Equal(t, 9.0, result)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalMedium(t *testing.B) {
+	expr, err := Parse("x ? (y > 0.15 && y < 0.5) : (y < -0.15 && y > -0.5)")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Eval(NewEvalParams(map[string]interface{}{"x": false, "y": -0.4}))
+		if err != nil || result != true {
+			assert.Nil(t, err)
+			assert.Equal(t, true, result)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalMediumOld(t *testing.B) {
+	expr, err := NewEvaluableExpression("x ? (y > 0.15 && y < 0.5) : (y < -0.15 && y > -0.5)")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Evaluate(map[string]interface{}{"x": false, "y": -0.4})
+		if err != nil || result != true {
+			assert.Nil(t, err)
+			assert.Equal(t, true, result)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalComplex(t *testing.B) {
+	expr, err := Parse("(0 <= x && x < max && ((1 + y) / 2) ** 2 == 0.25 ||" +
+		" ((-a + -b) * -(c / d)) >> 2 != 0) && (a != 0 ? (1 + 2) * ((10 - 1) / 3) : ~1) == 9")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Eval(NewEvalParams(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 11.0}))
+		if err != nil || result != true {
+			assert.Nil(t, err)
+			assert.Equal(t, true, result)
+			t.FailNow()
+		}
+	}
+}
+
+func BenchmarkEvalComplexOld(t *testing.B) {
+	expr, err := NewEvaluableExpression("(0 <= x && x < max && ((1 + y) / 2) ** 2 == 0.25 ||" +
+		" ((-a + -b) * -(c / d)) >> 2 != 0) && (a != 0 ? (1 + 2) * ((10 - 1) / 3) : ~1) == 9")
+	assert.Nil(t, err)
+	t.ResetTimer()
+	for i := 0; i < t.N; i++ {
+		result, err := expr.Evaluate(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 11.0})
+		if err != nil || result != true {
+			assert.Nil(t, err)
+			assert.Equal(t, true, result)
+			t.FailNow()
+		}
 	}
 }
