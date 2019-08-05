@@ -9,7 +9,7 @@ func BuiltinOptimizers() map[string]Optimizer {
 			right := expr.Args[1]
 			if left.IsLiteral(false) || right.IsLiteral(false) {
 				// false && x -> false, x && false -> false
-				return NewExprNodeLiteral(false)
+				return NewExprNodeLiteral(false, expr.SourcePos, expr.SourceLen)
 			}
 			if left.IsLiteral(true) {
 				// true && x -> x
@@ -26,7 +26,7 @@ func BuiltinOptimizers() map[string]Optimizer {
 			right := expr.Args[1]
 			if left.IsLiteral(true) || right.IsLiteral(true) {
 				// true || x -> true, x || true -> true
-				return NewExprNodeLiteral(true)
+				return NewExprNodeLiteral(true, expr.SourcePos, expr.SourceLen)
 			}
 			if left.IsLiteral(false) {
 				// false || x -> x
@@ -59,7 +59,7 @@ func BuiltinOptimizers() map[string]Optimizer {
 			right := expr.Args[1]
 			if left.IsLiteral(0.0) {
 				// 0 - x -> -x
-				return NewExprNodeOperator("-", right)
+				return NewExprNodeOperator("-", []ExprNode{right}, expr.SourcePos, expr.SourceLen, OperatorTypePrefix)
 			}
 			if right.IsLiteral(0.0) {
 				// x - 0 -> x
@@ -72,7 +72,7 @@ func BuiltinOptimizers() map[string]Optimizer {
 			right := expr.Args[1]
 			if left.IsLiteral(0.0) || right.IsLiteral(0.0) {
 				// 0 * x -> 0, x * 0 -> 0
-				return NewExprNodeLiteral(0.0)
+				return NewExprNodeLiteral(0.0, expr.SourcePos, expr.SourceLen)
 			}
 			if left.IsLiteral(1.0) {
 				// 1 * x -> x

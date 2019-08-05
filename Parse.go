@@ -58,7 +58,8 @@ func parseExprInner(s *TokenStream, lhs ExprNode, minPrecedence int) (ExprNode, 
 			}
 			innerOperator, innerPrecedence, innerOk = peekOperator(s)
 		}
-		lhs = NewExprNodeOperator(operator, lhs, rhs)
+		pos, len := lhs.SourcePos, rhs.SourcePos+rhs.SourceLen-lhs.SourcePos
+		lhs = NewExprNodeOperator(operator, []ExprNode{lhs, rhs}, pos, len, OperatorTypeInfix)
 		operator, precedence, ok = innerOperator, innerPrecedence, innerOk
 	}
 	return lhs, nil
@@ -73,13 +74,15 @@ func parseIndexer(s *TokenStream) (ExprNode, error) {
 	for s.Peek().Is(TokenKindBracket, '[') {
 		s.Next()
 		index, err := parseExpr(s, 0)
-		if err == nil {
-			err = consumeBracket(s, ']')
-		}
 		if err != nil {
 			return ExprNode{}, err
 		}
-		res = NewExprNodeOperator("[]", res, index)
+		bracket, err := consumeBracket(s, ']')
+		if err != nil {
+			return ExprNode{}, err
+		}
+		pos, len := value.SourcePos, bracket.SourcePos+bracket.SourceLen-value.SourcePos
+		res = NewExprNodeOperator("[]", []ExprNode{res, index}, pos, len, OperatorTypeIndexer)
 	}
 	return res, nil
 }
@@ -89,24 +92,24 @@ func parseValue(s *TokenStream) (ExprNode, error) {
 
 	switch token.Kind {
 	case TokenKindNumber, TokenKindString:
-		return NewExprNodeLiteral(token.Value), nil
+		return NewExprNodeLiteral(token.Value, token.SourcePos, token.SourceLen), nil
 
 	case TokenKindIdentifier:
 		// function call
 		if s.Peek().Is(TokenKindBracket, '(') {
-			return parseCall(s, token.Value.(string))
+			return parseCall(s, token)
 		}
 
 		// boolean literal
 		switch token.Value {
 		case "true":
-			return NewExprNodeLiteral(true), nil
+			return NewExprNodeLiteral(true, token.SourcePos, token.SourceLen), nil
 		case "false":
-			return NewExprNodeLiteral(false), nil
+			return NewExprNodeLiteral(false, token.SourcePos, token.SourceLen), nil
 		}
 
 		// variable
-		return NewExprNodeVariable(token.Value.(string)), nil
+		return NewExprNodeVariable(token.Value.(string), token.SourcePos, token.SourceLen), nil
 
 	case TokenKindBracket:
 		switch token.Value {
@@ -116,7 +119,13 @@ func parseValue(s *TokenStream) (ExprNode, error) {
 			if err != nil {
 				return ExprNode{}, err
 			}
-			return expr, consumeBracket(s, ')')
+			bracket, err := consumeBracket(s, ')')
+			if err != nil {
+				return ExprNode{}, err
+			}
+			expr.SourcePos = token.SourcePos
+			expr.SourceLen = bracket.SourcePos + bracket.SourceLen - token.SourcePos
+			return expr, nil
 
 		case '[':
 			// array
@@ -124,7 +133,12 @@ func parseValue(s *TokenStream) (ExprNode, error) {
 			if err != nil {
 				return ExprNode{}, err
 			}
-			return NewExprNodeOperator("array", items...), consumeBracket(s, ']')
+			bracket, err := consumeBracket(s, ']')
+			if err != nil {
+				return ExprNode{}, err
+			}
+			pos, len := token.SourcePos, bracket.SourcePos+bracket.SourceLen-token.SourcePos
+			return NewExprNodeOperator("array", items, pos, len, OperatorTypeArray), nil
 		}
 
 	case TokenKindOperator:
@@ -135,24 +149,28 @@ func parseValue(s *TokenStream) (ExprNode, error) {
 			return ExprNode{}, err
 		}
 		// then apply prefix operator
-		return NewExprNodeOperator(token.Value.(string), expr), nil
+		pos, len := token.SourcePos, expr.SourcePos+expr.SourceLen-token.SourcePos
+		return NewExprNodeOperator(token.Value.(string), []ExprNode{expr}, pos, len, OperatorTypePrefix), nil
 	}
 
 	return ExprNode{}, unexpectedToken(token, "value")
 }
 
-func parseCall(s *TokenStream, name string) (ExprNode, error) {
-	if err := consumeBracket(s, '('); err != nil {
+func parseCall(s *TokenStream, nameToken ExprToken) (ExprNode, error) {
+	if _, err := consumeBracket(s, '('); err != nil {
 		return ExprNode{}, err
 	}
 	args, err := parseArgs(s, ')')
 	if err != nil {
 		return ExprNode{}, err
 	}
-	if err := consumeBracket(s, ')'); err != nil {
+	bracket, err := consumeBracket(s, ')')
+	if err != nil {
 		return ExprNode{}, err
 	}
-	return NewExprNodeOperator(name, args...), nil
+	name := nameToken.Value.(string)
+	pos, len := nameToken.SourcePos, bracket.SourcePos+bracket.SourceLen-nameToken.SourcePos
+	return NewExprNodeOperator(name, args, pos, len, OperatorTypeCall), nil
 }
 
 func parseArgs(s *TokenStream, until rune) ([]ExprNode, error) {
@@ -186,7 +204,9 @@ func parseTernaryIf(s *TokenStream, condition ExprNode) (ExprNode, error) {
 	if err != nil {
 		return ExprNode{}, err
 	}
-	return NewExprNodeOperator("?:", condition, valueIfTrue, valueIfFalse), nil
+	args := []ExprNode{condition, valueIfTrue, valueIfFalse}
+	pos, len := condition.SourcePos, valueIfFalse.SourcePos+valueIfFalse.SourceLen-condition.SourcePos
+	return NewExprNodeOperator("?:", args, pos, len, OperatorTypeTernary), nil
 }
 
 func peekOperator(s *TokenStream) (string, int, bool) {
@@ -197,15 +217,15 @@ func peekOperator(s *TokenStream) (string, int, bool) {
 	return "", 0, false
 }
 
-func consumeBracket(s *TokenStream, bracket rune) error {
+func consumeBracket(s *TokenStream, bracket rune) (ExprToken, error) {
 	token := s.Next()
 	if token.Kind != TokenKindBracket {
-		return unexpectedToken(token, "'"+string(bracket)+"'")
+		return token, unexpectedToken(token, "'"+string(bracket)+"'")
 	}
 	if token.Value != bracket {
-		return fmt.Errorf("unmatched bracket: '%v', expecting '%v', pos: %d", string(token.Value.(rune)), string(bracket), token.SourcePos)
+		return token, fmt.Errorf("unmatched bracket: '%v', expecting '%v', pos: %d", string(token.Value.(rune)), string(bracket), token.SourcePos)
 	}
-	return nil
+	return token, nil
 }
 
 func unexpectedToken(token ExprToken, expected ...string) error {

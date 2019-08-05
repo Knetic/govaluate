@@ -384,7 +384,7 @@ func BenchmarkEvalComplex(t *testing.B) {
 	assert.Nil(t, err)
 	t.ResetTimer()
 	for i := 0; i < t.N; i++ {
-		result, err := expr.Eval(NewEvalParams(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 11.0}))
+		result, err := expr.Eval(NewEvalParams(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 3.0}))
 		if err != nil || result != true {
 			assert.Nil(t, err)
 			assert.Equal(t, true, result)
@@ -399,7 +399,7 @@ func BenchmarkEvalComplexOld(t *testing.B) {
 	assert.Nil(t, err)
 	t.ResetTimer()
 	for i := 0; i < t.N; i++ {
-		result, err := expr.Evaluate(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 11.0})
+		result, err := expr.Evaluate(map[string]interface{}{"x": 1.0, "max": 10.0, "y": 2.0, "a": 5.0, "b": 7.0, "c": 9.0, "d": 3.0})
 		if err != nil || result != true {
 			assert.Nil(t, err)
 			assert.Equal(t, true, result)

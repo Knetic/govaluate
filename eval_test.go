@@ -71,3 +71,45 @@ func TestEval(t *testing.T) {
 		assert.Equal(t, testCase.result, val, "input=%s", testCase.input)
 	}
 }
+
+func TestEvalError(t *testing.T) {
+	type testCase struct {
+		input  string
+		params map[string]interface{}
+		err    string
+	}
+	testCases := [...]testCase{
+		testCase{
+			"x + y * (z**2 > 0)",
+			map[string]interface{}{"x": 1.0, "y": 2.0, "z": 3.0},
+			"rhs of + / rhs of * is not numeric: true [pos=8; len=10]",
+		},
+		testCase{
+			"x ? 1 : 0",
+			map[string]interface{}{"x": 1.0},
+			"ternary condition is not boolean: 1 [pos=0; len=1]",
+		},
+		testCase{
+			"[1, arr[0], 3]",
+			map[string]interface{}{"arr": 1.0},
+			"array item #2 / indexer receiver is not array: 1 [pos=4; len=3]",
+		},
+		testCase{
+			"2**floor(x, y)",
+			map[string]interface{}{},
+			"rhs of ** / wrong number of arguments: 2, expected: 1 [op=floor; pos=3; len=11]",
+		},
+		testCase{
+			"[1, 2, 3][3] * 2",
+			map[string]interface{}{},
+			"lhs of * / index out of bounds: 3, len: 3 [op=[]; pos=0; len=12]",
+		},
+	}
+
+	for _, testCase := range testCases {
+		expr, err := Parse(testCase.input)
+		assert.Nil(t, err, "input=%s", testCase.input)
+		_, err = expr.Eval(NewEvalParams(testCase.params))
+		assert.EqualError(t, err, testCase.err, "input=%s", testCase.input)
+	}
+}

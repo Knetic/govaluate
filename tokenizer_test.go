@@ -79,21 +79,6 @@ func testTokenizerFail(t *testing.T, tokenizer Tokenizer, input []string) {
 	}
 }
 
-func testTokenizer(t *testing.T, tokenizer Tokenizer, kind ExprTokenKind, valid, invalid []string, values []interface{}) {
-
-	for idx, a := range valid {
-		for _, b := range invalid {
-			token := tokenizer(a + b)
-			assert.Equal(t, NewExprToken(kind, values[idx], len(a)), token, "valid='%s' invalid='%s'", a, b)
-		}
-	}
-
-	for _, b := range invalid {
-		token := tokenizer(b)
-		assert.Equal(t, 0, token.SourceLen, "invalid='%s'", b)
-	}
-}
-
 func TestTokenize(t *testing.T) {
 	tokens, err := Tokenize("x + 1")
 	expected := []ExprToken{

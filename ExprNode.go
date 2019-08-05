@@ -8,6 +8,9 @@ type ExprNode struct {
 	Name  string
 	Value interface{}
 	Args  []ExprNode
+
+	SourcePos, SourceLen int
+	OperatorType         OperatorType
 }
 
 // ExprNodeType is a type of ExprNode.
@@ -31,31 +34,46 @@ const (
 	NodeTypeOperator
 )
 
+type OperatorType int
+
+const (
+	OperatorTypeCall OperatorType = iota
+	OperatorTypeInfix
+	OperatorTypePrefix
+	OperatorTypeTernary
+	OperatorTypeArray
+	OperatorTypeIndexer
+)
+
 // NewExprNodeLiteral constructs a literal node.
-func NewExprNodeLiteral(value interface{}) ExprNode {
+func NewExprNodeLiteral(value interface{}, sourcePos, sourceLen int) ExprNode {
 	return ExprNode{
-		Type:  NodeTypeLiteral,
-		Value: value,
+		Type:      NodeTypeLiteral,
+		Value:     value,
+		SourcePos: sourcePos,
+		SourceLen: sourceLen,
 	}
 }
 
 // NewExprNodeVariable constructs a variable node.
-func NewExprNodeVariable(name string) ExprNode {
+func NewExprNodeVariable(name string, sourcePos, sourceLen int) ExprNode {
 	return ExprNode{
-		Type: NodeTypeVariable,
-		Name: name,
+		Type:      NodeTypeVariable,
+		Name:      name,
+		SourcePos: sourcePos,
+		SourceLen: sourceLen,
 	}
 }
 
 // NewExprNodeOperator constructs an operator node.
-func NewExprNodeOperator(name string, args ...ExprNode) ExprNode {
-	if len(args) == 0 {
-		args = []ExprNode{}
-	}
+func NewExprNodeOperator(name string, args []ExprNode, sourcePos, sourceLen int, operatorType OperatorType) ExprNode {
 	return ExprNode{
-		Type: NodeTypeOperator,
-		Name: name,
-		Args: args,
+		Type:         NodeTypeOperator,
+		Name:         name,
+		Args:         args,
+		SourcePos:    sourcePos,
+		SourceLen:    sourceLen,
+		OperatorType: operatorType,
 	}
 }
 
