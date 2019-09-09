@@ -507,8 +507,8 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
-			Name: "Array membership literals (Contains)",
-			Input: "(1,2,3) contains 1",
+			Name:     "Array membership literals (Contains)",
+			Input:    "(1,2,3) contains 1",
 			Expected: true,
 		},
 		EvaluationTest{
