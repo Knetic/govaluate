@@ -507,6 +507,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name: "Array membership literals (Contains)",
+			Input: "(1,2,3) contains 1",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Array membership literal with inversion (Contains)",
+			Input:    "!((1,2,3) contains 1)",
+			Expected: false,
+		},
+		EvaluationTest{
+
 			Name:     "Logical operator reordering (#30)",
 			Input:    "(true && true) || (true && false)",
 			Expected: true,
@@ -699,6 +711,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Empty function near separator (Contains)",
+			Input: "(1, 2, 3, ten(), 8) contains 10",
+			Functions: map[string]ExpressionFunction{
+				"ten": func(arguments ...interface{}) (interface{}, error) {
+					return 10.0, nil
+				},
+			},
+
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Enclosed empty function with modifier and comparator (#28)",
 			Input: "(ten() - 1) > 3",
 			Functions: map[string]ExpressionFunction{
@@ -710,7 +734,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{

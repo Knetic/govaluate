@@ -167,6 +167,11 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 				tokenValue = "in"
 				kind = COMPARATOR
 			}
+			if tokenValue == "contains" || tokenValue == "CONTAINS" {
+
+				tokenValue = "contains"
+				kind = COMPARATOR
+			}
 
 			// function?
 			function, found = functions[tokenString]
