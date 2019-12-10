@@ -171,7 +171,9 @@ func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters
 	if stage.leftStage != nil {
 		left, err = this.evaluateStage(stage.leftStage, parameters)
 		if err != nil {
-			return nil, err
+			if stage.symbol!=COALESCE { // Doesn't raise error if the parameter doesn't exists with '??' operator
+				return nil, err
+			}
 		}
 	}
 
