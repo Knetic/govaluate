@@ -49,10 +49,25 @@ func (ctx EvalContext) NumericArg(idx int) (float64, error) {
 	if err != nil {
 		return 0.0, err
 	}
-	if floatVal, ok := val.(float64); ok {
-		return floatVal, nil
+
+	switch v := val.(type) {
+	case int:
+		return float64(v), nil
+	case int8:
+		return float64(v), nil
+	case int16:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case float32:
+		return float64(v), nil
+	case float64:
+		return v, nil
+	default:
+		return 0.0, formatArgError(ctx.expr, idx, "is not numeric: %v", val)
 	}
-	return 0.0, formatArgError(ctx.expr, idx, "is not numeric: %v", val)
 }
 
 func (ctx EvalContext) IntegerArg(idx int) (int, error) {
