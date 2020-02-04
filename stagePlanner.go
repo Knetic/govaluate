@@ -568,10 +568,6 @@ func reorderStages(rootStage *evaluationStage) {
 		currentStage = nextStage
 		nextStage = currentStage.rightStage
 
-		// ignore NOOP symbol
-		if currentStage.symbol == NOOP {
-			continue
-		}
 		// left depth first, since this entire method only looks for precedences down the right side of the tree
 		if currentStage.leftStage != nil {
 			reorderStages(currentStage.leftStage)
