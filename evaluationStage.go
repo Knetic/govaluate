@@ -83,7 +83,14 @@ func (this *evaluationStage) isShortCircuitable() bool {
 }
 
 func noopStageRight(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return right, nil
+	switch right.(type) {
+	case separatorArr:
+		return right.(separatorArr).arr, nil
+	case []interface{}:
+		return []interface{}{right}, nil
+	default:
+		return right, nil
+	}
 }
 
 func addStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
@@ -404,18 +411,20 @@ func makeAccessorStage(pair []string) evaluationOperator {
 	}
 }
 
+// to differentiate between arrays passed as parameters, and an array made with separators
+type separatorArr struct {
+	arr []interface{}
+}
+
 func separatorStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-
-	var ret []interface{}
-
 	switch left.(type) {
-	case []interface{}:
-		ret = append(left.([]interface{}), right)
+	case separatorArr:
+		leftArr := left.(separatorArr)
+		leftArr.arr = append(leftArr.arr, right)
+		return leftArr, nil
 	default:
-		ret = []interface{}{left, right}
+		return separatorArr{arr:[]interface{}{left, right}}, nil
 	}
-
-	return ret, nil
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
