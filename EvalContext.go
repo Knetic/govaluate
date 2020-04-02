@@ -30,7 +30,33 @@ func (ctx EvalContext) Arg(idx int) (interface{}, error) {
 	if err != nil {
 		return val, fmt.Errorf("%s / %s", formatArgName(ctx.expr, idx), err.Error())
 	}
-	return val, nil
+
+	switch v := val.(type) {
+	case int:
+		return float64(v), nil
+	case int8:
+		return float64(v), nil
+	case int16:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case uint:
+		return float64(v), nil
+	case uint8:
+		return float64(v), nil
+	case uint16:
+		return float64(v), nil
+	case uint32:
+		return float64(v), nil
+	case uint64:
+		return float64(v), nil
+	case float32:
+		return float64(v), nil
+	default:
+		return v, nil
+	}
 }
 
 func (ctx EvalContext) BooleanArg(idx int) (bool, error) {
@@ -50,24 +76,11 @@ func (ctx EvalContext) NumericArg(idx int) (float64, error) {
 		return 0.0, err
 	}
 
-	switch v := val.(type) {
-	case int:
-		return float64(v), nil
-	case int8:
-		return float64(v), nil
-	case int16:
-		return float64(v), nil
-	case int32:
-		return float64(v), nil
-	case int64:
-		return float64(v), nil
-	case float32:
-		return float64(v), nil
-	case float64:
-		return v, nil
-	default:
-		return 0.0, formatArgError(ctx.expr, idx, "is not numeric: %v", val)
+	if numVal, ok := val.(float64); ok {
+		return numVal, nil
 	}
+
+	return 0.0, formatArgError(ctx.expr, idx, "is not numeric: %v", val)
 }
 
 func (ctx EvalContext) IntegerArg(idx int) (int, error) {

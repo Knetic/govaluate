@@ -62,6 +62,21 @@ func TestEval(t *testing.T) {
 			},
 			9.0,
 		},
+		testCase{
+			"a == 4",
+			map[string]interface{}{"a": 4},
+			true,
+		},
+		testCase{
+			"a == 7",
+			map[string]interface{}{"a": int8(7)},
+			true,
+		},
+		testCase{
+			"a == 9",
+			map[string]interface{}{"a": uint(9)},
+			true,
+		},
 	}
 	for _, testCase := range testCases {
 		expr, err := Parse(testCase.input)
