@@ -1,4 +1,4 @@
-module github.com/tonalfitness/govaluate
+module github.com/tonalfitness/govaluate/v3
 
 go 1.14
 
