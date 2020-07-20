@@ -77,6 +77,26 @@ func TestEval(t *testing.T) {
 			map[string]interface{}{"a": uint(9)},
 			true,
 		},
+		testCase{
+			"a == 9",
+			map[string]interface{}{"a": MustParse("(10-1)")},
+			true,
+		},
+		testCase{
+			"a == 9",
+			map[string]interface{}{"a": MustParse("(b-1)"), "b": 10.0},
+			true,
+		},
+		testCase{
+			"a == 'b'",
+			map[string]interface{}{"a": NewExprNodeLiteral("b", 0, 1)},
+			true,
+		},
+		testCase{
+			"a == '0x12g1'",
+			map[string]interface{}{"a": TryParse("0x12g1")},
+			true,
+		},
 	}
 	for _, testCase := range testCases {
 		expr, err := Parse(testCase.input)

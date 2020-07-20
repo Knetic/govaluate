@@ -31,6 +31,24 @@ func Parse(input string) (ExprNode, error) {
 	return expr, err
 }
 
+// MustParse returns an AST or panics if string cannot be parsed.
+func MustParse(input string) ExprNode {
+	expr, err := Parse(input)
+	if err != nil {
+		panic(fmt.Errorf("MustParse error: %v", err))
+	}
+	return expr
+}
+
+// TryParse returns an ExprNodeLiteral if the string cannot be parsed
+func TryParse(input string) ExprNode {
+	expr, err := Parse(input)
+	if err != nil {
+		return NewExprNodeLiteral(input, 0, len(input))
+	}
+	return expr
+}
+
 func parseExpr(s *TokenStream, minPrecedence int) (ExprNode, error) {
 	lhs, err := parseIndexer(s)
 	if err != nil {

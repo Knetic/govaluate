@@ -90,6 +90,24 @@ func TestReduce(test *testing.T) {
 	}, "z < -0.15 && z > -0.5")
 
 	runTest(test, "x ? (y > 0.15 && y < 0.5) : (z < -0.15 && z > -0.5)", map[string]interface{}{}, "x ? y > 0.15 && y < 0.5 : z < -0.15 && z > -0.5")
+
+	runTest(test, "x + y * z", map[string]interface{}{
+		"x": 1.0,
+		"y": MustParse("a"),
+		"z": 3.0,
+	}, "1 + a * 3")
+
+	runTest(test, "x + y * z", map[string]interface{}{
+		"x": 1.0,
+		"y": MustParse("(1+1)"),
+		"z": 3.0,
+	}, "7")
+
+	runTest(test, "x + y * z", map[string]interface{}{
+		"x": 1.0,
+		"y": MustParse("(1+1 - d + h)"),
+		"z": 3.0,
+	}, "1 + (2 - d + h) * 3")
 }
 
 func runTest(test *testing.T, input string, parameters map[string]interface{}, expectedOutput string) {
