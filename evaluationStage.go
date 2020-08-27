@@ -219,7 +219,6 @@ func makeParameterStage(parameterName string) evaluationOperator {
 		if err != nil {
 			return nil, err
 		}
-
 		return value, nil
 	}
 }
@@ -292,7 +291,6 @@ func typeConvertParams(method reflect.Value, params []reflect.Value) ([]reflect.
 func makeAccessorStage(pair []string) evaluationOperator {
 
 	reconstructed := strings.Join(pair, ".")
-
 	return func(left interface{}, right interface{}, parameters Parameters) (ret interface{}, err error) {
 
 		var params []reflect.Value
@@ -513,4 +511,16 @@ func boolIface(b bool) interface{} {
 		return _true
 	}
 	return _false
+}
+
+func cinStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	var s = left.(string)
+	for _, value := range right.([]interface{}) {
+		for _, d := range strings.Split(s, DELIM){
+			if d == value {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }

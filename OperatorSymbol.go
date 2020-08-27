@@ -19,6 +19,7 @@ const (
 	REQ
 	NREQ
 	IN
+	CIN
 
 	AND
 	OR
@@ -90,7 +91,7 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 		fallthrough
 	case NREQ:
 		fallthrough
-	case IN:
+	case IN, CIN:
 		return comparatorPrecedence
 	case AND:
 		return logicalAndPrecedence
@@ -156,6 +157,7 @@ var comparatorSymbols = map[string]OperatorSymbol{
 	"=~": REQ,
 	"!~": NREQ,
 	"in": IN,
+	"cin": CIN,
 }
 
 var logicalSymbols = map[string]OperatorSymbol{
@@ -304,6 +306,8 @@ func (this OperatorSymbol) String() string {
 		return ":"
 	case COALESCE:
 		return "??"
+	case CIN:
+		return "cin"
 	}
 	return ""
 }

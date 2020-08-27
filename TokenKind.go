@@ -29,6 +29,8 @@ const (
 	TERNARY
 )
 
+const DELIM = ","
+
 /*
 	GetTokenKindString returns a string that describes the given TokenKind.
 	e.g., when passed the NUMERIC TokenKind, this returns the string "NUMERIC".
