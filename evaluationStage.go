@@ -516,7 +516,7 @@ func boolIface(b bool) interface{} {
 func cinStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	var s = left.(string)
 	for _, value := range right.([]interface{}) {
-		for _, d := range strings.Split(s, DELIM){
+		for _, d := range strings.Split(s, DELIM) {
 			if d == value {
 				return true, nil
 			}

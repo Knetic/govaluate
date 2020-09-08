@@ -18,7 +18,7 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	AND:            andStage,
 	OR:             orStage,
 	IN:             inStage,
-	CIN:cinStage,
+	CIN:            cinStage,
 	BITWISE_OR:     bitwiseOrStage,
 	BITWISE_AND:    bitwiseAndStage,
 	BITWISE_XOR:    bitwiseXORStage,

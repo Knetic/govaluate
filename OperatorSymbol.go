@@ -148,15 +148,15 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 	Also used during evaluation to determine exactly which comparator is being used.
 */
 var comparatorSymbols = map[string]OperatorSymbol{
-	"==": EQ,
-	"!=": NEQ,
-	">":  GT,
-	">=": GTE,
-	"<":  LT,
-	"<=": LTE,
-	"=~": REQ,
-	"!~": NREQ,
-	"in": IN,
+	"==":  EQ,
+	"!=":  NEQ,
+	">":   GT,
+	">=":  GTE,
+	"<":   LT,
+	"<=":  LTE,
+	"=~":  REQ,
+	"!~":  NREQ,
+	"in":  IN,
 	"cin": CIN,
 }
 
