@@ -1163,7 +1163,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "foo",
-					Value: 2887057409,
+					Value: int64(2887057409),
 				},
 			},
 			Expected: true,
@@ -1175,7 +1175,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "foo",
-					Value: 2887057409,
+					Value: int64(2887057409),
 				},
 			},
 			Expected: true,
