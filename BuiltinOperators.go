@@ -44,6 +44,7 @@ func BuiltinOperators() map[string]Operator {
 		"sqrt":  builtinSqrt,
 		"sin":   builtinSin,
 		"cos":   builtinCos,
+		"max":   builtinMax,
 	}
 }
 
@@ -288,6 +289,11 @@ func builtinSin(ctx EvalContext) (interface{}, error) {
 func builtinCos(ctx EvalContext) (interface{}, error) {
 	arg, err := unaryNumericArg(ctx)
 	return math.Cos(arg), err
+}
+
+func builtinMax(ctx EvalContext) (interface{}, error) {
+	a, b, err := binaryNumericArgs(ctx)
+	return math.Max(a, b), err
 }
 
 func binaryArgs(ctx EvalContext) (interface{}, interface{}, error) {

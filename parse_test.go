@@ -51,6 +51,16 @@ func TestParseFunction(t *testing.T) {
 		}, 0, 9, OperatorTypeCall),
 		expr,
 	)
+
+	expr, err = Parse("max(3, 4)")
+	assert.Nil(t, err)
+	assert.Equal(t,
+		NewExprNodeOperator("max", []ExprNode{
+			NewExprNodeLiteral(3.0, 4, 1),
+			NewExprNodeLiteral(4.0, 7, 1),
+		}, 0, 9, OperatorTypeCall),
+		expr,
+	)
 }
 
 func TestParseUnary(t *testing.T) {
