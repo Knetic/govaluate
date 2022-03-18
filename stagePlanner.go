@@ -154,7 +154,14 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 	var nextRight precedent
 
 	generated = func(stream *tokenStream) (*evaluationStage, error) {
-		return planPrecedenceLevel(stream, nextRight, planner)
+		return planPrecedenceLevel(
+			stream,
+			planner.typeErrorFormat,
+			planner.validSymbols,
+			planner.validKinds,
+			nextRight,
+			planner.next,
+		)
 	}
 
 	if planner.nextRight != nil {
@@ -197,98 +204,89 @@ func planTokens(stream *tokenStream) (*evaluationStage, error) {
 	return planSeparator(stream)
 }
 
-type evalComponents struct {
-	token                 ExpressionToken
-	symbol                OperatorSymbol
-	checks                typeChecks
-	keyFound              bool
-	leftStage, rightStage *evaluationStage
-}
-
 /*
 	The most usual method of parsing an evaluation stage for a given precedence.
 	Most stages use the same logic
 */
-func planPrecedenceLevel(stream *tokenStream, rightPrecedent precedent, planner *precedencePlanner) (*evaluationStage, error) {
+func planPrecedenceLevel(
+	stream *tokenStream,
+	typeErrorFormat string,
+	validSymbols map[string]OperatorSymbol,
+	validKinds []TokenKind,
+	rightPrecedent precedent,
+	leftPrecedent precedent) (*evaluationStage, error) {
 
+	var token ExpressionToken
+	var symbol OperatorSymbol
+	var leftStage, rightStage *evaluationStage
+	var checks typeChecks
 	var err error
-	var components evalComponents
+	var keyFound bool
 
-	if planner.next != nil {
+	if leftPrecedent != nil {
 
-		components.leftStage, err = planner.next(stream)
+		leftStage, err = leftPrecedent(stream)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	for stream.hasNext() {
-		components.token = stream.next()
-		evalStage, err := checkForEvalStage(stream, rightPrecedent, components, planner)
 
-		if evalStage == nil && err == nil {
-			break
-		}
+		token = stream.next()
 
-		return evalStage, err
-	}
+		if len(validKinds) > 0 {
 
-	stream.rewind()
-	return components.leftStage, nil
-}
+			keyFound = false
+			for _, kind := range validKinds {
+				if kind == token.Kind {
+					keyFound = true
+					break
+				}
+			}
 
-func checkForEvalStage(stream *tokenStream,
-	rightPrecedent precedent,
-	components evalComponents,
-	planner *precedencePlanner) (*evaluationStage, error) {
-
-	var err error
-
-	if len(planner.validKinds) > 0 {
-
-		components.keyFound = false
-		for _, kind := range planner.validKinds {
-			if kind == components.token.Kind {
-				components.keyFound = true
+			if !keyFound {
 				break
 			}
 		}
 
-		if !components.keyFound {
-			return nil, nil
+		if validSymbols != nil {
+
+			if !isString(token.Value) {
+				break
+			}
+
+			symbol, keyFound = validSymbols[token.Value.(string)]
+			if !keyFound {
+				break
+			}
 		}
-	}
 
-	if planner.validSymbols != nil && !isString(components.token.Value) {
-		return nil, nil
-	}
-
-	if _, components.keyFound = planner.validSymbols[components.token.Value.(string)]; planner.validSymbols != nil && !components.keyFound {
-		return nil, nil
-	}
-
-	if rightPrecedent != nil {
-		components.rightStage, err = rightPrecedent(stream)
-		if err != nil {
-			return nil, err
+		if rightPrecedent != nil {
+			rightStage, err = rightPrecedent(stream)
+			if err != nil {
+				return nil, err
+			}
 		}
+
+		checks = findTypeChecks(symbol)
+
+		return &evaluationStage{
+
+			symbol:     symbol,
+			leftStage:  leftStage,
+			rightStage: rightStage,
+			operator:   stageSymbolMap[symbol],
+
+			leftTypeCheck:   checks.left,
+			rightTypeCheck:  checks.right,
+			typeCheck:       checks.combined,
+			typeErrorFormat: typeErrorFormat,
+		}, nil
 	}
 
-	components.checks = findTypeChecks(components.symbol)
-
-	return &evaluationStage{
-
-		symbol:     components.symbol,
-		leftStage:  components.leftStage,
-		rightStage: components.rightStage,
-		operator:   stageSymbolMap[components.symbol],
-
-		leftTypeCheck:   components.checks.left,
-		rightTypeCheck:  components.checks.right,
-		typeCheck:       components.checks.combined,
-		typeErrorFormat: planner.typeErrorFormat,
-	}, nil
-
+	stream.rewind()
+	return leftStage, nil
 }
 
 /*
