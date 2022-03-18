@@ -154,14 +154,7 @@ func makePrecedentFromPlanner(planner *precedencePlanner) precedent {
 	var nextRight precedent
 
 	generated = func(stream *tokenStream) (*evaluationStage, error) {
-		return planPrecedenceLevel(
-			stream,
-			planner.typeErrorFormat,
-			planner.validSymbols,
-			planner.validKinds,
-			nextRight,
-			planner.next,
-		)
+		return planPrecedenceLevel(stream, nextRight, planner)
 	}
 
 	if planner.nextRight != nil {
@@ -204,89 +197,98 @@ func planTokens(stream *tokenStream) (*evaluationStage, error) {
 	return planSeparator(stream)
 }
 
+type evalComponents struct {
+	token                 ExpressionToken
+	symbol                OperatorSymbol
+	checks                typeChecks
+	keyFound              bool
+	leftStage, rightStage *evaluationStage
+}
+
 /*
 	The most usual method of parsing an evaluation stage for a given precedence.
 	Most stages use the same logic
 */
-func planPrecedenceLevel(
-	stream *tokenStream,
-	typeErrorFormat string,
-	validSymbols map[string]OperatorSymbol,
-	validKinds []TokenKind,
-	rightPrecedent precedent,
-	leftPrecedent precedent) (*evaluationStage, error) {
+func planPrecedenceLevel(stream *tokenStream, rightPrecedent precedent, planner *precedencePlanner) (*evaluationStage, error) {
 
-	var token ExpressionToken
-	var symbol OperatorSymbol
-	var leftStage, rightStage *evaluationStage
-	var checks typeChecks
 	var err error
-	var keyFound bool
+	var components evalComponents
 
-	if leftPrecedent != nil {
+	if planner.next != nil {
 
-		leftStage, err = leftPrecedent(stream)
+		components.leftStage, err = planner.next(stream)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	for stream.hasNext() {
+		components.token = stream.next()
+		evalStage, err := checkForEvalStage(stream, rightPrecedent, components, planner)
 
-		token = stream.next()
-
-		if len(validKinds) > 0 {
-
-			keyFound = false
-			for _, kind := range validKinds {
-				if kind == token.Kind {
-					keyFound = true
-					break
-				}
-			}
-
-			if !keyFound {
-				break
-			}
+		if evalStage == nil && err == nil {
+			break
 		}
 
-		if validSymbols != nil {
-
-			if !isString(token.Value) {
-				break
-			}
-
-			symbol, keyFound = validSymbols[token.Value.(string)]
-			if !keyFound {
-				break
-			}
-		}
-
-		if rightPrecedent != nil {
-			rightStage, err = rightPrecedent(stream)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		checks = findTypeChecks(symbol)
-
-		return &evaluationStage{
-
-			symbol:     symbol,
-			leftStage:  leftStage,
-			rightStage: rightStage,
-			operator:   stageSymbolMap[symbol],
-
-			leftTypeCheck:   checks.left,
-			rightTypeCheck:  checks.right,
-			typeCheck:       checks.combined,
-			typeErrorFormat: typeErrorFormat,
-		}, nil
+		return evalStage, err
 	}
 
 	stream.rewind()
-	return leftStage, nil
+	return components.leftStage, nil
+}
+
+func checkForEvalStage(stream *tokenStream,
+	rightPrecedent precedent,
+	components evalComponents,
+	planner *precedencePlanner) (*evaluationStage, error) {
+
+	var err error
+
+	if len(planner.validKinds) > 0 {
+
+		components.keyFound = false
+		for _, kind := range planner.validKinds {
+			if kind == components.token.Kind {
+				components.keyFound = true
+				break
+			}
+		}
+
+		if !components.keyFound {
+			return nil, nil
+		}
+	}
+
+	if planner.validSymbols != nil && !isString(components.token.Value) {
+		return nil, nil
+	}
+
+	if _, components.keyFound = planner.validSymbols[components.token.Value.(string)]; planner.validSymbols != nil && !components.keyFound {
+		return nil, nil
+	}
+
+	if rightPrecedent != nil {
+		components.rightStage, err = rightPrecedent(stream)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	components.checks = findTypeChecks(components.symbol)
+
+	return &evaluationStage{
+
+		symbol:     components.symbol,
+		leftStage:  components.leftStage,
+		rightStage: components.rightStage,
+		operator:   stageSymbolMap[components.symbol],
+
+		leftTypeCheck:   components.checks.left,
+		rightTypeCheck:  components.checks.right,
+		typeCheck:       components.checks.combined,
+		typeErrorFormat: planner.typeErrorFormat,
+	}, nil
+
 }
 
 /*
