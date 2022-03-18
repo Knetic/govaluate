@@ -67,75 +67,47 @@ const (
 	separatePrecedence
 )
 
+var precendence = map[OperatorSymbol]operatorPrecedence{
+	NOOP:           noopPrecedence,
+	VALUE:          valuePrecedence,
+	EQ:             comparatorPrecedence,
+	NEQ:            comparatorPrecedence,
+	GT:             comparatorPrecedence,
+	LT:             comparatorPrecedence,
+	GTE:            comparatorPrecedence,
+	LTE:            comparatorPrecedence,
+	REQ:            comparatorPrecedence,
+	NREQ:           comparatorPrecedence,
+	IN:             comparatorPrecedence,
+	AND:            logicalAndPrecedence,
+	OR:             logicalOrPrecedence,
+	BITWISE_AND:    bitwisePrecedence,
+	BITWISE_OR:     bitwisePrecedence,
+	BITWISE_XOR:    bitwisePrecedence,
+	BITWISE_LSHIFT: bitwiseShiftPrecedence,
+	BITWISE_RSHIFT: bitwiseShiftPrecedence,
+	PLUS:           additivePrecedence,
+	MINUS:          additivePrecedence,
+	MULTIPLY:       multiplicativePrecedence,
+	DIVIDE:         multiplicativePrecedence,
+	MODULUS:        multiplicativePrecedence,
+	EXPONENT:       exponentialPrecedence,
+	BITWISE_NOT:    prefixPrecedence,
+	INVERT:         prefixPrecedence,
+	NEGATE:         prefixPrecedence,
+	COALESCE:       ternaryPrecedence,
+	TERNARY_TRUE:   ternaryPrecedence,
+	TERNARY_FALSE:  ternaryPrecedence,
+	ACCESS:         functionalPrecedence,
+	FUNCTIONAL:     functionalPrecedence,
+	SEPARATE:       separatePrecedence,
+}
+
 func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 
-	switch symbol {
-	case NOOP:
-		return noopPrecedence
-	case VALUE:
-		return valuePrecedence
-	case EQ:
-		fallthrough
-	case NEQ:
-		fallthrough
-	case GT:
-		fallthrough
-	case LT:
-		fallthrough
-	case GTE:
-		fallthrough
-	case LTE:
-		fallthrough
-	case REQ:
-		fallthrough
-	case NREQ:
-		fallthrough
-	case IN:
-		return comparatorPrecedence
-	case AND:
-		return logicalAndPrecedence
-	case OR:
-		return logicalOrPrecedence
-	case BITWISE_AND:
-		fallthrough
-	case BITWISE_OR:
-		fallthrough
-	case BITWISE_XOR:
-		return bitwisePrecedence
-	case BITWISE_LSHIFT:
-		fallthrough
-	case BITWISE_RSHIFT:
-		return bitwiseShiftPrecedence
-	case PLUS:
-		fallthrough
-	case MINUS:
-		return additivePrecedence
-	case MULTIPLY:
-		fallthrough
-	case DIVIDE:
-		fallthrough
-	case MODULUS:
-		return multiplicativePrecedence
-	case EXPONENT:
-		return exponentialPrecedence
-	case BITWISE_NOT:
-		fallthrough
-	case NEGATE:
-		fallthrough
-	case INVERT:
-		return prefixPrecedence
-	case COALESCE:
-		fallthrough
-	case TERNARY_TRUE:
-		fallthrough
-	case TERNARY_FALSE:
-		return ternaryPrecedence
-	case ACCESS:
-		fallthrough
-	case FUNCTIONAL:
-		return functionalPrecedence
-	case SEPARATE:
-		return separatePrecedence
+	precendenceValue, found := precendence[symbol]
+	if found {
+		return precendenceValue
 	}
 
 	return valuePrecedence
@@ -235,6 +207,39 @@ func (this OperatorSymbol) IsModifierType(candidate []OperatorSymbol) bool {
 	return false
 }
 
+var symbolToStringMap = map[OperatorSymbol]string{
+	NOOP:           "NOOP",
+	VALUE:          "VALUE",
+	EQ:             "=",
+	NEQ:            "!=",
+	GT:             ">",
+	LT:             "<",
+	GTE:            ">=",
+	LTE:            "<=",
+	REQ:            "=~",
+	NREQ:           "!~",
+	AND:            "&&",
+	OR:             "||",
+	IN:             "in",
+	BITWISE_AND:    "&",
+	BITWISE_OR:     "|",
+	BITWISE_XOR:    "^",
+	BITWISE_LSHIFT: "<<",
+	BITWISE_RSHIFT: ">>",
+	PLUS:           "+",
+	MINUS:          "-",
+	MULTIPLY:       "*",
+	DIVIDE:         "/",
+	MODULUS:        "%",
+	EXPONENT:       "**",
+	NEGATE:         "-",
+	INVERT:         "!",
+	BITWISE_NOT:    "~",
+	TERNARY_TRUE:   "?",
+	TERNARY_FALSE:  ":",
+	COALESCE:       "??",
+}
+
 /*
 	Generally used when formatting type check errors.
 	We could store the stringified symbol somewhere else and not require a duplicated codeblock to translate
@@ -243,67 +248,10 @@ func (this OperatorSymbol) IsModifierType(candidate []OperatorSymbol) bool {
 */
 func (this OperatorSymbol) String() string {
 
-	switch this {
-	case NOOP:
-		return "NOOP"
-	case VALUE:
-		return "VALUE"
-	case EQ:
-		return "="
-	case NEQ:
-		return "!="
-	case GT:
-		return ">"
-	case LT:
-		return "<"
-	case GTE:
-		return ">="
-	case LTE:
-		return "<="
-	case REQ:
-		return "=~"
-	case NREQ:
-		return "!~"
-	case AND:
-		return "&&"
-	case OR:
-		return "||"
-	case IN:
-		return "in"
-	case BITWISE_AND:
-		return "&"
-	case BITWISE_OR:
-		return "|"
-	case BITWISE_XOR:
-		return "^"
-	case BITWISE_LSHIFT:
-		return "<<"
-	case BITWISE_RSHIFT:
-		return ">>"
-	case PLUS:
-		return "+"
-	case MINUS:
-		return "-"
-	case MULTIPLY:
-		return "*"
-	case DIVIDE:
-		return "/"
-	case MODULUS:
-		return "%"
-	case EXPONENT:
-		return "**"
-	case NEGATE:
-		return "-"
-	case INVERT:
-		return "!"
-	case BITWISE_NOT:
-		return "~"
-	case TERNARY_TRUE:
-		return "?"
-	case TERNARY_FALSE:
-		return ":"
-	case COALESCE:
-		return "??"
+	symbolString, found := symbolToStringMap[this]
+	if found {
+		return symbolString
 	}
+
 	return ""
 }
