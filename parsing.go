@@ -14,18 +14,18 @@ import (
 func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
-	var token ExpressionToken
-	var stream *lexerStream
-	var state lexerState
-	var err error
-	var found bool
+	// var token ExpressionToken
+	// var stream *lexerStream
+	// var state lexerState
+	// var err error
+	// var found bool
 
-	stream = newLexerStream(expression)
-	state = validLexerStates[0]
+	stream := newLexerStream(expression)
+	state := validLexerStates[0]
 
 	for stream.canRead() {
 
-		token, err, found = readToken(stream, state, functions)
+		token, err, found := readToken(stream, state, functions)
 
 		if err != nil {
 			return ret, err
@@ -35,7 +35,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 			break
 		}
 
-		state, err = getLexerStateForToken(token.Kind)
+		_, err = getLexerStateForToken(token.Kind)
 		if err != nil {
 			return ret, err
 		}
@@ -44,7 +44,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 		ret = append(ret, token)
 	}
 
-	err = checkBalance(ret)
+	err := checkBalance(ret)
 	if err != nil {
 		return nil, err
 	}
