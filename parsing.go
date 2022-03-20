@@ -310,8 +310,6 @@ func letterTokenCheck(
 
 func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, stream *lexerStream) (ExpressionToken, error, bool, bool) {
 
-	var tokenTime time.Time
-
 	if isNotQuote(*character) {
 		return ExpressionToken{}, nil, false, false
 	}
