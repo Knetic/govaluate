@@ -119,13 +119,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			break
 		}
 
-		_, err, _, readTokenCompleted = quoteTokenCheck(&character, &kind, &tokenValue, stream)
-		if err != nil {
-			return ExpressionToken{}, err, false
-		}
-		if readTokenCompleted {
-			break
-		}
+		quoteTokenCheck(&character, &kind, &tokenValue, stream)
 
 		if character == '(' {
 			tokenValue = character
@@ -308,8 +302,10 @@ func letterTokenCheck(
 	return ExpressionToken{}, nil, false, true
 }
 
-func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, stream *lexerStream) (ExpressionToken, error, bool, bool) {
+func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{},
+	stream *lexerStream) (ExpressionToken, error, bool, bool) {
 
+	var found bool
 	var completed bool
 	var tokenTime time.Time
 
@@ -326,7 +322,8 @@ func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, 
 	stream.rewind(-1)
 
 	// check to see if this can be parsed as a time.
-	tokenTime, found := tryParseTime((*tokenValue).(string))
+	candidate := (*tokenValue).(string)
+	tokenTime, found = tryParseTime(candidate)
 	if found {
 		*kind = TIME
 		*tokenValue = tokenTime
