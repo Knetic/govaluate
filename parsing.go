@@ -63,7 +63,6 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	var character rune
 	var found bool
 	var completed bool
-	var err error
 
 	// numeric is 0-9, or . or 0x followed by digits
 	// string starts with '
@@ -82,36 +81,11 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		kind = UNKNOWN
 
 		// numeric constant
-		if isNumeric(character) {
-
-			if stream.canRead() && character == '0' {
-				character = stream.readCharacter()
-
-				if stream.canRead() && character == 'x' {
-					tokenString, _ = readUntilFalse(stream, false, true, true, isHexDigit)
-					tokenValueInt, err := strconv.ParseUint(tokenString, 16, 64)
-
-					if err != nil {
-						errorMsg := fmt.Sprintf("Unable to parse hex value '%v' to uint64\n", tokenString)
-						return ExpressionToken{}, errors.New(errorMsg), false
-					}
-
-					kind = NUMERIC
-					tokenValue = float64(tokenValueInt)
-					break
-				} else {
-					stream.rewind(1)
-				}
-			}
-
-			tokenString = readTokenUntilFalse(stream, isNumeric)
-			tokenValue, err = strconv.ParseFloat(tokenString, 64)
-
-			if err != nil {
-				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
-				return ExpressionToken{}, errors.New(errorMsg), false
-			}
-			kind = NUMERIC
+		_, err, _, doBreak := characterTokenCheck(&character, &kind, &tokenValue, stream)
+		if err != nil {
+			return ExpressionToken{}, err, false
+		}
+		if doBreak {
 			break
 		}
 
@@ -286,6 +260,49 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	ret.Value = tokenValue
 
 	return ret, nil, (kind != UNKNOWN)
+}
+
+func characterTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, stream *lexerStream) (ExpressionToken, error, bool, bool) {
+
+	var err error
+	var parseRegularNumeric = func() (ExpressionToken, error, bool, bool) {
+		tokenString := readTokenUntilFalse(stream, isNumeric)
+		*tokenValue, err = strconv.ParseFloat(tokenString, 64)
+
+		if err != nil {
+			errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
+			return ExpressionToken{}, errors.New(errorMsg), false, false
+		}
+		*kind = NUMERIC
+		return ExpressionToken{}, nil, false, true
+	}
+
+	if !isNumeric(*character) {
+		return ExpressionToken{}, nil, false, false
+	}
+
+	if !stream.canRead() || *character != '0' {
+		return parseRegularNumeric()
+	}
+
+	*character = stream.readCharacter()
+
+	if stream.canRead() && *character == 'x' {
+		tokenString, _ := readUntilFalse(stream, false, true, true, isHexDigit)
+		tokenValueInt, err := strconv.ParseUint(tokenString, 16, 64)
+
+		if err != nil {
+			errorMsg := fmt.Sprintf("Unable to parse hex value '%v' to uint64\n", tokenString)
+			return ExpressionToken{}, errors.New(errorMsg), false, false
+		}
+
+		*kind = NUMERIC
+		*tokenValue = float64(tokenValueInt)
+		return ExpressionToken{}, nil, false, true
+	}
+
+	stream.rewind(1)
+	return parseRegularNumeric()
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
