@@ -319,7 +319,7 @@ func letterTokenCheck(
 			return ExpressionToken{}, errors.New(errorMsg), false, false
 		}
 	}
-	return ExpressionToken{}, nil, false, false
+	return ExpressionToken{}, nil, false, true
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
