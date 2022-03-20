@@ -468,6 +468,10 @@ func isFloat64(value interface{}) bool {
 	String concat needs one (or both) of the sides to be a string.
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
+
+	if isFloat64(left) && isFloat64(right) {
+		return true
+	}
 	if !isString(left) && !isString(right) {
 		return false
 	}
@@ -478,10 +482,12 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 	Comparison can either be between numbers, or lexicographic between two strings,
 	but never between the two.
 */
-// no change on complexity
 func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
-	if (isFloat64(left) && isFloat64(right)) || (isString(left) && isString(right)) {
+	if isFloat64(left) && isFloat64(right) {
+		return true
+	}
+	if isString(left) && isString(right) {
 		return true
 	}
 	return false
