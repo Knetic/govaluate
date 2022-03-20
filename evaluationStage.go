@@ -74,7 +74,8 @@ var symbolMap = map[OperatorSymbol]bool{
 }
 
 func (this *evaluationStage) isShortCircuitable() bool {
-	if *evaluationStage, found := symbolMap[this.symbol] {
+	var symbolE = this.symbol
+	if symbolMap[symbolE] {
 		return true
 	}
 	return false
