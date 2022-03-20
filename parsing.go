@@ -56,9 +56,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 	var ret ExpressionToken
 	var tokenValue interface{}
-	var tokenString string
 	var kind TokenKind
-	var found bool
 	var completed bool
 
 	// numeric is 0-9, or . or 0x followed by digits
@@ -138,45 +136,8 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			break
 		}
 
-		// must be a known symbol
-		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric)
-		tokenValue = tokenString
-
-		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
-		// very differently.
-		if state.canTransitionTo(PREFIX) {
-			_, found = prefixSymbols[tokenString]
-			if found {
-
-				kind = PREFIX
-				break
-			}
-		}
-		_, found = modifierSymbols[tokenString]
-		if found {
-
-			kind = MODIFIER
-			break
-		}
-
-		_, found = logicalSymbols[tokenString]
-		if found {
-
-			kind = LOGICALOP
-			break
-		}
-
-		_, found = comparatorSymbols[tokenString]
-		if found {
-
-			kind = COMPARATOR
-			break
-		}
-
-		_, found = ternarySymbols[tokenString]
-		if found {
-
-			kind = TERNARY
+		tokenString, tokenAssigned := otherTokenCheck(&kind, &tokenValue, &state, stream)
+		if tokenAssigned {
 			break
 		}
 
@@ -333,6 +294,52 @@ func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, 
 	}
 
 	return ExpressionToken{}, nil, false, true
+}
+
+func otherTokenCheck(kind *TokenKind, tokenValue *interface{}, state *lexerState, stream *lexerStream) (string, bool) {
+
+	// must be a known symbol
+	tokenString := readTokenUntilFalse(stream, isNotAlphanumeric)
+	*tokenValue = tokenString
+
+	// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
+	// very differently.
+	if state.canTransitionTo(PREFIX) {
+		_, found := prefixSymbols[tokenString]
+		if found {
+
+			*kind = PREFIX
+			return tokenString, true
+		}
+	}
+	_, found := modifierSymbols[tokenString]
+	if found {
+
+		*kind = MODIFIER
+		return tokenString, true
+	}
+
+	_, found = logicalSymbols[tokenString]
+	if found {
+
+		*kind = LOGICALOP
+		return tokenString, true
+	}
+
+	_, found = comparatorSymbols[tokenString]
+	if found {
+
+		*kind = COMPARATOR
+		return tokenString, true
+	}
+
+	_, found = ternarySymbols[tokenString]
+	if found {
+
+		*kind = TERNARY
+		return tokenString, true
+	}
+	return tokenString, false
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
