@@ -56,7 +56,6 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 	var ret ExpressionToken
 	var tokenValue interface{}
-	var tokenTime time.Time
 	var tokenString string
 	var kind TokenKind
 	var character rune
@@ -120,24 +119,11 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			break
 		}
 
-		if !isNotQuote(character) {
-			tokenValue, completed = readUntilFalse(stream, true, false, true, isNotQuote)
-
-			if !completed {
-				return ExpressionToken{}, errors.New("Unclosed string literal"), false
-			}
-
-			// advance the stream one position, since reading until false assumes the terminator is a real token
-			stream.rewind(-1)
-
-			// check to see if this can be parsed as a time.
-			tokenTime, found = tryParseTime(tokenValue.(string))
-			if found {
-				kind = TIME
-				tokenValue = tokenTime
-			} else {
-				kind = STRING
-			}
+		_, err, _, readTokenCompleted = quoteTokenCheck(&character, &kind, &tokenValue, stream)
+		if err != nil {
+			return ExpressionToken{}, err, false
+		}
+		if readTokenCompleted {
 			break
 		}
 
@@ -318,6 +304,34 @@ func letterTokenCheck(
 			errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
 			return ExpressionToken{}, errors.New(errorMsg), false, false
 		}
+	}
+	return ExpressionToken{}, nil, false, true
+}
+
+func quoteTokenCheck(character *rune, kind *TokenKind, tokenValue *interface{}, stream *lexerStream) (ExpressionToken, error, bool, bool) {
+
+	var completed bool
+	var tokenTime time.Time
+
+	if !isNotQuote(*character) {
+		return ExpressionToken{}, nil, false, false
+	}
+
+	*tokenValue, completed = readUntilFalse(stream, true, false, true, isNotQuote)
+	if !completed {
+		return ExpressionToken{}, errors.New("Unclosed string literal"), false, false
+	}
+
+	// advance the stream one position, since reading until false assumes the terminator is a real token
+	stream.rewind(-1)
+
+	// check to see if this can be parsed as a time.
+	tokenTime, found := tryParseTime((*tokenValue).(string))
+	if found {
+		*kind = TIME
+		*tokenValue = tokenTime
+	} else {
+		*kind = STRING
 	}
 	return ExpressionToken{}, nil, false, true
 }
