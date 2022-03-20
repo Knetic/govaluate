@@ -64,21 +64,20 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 	this.typeErrorFormat = other.typeErrorFormat
 }
 
-func (this *evaluationStage) isShortCircuitable() bool {
+// test
+var symbolMap = map[OperatorSymbol]bool{
+	AND:		true,
+	OR:		true,
+	TERNARY_TRUE:	true,
+	TERNARY_FALSE:	true,
+	COALESCE:	true,
+}
 
-	switch this.symbol {
-	case AND:
-		fallthrough
-	case OR:
-		fallthrough
-	case TERNARY_TRUE:
-		fallthrough
-	case TERNARY_FALSE:
-		fallthrough
-	case COALESCE:
+func (this *evaluationStage) isShortCircuitable() bool {
+	var symbolE = this.symbol
+	if symbolMap[symbolE] {
 		return true
 	}
-
 	return false
 }
 
@@ -427,8 +426,6 @@ func inStage(left interface{}, right interface{}, parameters Parameters) (interf
 	}
 	return false, nil
 }
-
-//
 
 func isString(value interface{}) bool {
 
