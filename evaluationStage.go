@@ -64,21 +64,33 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 	this.typeErrorFormat = other.typeErrorFormat
 }
 
+// test
+var symbolMap = map[*evaluationStage]bool{
+	AND:			true,
+	OR:				true,
+	TERNARY_TRUE:	true,
+	TERNARY_FALSE:	true,
+	COALESCE:		true,
+}
+
 func (this *evaluationStage) isShortCircuitable() bool {
 
-	switch this.symbol {
-	case AND:
-		fallthrough
-	case OR:
-		fallthrough
-	case TERNARY_TRUE:
-		fallthrough
-	case TERNARY_FALSE:
-		fallthrough
-	case COALESCE:
+	// switch this.symbol {
+	// case AND:
+	// 	fallthrough
+	// case OR:
+	// 	fallthrough
+	// case TERNARY_TRUE:
+	// 	fallthrough
+	// case TERNARY_FALSE:
+	// 	fallthrough
+	// case COALESCE:
+	// 	return true
+	// }
+
+	if evaluationStage, found := symbolMap[this.symbol] {
 		return true
 	}
-
 	return false
 }
 
@@ -428,8 +440,6 @@ func inStage(left interface{}, right interface{}, parameters Parameters) (interf
 	return false, nil
 }
 
-//
-
 func isString(value interface{}) bool {
 
 	switch value.(type) {
@@ -472,27 +482,35 @@ func isFloat64(value interface{}) bool {
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
 
-	if isFloat64(left) && isFloat64(right) {
-		return true
-	}
+	// if isFloat64(left) && isFloat64(right) {
+	// 	return true
+	// }
+	// if !isString(left) && !isString(right) {
+	// 	return false
+	// }
+	// return true
+	
 	if !isString(left) && !isString(right) {
 		return false
 	}
-	return true
+	else {
+		return true
+	}
 }
 
 /*
 	Comparison can either be between numbers, or lexicographic between two strings,
 	but never between the two.
 */
+// no change on complexity
 func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
-	if isFloat64(left) && isFloat64(right) {
+	if isFloat64(left) && isFloat64(right) || isString(left) && isString(right) {
 		return true
 	}
-	if isString(left) && isString(right) {
-		return true
-	}
+	// if isString(left) && isString(right) {
+	// 	return true
+	// }
 	return false
 }
 
