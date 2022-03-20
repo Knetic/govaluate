@@ -470,9 +470,8 @@ func isFloat64(value interface{}) bool {
 func additionTypeCheck(left interface{}, right interface{}) bool {
 	if !isString(left) && !isString(right) {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 /*
@@ -482,7 +481,7 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 // no change on complexity
 func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
-	if isFloat64(left) && isFloat64(right) || isString(left) && isString(right) {
+	if (isFloat64(left) && isFloat64(right)) || (isString(left) && isString(right)) {
 		return true
 	}
 	return false
