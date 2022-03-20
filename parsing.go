@@ -295,30 +295,31 @@ func letterTokenCheck(
 
 	// accessor?
 	accessorIndex := strings.Index(tokenString, ".")
-	if accessorIndex > 0 {
+	if !(accessorIndex > 0) {
+		return ExpressionToken{}, nil, false, true
+	}
 
-		// check that it doesn't end with a hanging period
-		if tokenString[len(tokenString)-1] == '.' {
-			errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
+	// check that it doesn't end with a hanging period
+	if tokenString[len(tokenString)-1] == '.' {
+		errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
+		return ExpressionToken{}, errors.New(errorMsg), false, false
+	}
+
+	*kind = ACCESSOR
+	splits := strings.Split(tokenString, ".")
+	*tokenValue = splits
+
+	// check that none of them are unexported
+	for i := 1; i < len(splits); i++ {
+
+		firstCharacter := getFirstRune(splits[i])
+
+		if unicode.ToUpper(firstCharacter) != firstCharacter {
+			errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
 			return ExpressionToken{}, errors.New(errorMsg), false, false
 		}
-
-		*kind = ACCESSOR
-		splits := strings.Split(tokenString, ".")
-		*tokenValue = splits
-
-		// check that none of them are unexported
-		for i := 1; i < len(splits); i++ {
-
-			firstCharacter := getFirstRune(splits[i])
-
-			if unicode.ToUpper(firstCharacter) != firstCharacter {
-				errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
-				return ExpressionToken{}, errors.New(errorMsg), false, false
-			}
-		}
 	}
-	return ExpressionToken{}, nil, false, true
+	return ExpressionToken{}, nil, false, false
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
