@@ -54,7 +54,6 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 
 func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
 
-	var function ExpressionFunction
 	var ret ExpressionToken
 	var tokenValue interface{}
 	var tokenTime time.Time
@@ -81,11 +80,11 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		kind = UNKNOWN
 
 		// numeric constant
-		_, err, _, doBreak := characterTokenCheck(&character, &kind, &tokenValue, stream)
+		_, err, _, readTokenCompleted := characterTokenCheck(&character, &kind, &tokenValue, stream)
 		if err != nil {
 			return ExpressionToken{}, err, false
 		}
-		if doBreak {
+		if readTokenCompleted {
 			break
 		}
 
@@ -113,67 +112,11 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		}
 
 		// regular variable - or function?
-		if unicode.IsLetter(character) {
-
-			tokenString = readTokenUntilFalse(stream, isVariableName)
-
-			tokenValue = tokenString
-			kind = VARIABLE
-
-			// boolean?
-			if tokenValue == "true" {
-
-				kind = BOOLEAN
-				tokenValue = true
-			} else {
-
-				if tokenValue == "false" {
-
-					kind = BOOLEAN
-					tokenValue = false
-				}
-			}
-
-			// textual operator?
-			if tokenValue == "in" || tokenValue == "IN" {
-
-				// force lower case for consistency
-				tokenValue = "in"
-				kind = COMPARATOR
-			}
-
-			// function?
-			function, found = functions[tokenString]
-			if found {
-				kind = FUNCTION
-				tokenValue = function
-			}
-
-			// accessor?
-			accessorIndex := strings.Index(tokenString, ".")
-			if accessorIndex > 0 {
-
-				// check that it doesn't end with a hanging period
-				if tokenString[len(tokenString)-1] == '.' {
-					errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
-					return ExpressionToken{}, errors.New(errorMsg), false
-				}
-
-				kind = ACCESSOR
-				splits := strings.Split(tokenString, ".")
-				tokenValue = splits
-
-				// check that none of them are unexported
-				for i := 1; i < len(splits); i++ {
-
-					firstCharacter := getFirstRune(splits[i])
-
-					if unicode.ToUpper(firstCharacter) != firstCharacter {
-						errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
-						return ExpressionToken{}, errors.New(errorMsg), false
-					}
-				}
-			}
+		_, err, _, readTokenCompleted = letterTokenCheck(&character, &kind, &tokenValue, stream, &functions)
+		if err != nil {
+			return ExpressionToken{}, err, false
+		}
+		if readTokenCompleted {
 			break
 		}
 
@@ -303,6 +246,76 @@ func characterTokenCheck(character *rune, kind *TokenKind, tokenValue *interface
 
 	stream.rewind(1)
 	return parseRegularNumeric()
+}
+
+func letterTokenCheck(
+	character *rune, kind *TokenKind, tokenValue *interface{},
+	stream *lexerStream, functions *map[string]ExpressionFunction) (ExpressionToken, error, bool, bool) {
+
+	if !unicode.IsLetter(*character) {
+		return ExpressionToken{}, nil, false, false
+	}
+
+	tokenString := readTokenUntilFalse(stream, isVariableName)
+
+	*tokenValue = tokenString
+	*kind = VARIABLE
+
+	// boolean?
+	if *tokenValue == "true" {
+
+		*kind = BOOLEAN
+		*tokenValue = true
+	}
+
+	if *tokenValue == "false" {
+
+		*kind = BOOLEAN
+		*tokenValue = false
+	}
+
+	// textual operator?
+	if *tokenValue == "in" || *tokenValue == "IN" {
+
+		// force lower case for consistency
+		*tokenValue = "in"
+		*kind = COMPARATOR
+	}
+
+	// function?
+	function, found := (*functions)[tokenString]
+	if found {
+		*kind = FUNCTION
+		*tokenValue = function
+	}
+
+	// accessor?
+	accessorIndex := strings.Index(tokenString, ".")
+	if accessorIndex <= 0 {
+		return ExpressionToken{}, nil, false, true
+	}
+
+	// check that it doesn't end with a hanging period
+	if tokenString[len(tokenString)-1] == '.' {
+		errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
+		return ExpressionToken{}, errors.New(errorMsg), false, false
+	}
+
+	*kind = ACCESSOR
+	splits := strings.Split(tokenString, ".")
+	*tokenValue = splits
+
+	// check that none of them are unexported
+	for i := 1; i < len(splits); i++ {
+
+		firstCharacter := getFirstRune(splits[i])
+
+		if unicode.ToUpper(firstCharacter) != firstCharacter {
+			errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
+			return ExpressionToken{}, errors.New(errorMsg), false, false
+		}
+	}
+	return ExpressionToken{}, nil, false, false
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
