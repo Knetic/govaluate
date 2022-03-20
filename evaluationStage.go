@@ -65,12 +65,12 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 }
 
 // test
-var symbolMap = map[*evaluationStage]bool{
-	AND:			true,
-	OR:				true,
+var symbolMap = map[OperatorSymbol]bool{
+	AND:		true,
+	OR:		true,
 	TERNARY_TRUE:	true,
 	TERNARY_FALSE:	true,
-	COALESCE:		true,
+	COALESCE:	true,
 }
 
 func (this *evaluationStage) isShortCircuitable() bool {
