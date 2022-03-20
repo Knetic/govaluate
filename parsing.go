@@ -56,7 +56,9 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 	var ret ExpressionToken
 	var tokenValue interface{}
+	var tokenString string
 	var kind TokenKind
+	var found bool
 	var completed bool
 
 	// numeric is 0-9, or . or 0x followed by digits
@@ -73,7 +75,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			continue
 		}
 
-		kind := UNKNOWN
+		kind = UNKNOWN
 
 		// numeric constant
 		_, err, _, tokenAssigned := numericTokenCheck(&character, &kind, &tokenValue, stream)
@@ -137,20 +139,20 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		}
 
 		// must be a known symbol
-		tokenString := readTokenUntilFalse(stream, isNotAlphanumeric)
+		tokenString = readTokenUntilFalse(stream, isNotAlphanumeric)
 		tokenValue = tokenString
 
 		// quick hack for the case where "-" can mean "prefixed negation" or "minus", which are used
 		// very differently.
 		if state.canTransitionTo(PREFIX) {
-			_, found := prefixSymbols[tokenString]
+			_, found = prefixSymbols[tokenString]
 			if found {
 
 				kind = PREFIX
 				break
 			}
 		}
-		_, found := modifierSymbols[tokenString]
+		_, found = modifierSymbols[tokenString]
 		if found {
 
 			kind = MODIFIER
