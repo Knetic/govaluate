@@ -74,20 +74,6 @@ var symbolMap = map[*evaluationStage]bool{
 }
 
 func (this *evaluationStage) isShortCircuitable() bool {
-
-	// switch this.symbol {
-	// case AND:
-	// 	fallthrough
-	// case OR:
-	// 	fallthrough
-	// case TERNARY_TRUE:
-	// 	fallthrough
-	// case TERNARY_FALSE:
-	// 	fallthrough
-	// case COALESCE:
-	// 	return true
-	// }
-
 	if evaluationStage, found := symbolMap[this.symbol] {
 		return true
 	}
@@ -481,19 +467,9 @@ func isFloat64(value interface{}) bool {
 	String concat needs one (or both) of the sides to be a string.
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
-
-	// if isFloat64(left) && isFloat64(right) {
-	// 	return true
-	// }
-	// if !isString(left) && !isString(right) {
-	// 	return false
-	// }
-	// return true
-	
 	if !isString(left) && !isString(right) {
 		return false
-	}
-	else {
+	} else {
 		return true
 	}
 }
@@ -508,9 +484,6 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 	if isFloat64(left) && isFloat64(right) || isString(left) && isString(right) {
 		return true
 	}
-	// if isString(left) && isString(right) {
-	// 	return true
-	// }
 	return false
 }
 
