@@ -252,6 +252,9 @@ func letterTokenCheck(
 	character *rune, kind *TokenKind, tokenValue *interface{},
 	stream *lexerStream, functions *map[string]ExpressionFunction) (ExpressionToken, error, bool, bool) {
 
+	var found bool
+	var function ExpressionFunction
+
 	if !unicode.IsLetter(*character) {
 		return ExpressionToken{}, nil, false, false
 	}
@@ -266,12 +269,13 @@ func letterTokenCheck(
 
 		*kind = BOOLEAN
 		*tokenValue = true
-	}
+	} else {
 
-	if *tokenValue == "false" {
+		if *tokenValue == "false" {
 
-		*kind = BOOLEAN
-		*tokenValue = false
+			*kind = BOOLEAN
+			*tokenValue = false
+		}
 	}
 
 	// textual operator?
@@ -283,7 +287,7 @@ func letterTokenCheck(
 	}
 
 	// function?
-	function, found := (*functions)[tokenString]
+	function, found = (*functions)[tokenString]
 	if found {
 		*kind = FUNCTION
 		*tokenValue = function
@@ -291,31 +295,30 @@ func letterTokenCheck(
 
 	// accessor?
 	accessorIndex := strings.Index(tokenString, ".")
-	if accessorIndex <= 0 {
-		return ExpressionToken{}, nil, false, true
-	}
+	if accessorIndex > 0 {
 
-	// check that it doesn't end with a hanging period
-	if tokenString[len(tokenString)-1] == '.' {
-		errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
-		return ExpressionToken{}, errors.New(errorMsg), false, false
-	}
-
-	*kind = ACCESSOR
-	splits := strings.Split(tokenString, ".")
-	*tokenValue = splits
-
-	// check that none of them are unexported
-	for i := 1; i < len(splits); i++ {
-
-		firstCharacter := getFirstRune(splits[i])
-
-		if unicode.ToUpper(firstCharacter) != firstCharacter {
-			errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
+		// check that it doesn't end with a hanging period
+		if tokenString[len(tokenString)-1] == '.' {
+			errorMsg := fmt.Sprintf("Hanging accessor on token '%s'", tokenString)
 			return ExpressionToken{}, errors.New(errorMsg), false, false
 		}
+
+		*kind = ACCESSOR
+		splits := strings.Split(tokenString, ".")
+		*tokenValue = splits
+
+		// check that none of them are unexported
+		for i := 1; i < len(splits); i++ {
+
+			firstCharacter := getFirstRune(splits[i])
+
+			if unicode.ToUpper(firstCharacter) != firstCharacter {
+				errorMsg := fmt.Sprintf("Unable to access unexported field '%s' in token '%s'", splits[i], tokenString)
+				return ExpressionToken{}, errors.New(errorMsg), false, false
+			}
+		}
 	}
-	return ExpressionToken{}, nil, false, false
+	return ExpressionToken{}, nil, false, true
 }
 
 func readTokenUntilFalse(stream *lexerStream, condition func(rune) bool) string {
