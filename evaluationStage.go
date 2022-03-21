@@ -349,7 +349,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 				givenParams := right.([]interface{})
 				params = make([]reflect.Value, len(givenParams))
-				for idx, _ := range givenParams {
+				for idx := range givenParams {
 					params[idx] = reflect.ValueOf(givenParams[idx])
 				}
 
