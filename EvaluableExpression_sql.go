@@ -88,7 +88,7 @@ func Pattern(this EvaluableExpression, parsable parsableInput) (string, error) {
 	return fmt.Sprintf("'%s'", parsable.token.Value.(*regexp.Regexp).String()), nil
 }
 func Time(this EvaluableExpression, parsable parsableInput) (string, error) {
-	return fmt.Sprintf("'%s'", parsable.token.Value.(time.Time).Format(parsable.thisProxy.QueryDateFormat)), nil
+	return fmt.Sprintf("'%s'", parsable.token.Value.(time.Time).Format(this.QueryDateFormat)), nil
 }
 func LogicalOP(this EvaluableExpression, parsable parsableInput) (string, error) {
 	if logicalSymbols[parsable.token.Value.(string)] == AND {
