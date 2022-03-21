@@ -73,11 +73,12 @@ func init() {
 
 func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transactions *expressionOutputStream) (string, error) {
 
-	sqlSubstringFunc, found := findMap[stream.next().Kind]
+	token := stream.next()
+	sqlSubstringFunc, found := findMap[token.Kind]
 	if found {
-		return sqlSubstringFunc(this, parsableInput{token: stream.next(), stream: stream, transactions: transactions})
+		return sqlSubstringFunc(this, parsableInput{token: token, stream: stream, transactions: transactions})
 	}
-	return "", errors.New(fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", stream.next().Value, stream.next().Kind))
+	return "", errors.New(fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind))
 }
 
 func String(this EvaluableExpression, parsable parsableInput) (string, error) {
