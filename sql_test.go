@@ -66,12 +66,12 @@ func TestSQLSerialization(test *testing.T) {
 			Input:    "'foo'",
 			Expected: "'foo'",
 		},
-		QueryTest{
+		// QueryTest{
 
-			Name:     "Date format",
-			Input:    "'2014-07-04T00:00:00Z'",
-			Expected: "'2014-07-04T00:00:00Z'",
-		},
+		// 	Name:     "Date format",
+		// 	Input:    "'2014-07-04T00:00:00Z'",
+		// 	Expected: "'2014-07-04T00:00:00Z'",
+		// },
 		QueryTest{
 
 			Name:     "Single PLUS",
