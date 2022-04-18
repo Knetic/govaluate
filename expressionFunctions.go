@@ -6,3 +6,5 @@ package govaluate
 	An error returned will halt execution of the expression.
 */
 type ExpressionFunction func(arguments ...interface{}) (interface{}, error)
+
+var ExpressionFunctionNames []string

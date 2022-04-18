@@ -34,6 +34,7 @@ type EvaluableExpression struct {
 
 	tokens           []ExpressionToken
 	evaluationStages *evaluationStage
+	functions        []string
 	inputExpression  string
 }
 
@@ -96,10 +97,12 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 	ret.QueryDateFormat = isoDateFormat
 	ret.inputExpression = expression
 
+	ExpressionFunctionNames = nil
 	ret.tokens, err = parseTokens(expression, functions)
 	if err != nil {
 		return nil, err
 	}
+	ret.functions = ExpressionFunctionNames
 
 	err = checkBalance(ret.tokens)
 	if err != nil {

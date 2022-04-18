@@ -1,6 +1,7 @@
 package govaluate
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -8,6 +9,11 @@ import (
 )
 
 var findMap map[TokenKind]func(EvaluableExpression, parsableInput) (string, error)
+
+type TokenData struct {
+	Expression string            `json:"name"`
+	Tokens     []ExpressionToken `json:"tokens"`
+}
 
 /*
 	Returns a string representing this expression as if it were written in SQL.
@@ -44,7 +50,6 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 }
 
 type parsableInput struct {
-	thisProxy    EvaluableExpression
 	token        ExpressionToken
 	stream       *tokenStream
 	transactions *expressionOutputStream
@@ -180,4 +185,42 @@ var comparatorSymbolsReverse = map[OperatorSymbol]string{
 	NEQ:  "<>",
 	REQ:  "RLIKE",
 	NREQ: "NOT RLIKE",
+}
+
+func marshalTokens(expression *EvaluableExpression) ([]byte, error) {
+
+	var index int
+	tokens := expression.Tokens()
+
+	for position, token := range tokens {
+
+		if token.Kind == FUNCTION {
+			token.Value = expression.functions[index]
+			tokens[position] = token
+			index++
+		}
+	}
+
+	data := TokenData{
+		Tokens:     tokens,
+		Expression: expression.String(),
+	}
+
+	buffer, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer, nil
+}
+
+func UnmarshalTokens(bytes []byte) (TokenData, error) {
+
+	data := TokenData{}
+	err := json.Unmarshal(bytes, &data)
+	if err != nil {
+		return TokenData{}, err
+	}
+
+	return data, nil
 }

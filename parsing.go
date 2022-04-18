@@ -237,6 +237,7 @@ func letterTokenCheck(
 	if found {
 		*kind = FUNCTION
 		*tokenValue = function
+		ExpressionFunctionNames = append(ExpressionFunctionNames, tokenString)
 	}
 
 	// accessor?
