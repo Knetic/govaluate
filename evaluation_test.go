@@ -1523,6 +1523,7 @@ func TestEvaluableExpressionMarshaling(test *testing.T) {
 
 func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
+	var newTokenList []ExpressionToken
 	var expression *EvaluableExpression
 	var parameters map[string]interface{}
 	var result interface{}
@@ -1570,22 +1571,25 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 		for index, token := range tokens {
 
 			if token.Kind != data.Tokens[index].Kind {
-				test.Logf("Token kind %s does not match with Unmarshalled Kind: %s",
-					token.Kind.String(), data.Tokens[index].Kind.String())
+				test.Logf("Token kind %s does not match with Unmarshalled Kind: %s", token.Kind.String(), data.Tokens[index].Kind.String())
+				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 				test.Fail()
 			}
 
-			if token.Kind == FUNCTION {
-				newToken := ExpressionToken{
-					Kind:  data.Tokens[index].Kind,
-					Value: token.Value,
-				}
-				data.Tokens[index] = newToken
-				continue
+			newToken := ExpressionToken{
+				Kind: data.Tokens[index].Kind,
 			}
+
+			if token.Kind == FUNCTION {
+				newToken.Value = token.Value
+			} else {
+				newToken.Value = data.Tokens[index].Value
+			}
+
+			newTokenList = append(newTokenList, newToken)
 		}
 
-		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(data.Tokens)
+		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(newTokenList)
 
 		parameters = make(map[string]interface{}, 8)
 
