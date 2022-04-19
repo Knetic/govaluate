@@ -1594,7 +1594,10 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 			test.Logf("Test '%s' failed", evaluationTest.Name)
 			test.Logf("Encountered error: %s", err.Error())
-			test.Logf("Orginal token list: %+v\nUnmarshaled token list: %+v", tokens, newTokenList)
+			for index, token := range tokens {
+				test.Logf("Orginal token Kind: %s, value: %+v", token.Kind.String(), token.Value)
+				test.Logf("Unmarshaled token Kind: %s, value: %+v", newTokenList[index].Kind.String(), newTokenList[index].Value)
+			}
 			test.Fail()
 			continue
 		}
