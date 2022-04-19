@@ -507,6 +507,12 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Single Element Array membership literal",
+			Input:    "(1 in (1))",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Logical operator reordering (#30)",
 			Input:    "(true && true) || (true && false)",
 			Expected: true,
