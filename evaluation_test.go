@@ -1523,10 +1523,7 @@ func TestEvaluableExpressionMarshaling(test *testing.T) {
 
 func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
-	var newTokenList []ExpressionToken
 	var expression *EvaluableExpression
-	var parameters map[string]interface{}
-	var result interface{}
 	var err error
 
 	fmt.Printf("Running %d marshaling test cases...\n", len(evaluationTests))
@@ -1575,54 +1572,6 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 				test.Fail()
 			}
-
-			newToken := ExpressionToken{
-				Kind: data.Tokens[index].Kind,
-			}
-
-			if token.Kind == FUNCTION {
-				newToken.Value = token.Value
-			} else {
-				newToken.Value = data.Tokens[index].Value
-			}
-
-			newTokenList = append(newTokenList, newToken)
-		}
-
-		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(newTokenList)
-		if err != nil {
-
-			test.Logf("Test '%s' failed", evaluationTest.Name)
-			test.Logf("Encountered error: %s", err.Error())
-			for index, token := range tokens {
-				test.Logf("Orginal token Kind: %s, value: %+v", token.Kind.String(), token.Value)
-				test.Logf("Unmarshaled token Kind: %s, value: %+v", newTokenList[index].Kind.String(), newTokenList[index].Value)
-			}
-			test.Fail()
-			continue
-		}
-
-		parameters = make(map[string]interface{}, 8)
-
-		for _, parameter := range evaluationTest.Parameters {
-			parameters[parameter.Name] = parameter.Value
-		}
-
-		result, err = expressionFromUnmarshaledTokens.Evaluate(parameters)
-
-		if err != nil {
-
-			test.Logf("Test '%s' failed", evaluationTest.Name)
-			test.Logf("Encountered error: %s", err.Error())
-			test.Fail()
-			continue
-		}
-
-		if result != evaluationTest.Expected {
-
-			test.Logf("Test '%s' failed", evaluationTest.Name)
-			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
-			test.Fail()
 		}
 	}
 
