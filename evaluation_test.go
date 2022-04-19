@@ -1590,6 +1590,13 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 		}
 
 		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(newTokenList)
+		if err != nil {
+
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Encountered error: %s", err.Error())
+			test.Fail()
+			continue
+		}
 
 		parameters = make(map[string]interface{}, 8)
 
