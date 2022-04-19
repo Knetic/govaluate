@@ -1571,6 +1571,9 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 				test.Logf("Token kind %s does not match with Unmarshalled Kind: %s", token.Kind.String(), data.Tokens[index].Kind.String())
 				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 				test.Fail()
+			} else {
+				test.Logf("Token kind %s with Value: %+v, matches with Unmarshalled Kind: %s with Value: %+v",
+					token.Kind.String(), token.Value, data.Tokens[index].Kind.String(), data.Tokens[index].Value)
 			}
 		}
 	}
