@@ -1575,10 +1575,9 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 			if token.Value != data.Tokens[index].Value {
 				test.Logf("Token value of type %T does not match with Unmarshalled Value of type %T", token.Value, data.Tokens[index].Value)
+				test.Logf("Token value %+v does not match with Unmarshalled Value: %+v", token.Value, data.Tokens[index].Value)
 				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 				test.Fail()
-			} else {
-				test.Logf("Token value of type %T matches with Unmarshalled Value of type %T", token.Value, data.Tokens[index].Value)
 			}
 		}
 	}
