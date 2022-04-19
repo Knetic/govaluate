@@ -1523,6 +1523,7 @@ func TestEvaluableExpressionMarshaling(test *testing.T) {
 
 func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
+	var newTokenList []ExpressionToken
 	var expression *EvaluableExpression
 	var parameters map[string]interface{}
 	var result interface{}
@@ -1575,12 +1576,19 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 				test.Fail()
 			}
 
+			newToken := ExpressionToken{}
+			newToken.Kind = data.Tokens[index].Kind
+
 			if token.Kind == FUNCTION {
-				data.Tokens[index].Value = token.Value
+				newToken.Value = token.Value
+			} else {
+				newToken.Value = data.Tokens[index].Kind
 			}
+
+			newTokenList = append(newTokenList, newToken)
 		}
 
-		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(data.Tokens)
+		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(newTokenList)
 
 		parameters = make(map[string]interface{}, 8)
 
