@@ -1524,6 +1524,8 @@ func TestEvaluableExpressionMarshaling(test *testing.T) {
 func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 	var expression *EvaluableExpression
+	var parameters map[string]interface{}
+	var result interface{}
 	var err error
 
 	fmt.Printf("Running %d marshaling test cases...\n", len(evaluationTests))
@@ -1573,12 +1575,51 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 				test.Fail()
 			}
 
-			if token.Value != data.Tokens[index].Value {
-				test.Logf("Token value of type %T does not match with Unmarshalled Value of type %T", token.Value, data.Tokens[index].Value)
-				test.Logf("Token value %+v does not match with Unmarshalled Value: %+v", token.Value, data.Tokens[index].Value)
-				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
-				test.Fail()
+			if token.Kind == FUNCTION {
+				data.Tokens[index].Value = token.Value
 			}
+		}
+
+		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(data.Tokens)
+
+		parameters = make(map[string]interface{}, 8)
+
+		for _, parameter := range evaluationTest.Parameters {
+			parameters[parameter.Name] = parameter.Value
+		}
+
+		result, err = expression.Evaluate(parameters)
+
+		if err != nil {
+
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Encountered error: %s", err.Error())
+			test.Fail()
+			continue
+		}
+
+		if result != evaluationTest.Expected {
+
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
+			test.Fail()
+		}
+
+		result, err = expressionFromUnmarshaledTokens.Evaluate(parameters)
+
+		if err != nil {
+
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Encountered error: %s", err.Error())
+			test.Fail()
+			continue
+		}
+
+		if result != evaluationTest.Expected {
+
+			test.Logf("Test '%s' failed", evaluationTest.Name)
+			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
+			test.Fail()
 		}
 	}
 
