@@ -1526,7 +1526,7 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 	var expression *EvaluableExpression
 	var err error
 
-	test.Logf("Running %d marshaling test cases...\n", len(evaluationTests))
+	fmt.Printf("Running %d marshaling test cases...\n", len(evaluationTests))
 
 	for _, evaluationTest := range evaluationTests {
 
@@ -1560,16 +1560,23 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 			test.Fail()
 		}
 
-		// isEqual := reflect.DeepEqual(tokens, data.Tokens)
 		if len(tokens) != len(data.Tokens) {
 			test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 			test.Fail()
 		}
 
-		// for token, index := range Tokens {
-		// 	test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
-		// 	test.Fail()
-		// }
+		for index, token := range tokens {
+
+			if token.Kind != data.Tokens[index].Kind {
+				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
+				test.Fail()
+			}
+
+			if token.Value != data.Tokens[index].Value {
+				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
+				test.Fail()
+			}
+		}
 	}
 
 }
