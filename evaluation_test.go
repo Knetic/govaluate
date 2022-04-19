@@ -1577,6 +1577,8 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 				test.Logf("Token value %+v does not match with Unmarshalled Value: %+v", token.Value, data.Tokens[index].Value)
 				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
 				test.Fail()
+			} else {
+				test.Logf("Token value %+v matches with Unmarshalled Value: %+v", token.Value, data.Tokens[index].Value)
 			}
 		}
 	}
