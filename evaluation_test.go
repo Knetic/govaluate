@@ -1594,6 +1594,7 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
 			test.Logf("Test '%s' failed", evaluationTest.Name)
 			test.Logf("Encountered error: %s", err.Error())
+			test.Logf("Orginal token list: %+v\nUnmarshaled token list: %+v", tokens, newTokenList)
 			test.Fail()
 			continue
 		}
