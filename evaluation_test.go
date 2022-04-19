@@ -1523,7 +1523,6 @@ func TestEvaluableExpressionMarshaling(test *testing.T) {
 
 func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 
-	var newTokenList []ExpressionToken
 	var expression *EvaluableExpression
 	var parameters map[string]interface{}
 	var result interface{}
@@ -1571,46 +1570,27 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 		for index, token := range tokens {
 
 			if token.Kind != data.Tokens[index].Kind {
-				test.Logf("Token kind %s does not match with Unmarshalled Kind: %s", token.Kind.String(), data.Tokens[index].Kind.String())
-				test.Logf("Test '%s' (Un)Marshaling failed", evaluationTest.Name)
+				test.Logf("Token kind %s does not match with Unmarshalled Kind: %s",
+					token.Kind.String(), data.Tokens[index].Kind.String())
 				test.Fail()
 			}
 
-			newToken := ExpressionToken{}
-			newToken.Kind = data.Tokens[index].Kind
-
 			if token.Kind == FUNCTION {
-				newToken.Value = token.Value
-			} else {
-				newToken.Value = data.Tokens[index].Value
+				newToken := ExpressionToken{
+					Kind:  data.Tokens[index].Kind,
+					Value: token.Value,
+				}
+				data.Tokens[index] = newToken
+				continue
 			}
-
-			newTokenList = append(newTokenList, newToken)
 		}
 
-		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(newTokenList)
+		expressionFromUnmarshaledTokens, err := NewEvaluableExpressionFromTokens(data.Tokens)
 
 		parameters = make(map[string]interface{}, 8)
 
 		for _, parameter := range evaluationTest.Parameters {
 			parameters[parameter.Name] = parameter.Value
-		}
-
-		result, err = expression.Evaluate(parameters)
-
-		if err != nil {
-
-			test.Logf("Test '%s' failed", evaluationTest.Name)
-			test.Logf("Encountered error: %s", err.Error())
-			test.Fail()
-			continue
-		}
-
-		if result != evaluationTest.Expected {
-
-			test.Logf("Test '%s' failed", evaluationTest.Name)
-			test.Logf("Evaluation result '%v' does not match expected: '%v'", result, evaluationTest.Expected)
-			test.Fail()
 		}
 
 		result, err = expressionFromUnmarshaledTokens.Evaluate(parameters)
