@@ -187,15 +187,15 @@ var comparatorSymbolsReverse = map[OperatorSymbol]string{
 	NREQ: "NOT RLIKE",
 }
 
-func marshalTokens(expression *EvaluableExpression) ([]byte, error) {
+func (this EvaluableExpression) MarshalTokens() ([]byte, error) {
 
 	var index int
-	tokens := expression.Tokens()
+	tokens := this.Tokens()
 
 	for position, token := range tokens {
 
 		if token.Kind == FUNCTION {
-			token.Value = expression.functions[index]
+			token.Value = this.functions[index]
 			tokens[position] = token
 			index++
 		}
@@ -203,7 +203,7 @@ func marshalTokens(expression *EvaluableExpression) ([]byte, error) {
 
 	data := TokenData{
 		Tokens:     tokens,
-		Expression: expression.String(),
+		Expression: this.String(),
 	}
 
 	buffer, err := json.Marshal(data)
