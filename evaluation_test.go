@@ -1582,7 +1582,7 @@ func runMarshalingTests(evaluationTests []EvaluationTest, test *testing.T) {
 			if token.Kind == FUNCTION {
 				newToken.Value = token.Value
 			} else {
-				newToken.Value = data.Tokens[index].Kind
+				newToken.Value = data.Tokens[index].Value
 			}
 
 			newTokenList = append(newTokenList, newToken)
