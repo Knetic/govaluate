@@ -165,11 +165,11 @@ func TestMultipleEvaluation(test *testing.T) {
 
 func TestStrlenFunction(test *testing.T) {
 
-	functions := map[string]ExpressionFunction{
-		"strlen": func(args ...interface{}) (interface{}, error) {
+	functions := map[string]Callable{
+		"strlen": NewCallable(func(args ...interface{}) (interface{}, error) {
 			length := len(args[0].(string))
 			return (float64)(length), nil
-		},
+		}),
 	}
 
 	expString := "strlen('someReallyLongInputString') <= 16"

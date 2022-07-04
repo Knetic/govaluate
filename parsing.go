@@ -11,7 +11,7 @@ import (
 	"unicode"
 )
 
-func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
+func parseTokens(expression string, functions map[string]Callable) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
 	var token ExpressionToken
@@ -52,9 +52,9 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 	return ret, nil
 }
 
-func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
+func readToken(stream *lexerStream, state lexerState, functions map[string]Callable) (ExpressionToken, error, bool) {
 
-	var function ExpressionFunction
+	var function Callable
 	var ret ExpressionToken
 	var tokenValue interface{}
 	var tokenTime time.Time

@@ -15,7 +15,7 @@ import (
 type TokenParsingTest struct {
 	Name      string
 	Input     string
-	Functions map[string]ExpressionFunction
+	Functions map[string]Callable
 	Expected  []ExpressionToken
 }
 
@@ -218,7 +218,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Parameterless function",
 			Input:     "foo()",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  FUNCTION,
@@ -235,7 +235,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Single parameter function",
 			Input:     "foo('bar')",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  FUNCTION,
@@ -256,7 +256,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Multiple parameter function",
 			Input:     "foo('bar', 1.0)",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  FUNCTION,
@@ -284,7 +284,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Nested function",
 			Input:     "foo(foo('bar'), 1.0, foo(2.0))",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  FUNCTION,
@@ -344,7 +344,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Function with modifier afterwards (#28)",
 			Input:     "foo() + 1",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind:  FUNCTION,
@@ -369,7 +369,7 @@ func TestConstantParsing(test *testing.T) {
 		TokenParsingTest{
 			Name:      "Function with modifier afterwards and comparator",
 			Input:     "(foo()-1) > 3",
-			Functions: map[string]ExpressionFunction{"foo": noop},
+			Functions: map[string]Callable{"foo": noop},
 			Expected: []ExpressionToken{
 				ExpressionToken{
 					Kind: CLAUSE,
@@ -1665,6 +1665,6 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 	}
 }
 
-func noop(arguments ...interface{}) (interface{}, error) {
+var noop = NewCallable(func(arguments ...interface{}) (interface{}, error) {
 	return nil, nil
-}
+})

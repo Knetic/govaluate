@@ -314,7 +314,7 @@ func planFunction(stream *tokenStream) (*evaluationStage, error) {
 
 		symbol:          FUNCTIONAL,
 		rightStage:      rightStage,
-		operator:        makeFunctionStage(token.Value.(ExpressionFunction)),
+		operator:        makeFunctionStage(token.Value.(Callable)),
 		typeErrorFormat: "Unable to run function '%v': %v",
 	}, nil
 }
@@ -686,12 +686,12 @@ func elideStage(root *evaluationStage) *evaluationStage {
 
 	// both sides are values, get their actual values.
 	// errors should be near-impossible here. If we encounter them, just abort this optimization.
-	leftValue, err = root.leftStage.operator(nil, nil, nil)
+	leftValue, err = root.leftStage.operator(nil, nil, nil, nil)
 	if err != nil {
 		return root
 	}
 
-	rightValue, err = root.rightStage.operator(nil, nil, nil)
+	rightValue, err = root.rightStage.operator(nil, nil, nil, nil)
 	if err != nil {
 		return root
 	}
@@ -712,7 +712,7 @@ func elideStage(root *evaluationStage) *evaluationStage {
 	}
 
 	// pre-calculate, and return a new stage representing the result.
-	result, err = root.operator(leftValue, rightValue, nil)
+	result, err = root.operator(nil, leftValue, rightValue, nil)
 	if err != nil {
 		return root
 	}

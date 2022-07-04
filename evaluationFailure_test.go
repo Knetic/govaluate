@@ -20,7 +20,7 @@ type DebugStruct struct {
 type EvaluationFailureTest struct {
 	Name       string
 	Input      string
-	Functions  map[string]ExpressionFunction
+	Functions  map[string]Callable
 	Parameters map[string]interface{}
 	Expected   string
 }
@@ -426,10 +426,10 @@ func TestFunctionExecution(test *testing.T) {
 
 			Name:  "Function error bubbling",
 			Input: "error()",
-			Functions: map[string]ExpressionFunction{
-				"error": func(arguments ...interface{}) (interface{}, error) {
+			Functions: map[string]Callable{
+				"error": NewCallable(func(arguments ...interface{}) (interface{}, error) {
 					return nil, errors.New("Huge problems")
-				},
+				}),
 			},
 			Expected: "Huge problems",
 		},

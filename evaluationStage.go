@@ -17,7 +17,7 @@ const (
 	prefixErrorFormat     string = "Value '%v' cannot be used with the prefix '%v'"
 )
 
-type evaluationOperator func(left interface{}, right interface{}, parameters Parameters) (interface{}, error)
+type evaluationOperator func(ctx interface{}, left interface{}, right interface{}, parameters Parameters) (interface{}, error)
 type stageTypeCheck func(value interface{}) bool
 type stageCombinedTypeCheck func(left interface{}, right interface{}) bool
 
@@ -82,11 +82,11 @@ func (this *evaluationStage) isShortCircuitable() bool {
 	return false
 }
 
-func noopStageRight(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func noopStageRight(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return right, nil
 }
 
-func addStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func addStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	// string concat if either are strings
 	if isString(left) || isString(right) {
@@ -95,80 +95,80 @@ func addStage(left interface{}, right interface{}, parameters Parameters) (inter
 
 	return left.(float64) + right.(float64), nil
 }
-func subtractStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func subtractStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) - right.(float64), nil
 }
-func multiplyStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func multiplyStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) * right.(float64), nil
 }
-func divideStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func divideStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return left.(float64) / right.(float64), nil
 }
-func exponentStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func exponentStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return math.Pow(left.(float64), right.(float64)), nil
 }
-func modulusStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func modulusStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return math.Mod(left.(float64), right.(float64)), nil
 }
-func gteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func gteStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) >= right.(string)), nil
 	}
 	return boolIface(left.(float64) >= right.(float64)), nil
 }
-func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func gtStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) > right.(string)), nil
 	}
 	return boolIface(left.(float64) > right.(float64)), nil
 }
-func lteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func lteStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) <= right.(string)), nil
 	}
 	return boolIface(left.(float64) <= right.(float64)), nil
 }
-func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func ltStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) < right.(string)), nil
 	}
 	return boolIface(left.(float64) < right.(float64)), nil
 }
-func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func equalStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(reflect.DeepEqual(left, right)), nil
 }
-func notEqualStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func notEqualStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(!reflect.DeepEqual(left, right)), nil
 }
-func andStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func andStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(left.(bool) && right.(bool)), nil
 }
-func orStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func orStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(left.(bool) || right.(bool)), nil
 }
-func negateStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func negateStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return -right.(float64), nil
 }
-func invertStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func invertStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(!right.(bool)), nil
 }
-func bitwiseNotStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func bitwiseNotStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(^int64(right.(float64))), nil
 }
-func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func ternaryIfStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if left.(bool) {
 		return right, nil
 	}
 	return nil, nil
 }
-func ternaryElseStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func ternaryElseStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if left != nil {
 		return left, nil
 	}
 	return right, nil
 }
 
-func regexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func regexStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	var pattern *regexp.Regexp
 	var err error
@@ -186,9 +186,9 @@ func regexStage(left interface{}, right interface{}, parameters Parameters) (int
 	return pattern.Match([]byte(left.(string))), nil
 }
 
-func notRegexStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func notRegexStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-	ret, err := regexStage(left, right, parameters)
+	ret, err := regexStage(ctx, left, right, parameters)
 	if err != nil {
 		return nil, err
 	}
@@ -196,25 +196,25 @@ func notRegexStage(left interface{}, right interface{}, parameters Parameters) (
 	return !(ret.(bool)), nil
 }
 
-func bitwiseOrStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func bitwiseOrStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) | int64(right.(float64))), nil
 }
-func bitwiseAndStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func bitwiseAndStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) & int64(right.(float64))), nil
 }
-func bitwiseXORStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func bitwiseXORStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(int64(left.(float64)) ^ int64(right.(float64))), nil
 }
-func leftShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func leftShiftStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(uint64(left.(float64)) << uint64(right.(float64))), nil
 }
-func rightShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func rightShiftStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return float64(uint64(left.(float64)) >> uint64(right.(float64))), nil
 }
 
 func makeParameterStage(parameterName string) evaluationOperator {
 
-	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return func(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 		value, err := parameters.Get(parameterName)
 		if err != nil {
 			return nil, err
@@ -225,24 +225,24 @@ func makeParameterStage(parameterName string) evaluationOperator {
 }
 
 func makeLiteralStage(literal interface{}) evaluationOperator {
-	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return func(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 		return literal, nil
 	}
 }
 
-func makeFunctionStage(function ExpressionFunction) evaluationOperator {
+func makeFunctionStage(function Callable) evaluationOperator {
 
-	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	return func(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 		if right == nil {
-			return function()
+			return function.Call(ctx)
 		}
 
 		switch right.(type) {
 		case []interface{}:
-			return function(right.([]interface{})...)
+			return function.Call(ctx, right.([]interface{})...)
 		default:
-			return function(right)
+			return function.Call(ctx, right)
 		}
 	}
 }
@@ -293,7 +293,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 	reconstructed := strings.Join(pair, ".")
 
-	return func(left interface{}, right interface{}, parameters Parameters) (ret interface{}, err error) {
+	return func(ctx, left interface{}, right interface{}, parameters Parameters) (ret interface{}, err error) {
 
 		var params []reflect.Value
 
@@ -404,7 +404,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 	}
 }
 
-func separatorStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func separatorStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	var ret []interface{}
 
@@ -418,7 +418,7 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 	return ret, nil
 }
 
-func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+func inStage(ctx, left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	for _, value := range right.([]interface{}) {
 		if left == value {

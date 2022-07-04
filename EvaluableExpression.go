@@ -43,7 +43,7 @@ type EvaluableExpression struct {
 */
 func NewEvaluableExpression(expression string) (*EvaluableExpression, error) {
 
-	functions := make(map[string]ExpressionFunction)
+	functions := make(map[string]Callable)
 	return NewEvaluableExpressionWithFunctions(expression, functions)
 }
 
@@ -87,7 +87,7 @@ func NewEvaluableExpressionFromTokens(tokens []ExpressionToken) (*EvaluableExpre
 	Similar to [NewEvaluableExpression], except enables the use of user-defined functions.
 	Functions passed into this will be available to the expression.
 */
-func NewEvaluableExpressionWithFunctions(expression string, functions map[string]ExpressionFunction) (*EvaluableExpression, error) {
+func NewEvaluableExpressionWithFunctions(expression string, functions map[string]Callable) (*EvaluableExpression, error) {
 
 	var ret *EvaluableExpression
 	var err error
@@ -128,7 +128,7 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 /*
 	Same as `Eval`, but automatically wraps a map of parameters into a `govalute.Parameters` structure.
 */
-func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
+func (this EvaluableExpression) Evaluate(parameters map[string]interface{}, ctx ...interface{}) (interface{}, error) {
 
 	if parameters == nil {
 		return this.Eval(nil)
@@ -163,11 +163,15 @@ func (this EvaluableExpression) Eval(parameters Parameters) (interface{}, error)
 	return this.evaluateStage(this.evaluationStages, parameters)
 }
 
-func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters Parameters) (interface{}, error) {
+func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters Parameters, ctxs ...interface{}) (interface{}, error) {
 
-	var left, right interface{}
+	var ctx, left, right interface{}
 	var err error
 
+	if len(ctxs) != 0 {
+		//TODO: merge ctxs?
+		ctx = ctxs[0]
+	}
 	if stage.leftStage != nil {
 		left, err = this.evaluateStage(stage.leftStage, parameters)
 		if err != nil {
@@ -229,7 +233,7 @@ func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters
 		}
 	}
 
-	return stage.operator(left, right, parameters)
+	return stage.operator(ctx, left, right, parameters)
 }
 
 func typeCheck(check stageTypeCheck, value interface{}, symbol OperatorSymbol, format string) error {
