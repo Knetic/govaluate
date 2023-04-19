@@ -169,14 +169,14 @@ func BenchmarkRegexExpression(bench *testing.B) {
 
 	var expressionString string
 
-	expressionString = "(foo !~ bar) && (foobar =~ oba)"
+	expressionString = "(foo !~ bar) && (baz =~ oba)"
 
 	expression, _ := NewEvaluableExpression(expressionString)
 	parameters := map[string]interface{}{
 		"foo": "foo",
 		"bar": "bar",
 		"baz": "baz",
-		"oba": ".*oba.*",
+		"oba": ".*b.*",
 	}
 
 	bench.ResetTimer()
