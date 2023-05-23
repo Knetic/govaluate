@@ -3,6 +3,7 @@ package govaluate
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -227,6 +228,10 @@ func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters
 				return nil, errors.New(errorMsg)
 			}
 		}
+	}
+
+	if stageSymbolMap[stage.symbol] != nil {
+		log.Println(left, stage.symbol, right)
 	}
 
 	return stage.operator(left, right, parameters)

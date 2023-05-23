@@ -3,6 +3,7 @@ package govaluate
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"regexp"
@@ -117,6 +118,7 @@ func gteStage(left interface{}, right interface{}, parameters Parameters) (inter
 	return boolIface(left.(float64) >= right.(float64)), nil
 }
 func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+	log.Println("gtStage: ", left, right)
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) > right.(string)), nil
 	}
