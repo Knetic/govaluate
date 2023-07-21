@@ -500,7 +500,7 @@ func tryParseTime(candidate string) (time.Time, bool) {
 		}
 	}
 
-	return time.Now(), false
+	return ret, false
 }
 
 func tryParseExactTime(candidate string, format string) (time.Time, bool) {
@@ -510,7 +510,7 @@ func tryParseExactTime(candidate string, format string) (time.Time, bool) {
 
 	ret, err = time.ParseInLocation(format, candidate, time.Local)
 	if err != nil {
-		return time.Now(), false
+		return ret, false
 	}
 
 	return ret, true
