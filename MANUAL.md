@@ -1,5 +1,28 @@
-govaluate
-====
+<!--
+The MIT License (MIT)
+
+Copyright (c) 2014-2016 George Lester
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+# govaluate
 
 This library contains quite a lot of functionality, this document is meant to be formal documentation on the operators and features of it.
 Some of this documentation may duplicate what's in README.md, but should never conflict.
@@ -28,39 +51,39 @@ Any other case is invalid.
 
 `**` refers to "take to the power of". For instance, `3 ** 4` == 81.
 
-* _Left side_: numeric
-* _Right side_: numeric
-* _Returns_: numeric
+-   _Left side_: numeric
+-   _Right side_: numeric
+-   _Returns_: numeric
 
 ### Bitwise shifts, masks `>>` `<<` `|` `&` `^`
 
 All of these operators convert their `float64` left and right sides to `int64`, perform their operation, and then convert back.
 Given how this library assumes numeric are represented (as `float64`), it is unlikely that this behavior will change, even though it may cause havoc with extremely large or small numbers.
 
-* _Left side_: numeric
-* _Right side_: numeric
-* _Returns_: numeric
+-   _Left side_: numeric
+-   _Right side_: numeric
+-   _Returns_: numeric
 
 ### Negation `-`
 
 Prefix only. This can never have a left-hand value.
 
-* _Right side_: numeric
-* _Returns_: numeric
+-   _Right side_: numeric
+-   _Returns_: numeric
 
 ### Inversion `!`
 
 Prefix only. This can never have a left-hand value.
 
-* _Right side_: bool
-* _Returns_: bool
+-   _Right side_: bool
+-   _Returns_: bool
 
 ### Bitwise NOT `~`
 
 Prefix only. This can never have a left-hand value.
 
-* _Right side_: numeric
-* _Returns_: numeric
+-   _Right side_: numeric
+-   _Returns_: numeric
 
 ## Logical Operators
 
@@ -68,35 +91,35 @@ For all logical operators, this library will short-circuit the operation if the 
 
 ### Logical AND/OR `&&` `||`
 
-* _Left side_: bool
-* _Right side_: bool
-* _Returns_: bool
+-   _Left side_: bool
+-   _Right side_: bool
+-   _Returns_: bool
 
 ### Ternary true `?`
 
 Checks if the left side is `true`. If so, returns the right side. If the left side is `false`, returns `nil`.
 In practice, this is commonly used with the other ternary operator.
 
-* _Left side_: bool
-* _Right side_: Any type.
-* _Returns_: Right side or `nil`
+-   _Left side_: bool
+-   _Right side_: Any type.
+-   _Returns_: Right side or `nil`
 
 ### Ternary false `:`
 
 Checks if the left side is `nil`. If so, returns the right side. If the left side is non-nil, returns the left side.
 In practice, this is commonly used with the other ternary operator.
 
-* _Left side_: Any type.
-* _Right side_: Any type.
-* _Returns_: Right side or `nil`
+-   _Left side_: Any type.
+-   _Right side_: Any type.
+-   _Returns_: Right side or `nil`
 
 ### Null coalescence `??`
 
 Similar to the C# operator. If the left value is non-nil, it returns that. If not, then the right-value is returned.
 
-* _Left side_: Any type.
-* _Right side_: Any type.
-* _Returns_: No specific type - whichever is passed to it.
+-   _Left side_: Any type.
+-   _Right side_: Any type.
+-   _Returns_: No specific type - whichever is passed to it.
 
 ## Comparators
 
@@ -105,16 +128,16 @@ Similar to the C# operator. If the left value is non-nil, it returns that. If no
 If both sides are numeric, this returns the usual greater/lesser behavior that would be expected.
 If both sides are string, this returns the lexicographic comparison of the strings. This uses Go's standard lexicographic compare.
 
-* _Accepts_: Left and right side must either be both string, or both numeric.
-* _Returns_: bool
+-   _Accepts_: Left and right side must either be both string, or both numeric.
+-   _Returns_: bool
 
 ### Regex comparators `=~` `!~`
 
 These use go's standard `regexp` flavor of regex. The left side is expected to be the candidate string, the right side is the pattern. `=~` returns whether or not the candidate string matches the regex pattern given on the right. `!~` is the inverted version of the same logic.
 
-* _Left side_: string
-* _Right side_: string
-* _Returns_: bool
+-   _Left side_: string
+-   _Right side_: string
+-   _Returns_: bool
 
 ## Arrays
 
@@ -131,9 +154,9 @@ Equality is determined by the use of the `==` operator, and this library doesn't
 
 Note that you can use a parameter for the array, but it must be an `[]interface{}`.
 
-* _Left side_: Any type.
-* _Right side_: array
-* _Returns_: bool
+-   _Left side_: Any type.
+-   _Right side_: array
+-   _Returns_: bool
 
 # Parameters
 

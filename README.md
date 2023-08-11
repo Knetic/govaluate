@@ -1,23 +1,44 @@
-govaluate
-====
+<!--
+The MIT License (MIT)
+
+Copyright (c) 2014-2016 George Lester
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+# govaluate
 
 [![Build Status](https://travis-ci.org/Knetic/govaluate.svg?branch=master)](https://travis-ci.org/Knetic/govaluate)
 [![Godoc](https://img.shields.io/badge/godoc-reference-5272B4.svg)](https://godoc.org/github.com/Knetic/govaluate)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Knetic/govaluate)](https://goreportcard.com/report/github.com/Knetic/govaluate) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Knetic/govaluate)](https://goreportcard.com/report/github.com/Knetic/govaluate)
 [![Gocover](https://gocover.io/_badge/github.com/Knetic/govaluate)](https://gocover.io/github.com/Knetic/govaluate)
 
 Provides support for evaluating arbitrary C-like artithmetic/string expressions.
 
-Why can't you just write these expressions in code?
---
+## Why can't you just write these expressions in code?
 
 Sometimes, you can't know ahead-of-time what an expression will look like, or you want those expressions to be configurable.
 Perhaps you've got a set of data running through your application, and you want to allow your users to specify some validations to run on it before committing it to a database. Or maybe you've written a monitoring framework which is capable of gathering a bunch of metrics, then evaluating a few expressions to see if any metrics should be alerted upon, but the conditions for alerting are different for each monitor.
 
 A lot of people wind up writing their own half-baked style of evaluation language that fits their needs, but isn't complete. Or they wind up baking the expression into the actual executable, even if they know it's subject to change. These strategies may work, but they take time to implement, time for users to learn, and induce technical debt as requirements change. This library is meant to cover all the normal C-like expressions, so that you don't have to reinvent one of the oldest wheels on a computer.
 
-How do I use it?
---
+## How do I use it?
 
 You create a new EvaluableExpression, then call "Evaluate" on it.
 
@@ -100,30 +121,28 @@ Expressions are parsed once, and can be re-used multiple times. Parsing is the c
 
 The normal C-standard order of operators is respected. When writing an expression, be sure that you either order the operators correctly, or use parenthesis to clarify which portions of an expression should be run first.
 
-Escaping characters
---
+## Escaping characters
 
 Sometimes you'll have parameters that have spaces, slashes, pluses, ampersands or some other character
 that this library interprets as something special. For example, the following expression will not
 act as one might expect:
 
-	"response-time < 100"
+    "response-time < 100"
 
 As written, the library will parse it as "[response] minus [time] is less than 100". In reality,
 "response-time" is meant to be one variable that just happens to have a dash in it.
 
 There are two ways to work around this. First, you can escape the entire parameter name:
 
- 	"[response-time] < 100"
+"[response-time] < 100"
 
 Or you can use backslashes to escape only the minus sign.
 
-	"response\\-time < 100"
+    "response\\-time < 100"
 
 Backslashes can be used anywhere in an expression to escape the very next character. Square bracketed parameter names can be used instead of plain parameter names at any time.
 
-Functions
---
+## Functions
 
 You may have cases where you want to call a function on a parameter during execution of the expression. Perhaps you want to aggregate some set of data, but don't know the exact aggregation you want to use until you're writing the expression itself. Or maybe you have a mathematical operation you want to perform, for which there is no operator; like `log` or `tan` or `sqrt`. For cases like this, you can provide a map of functions to `NewEvaluableExpressionWithFunctions`, which will then be able to use them during execution. For instance;
 
@@ -151,55 +170,51 @@ Functions can accept any number of arguments, correctly handles nested functions
 
 Functions cannot be passed as parameters, they must be known at the time when the expression is parsed, and are unchangeable after parsing.
 
-Accessors
---
+## Accessors
 
 If you have structs in your parameters, you can access their fields and methods in the usual way. For instance, given a struct that has a method "Echo", present in the parameters as `foo`, the following is valid:
 
-	"foo.Echo('hello world')"
+    "foo.Echo('hello world')"
 
 Fields are accessed in a similar way. Assuming `foo` has a field called "Length":
 
-	"foo.Length > 9000"
+    "foo.Length > 9000"
 
 Accessors can be nested to any depth, like the following
 
-	"foo.Bar.Baz.SomeFunction()"
+    "foo.Bar.Baz.SomeFunction()"
 
 However it is not _currently_ supported to access values in `map`s. So the following will not work
 
-	"foo.SomeMap['key']"
+    "foo.SomeMap['key']"
 
 This may be convenient, but note that using accessors involves a _lot_ of reflection. This makes the expression about four times slower than just using a parameter (consult the benchmarks for more precise measurements on your system).
 If at all reasonable, the author recommends extracting the values you care about into a parameter map beforehand, or defining a struct that implements the `Parameters` interface, and which grabs fields as required. If there are functions you want to use, it's better to pass them as expression functions (see the above section). These approaches use no reflection, and are designed to be fast and clean.
 
-What operators and types does this support?
---
+## What operators and types does this support?
 
-* Modifiers: `+` `-` `/` `*` `&` `|` `^` `**` `%` `>>` `<<`
-* Comparators: `>` `>=` `<` `<=` `==` `!=` `=~` `!~`
-* Logical ops: `||` `&&`
-* Numeric constants, as 64-bit floating point (`12345.678`)
-* String constants (single quotes: `'foobar'`)
-* Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
-* Boolean constants: `true` `false`
-* Parenthesis to control order of evaluation `(` `)`
-* Arrays (anything separated by `,` within parenthesis: `(1, 2, 'foo')`)
-* Prefixes: `!` `-` `~`
-* Ternary conditional: `?` `:`
-* Null coalescence: `??`
+-   Modifiers: `+` `-` `/` `*` `&` `|` `^` `**` `%` `>>` `<<`
+-   Comparators: `>` `>=` `<` `<=` `==` `!=` `=~` `!~`
+-   Logical ops: `||` `&&`
+-   Numeric constants, as 64-bit floating point (`12345.678`)
+-   String constants (single quotes: `'foobar'`)
+-   Date constants (single quotes, using any permutation of RFC3339, ISO8601, ruby date, or unix date; date parsing is automatically tried with any string constant)
+-   Boolean constants: `true` `false`
+-   Parenthesis to control order of evaluation `(` `)`
+-   Arrays (anything separated by `,` within parenthesis: `(1, 2, 'foo')`)
+-   Prefixes: `!` `-` `~`
+-   Ternary conditional: `?` `:`
+-   Null coalescence: `??`
 
 See [MANUAL.md](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for exacting details on what types each operator supports.
 
-Types
---
+## Types
 
 Some operators don't make sense when used with some types. For instance, what does it mean to get the modulo of a string? What happens if you check to see if two numbers are logically AND'ed together?
 
 Everyone has a different intuition about the answers to these questions. To prevent confusion, this library will _refuse to operate_ upon types for which there is not an unambiguous meaning for the operation. See [MANUAL.md](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for details about what operators are valid for which types.
 
-Benchmarks
---
+## Benchmarks
 
 If you're concerned about the overhead of this library, a good range of benchmarks are built into this repo. You can run them with `go test -bench=.`. The library is built with an eye towards being quick, but has not been aggressively profiled and optimized. For most applications, though, it is completely fine.
 
@@ -220,14 +235,12 @@ BenchmarkConstantRegexExpression-12              1000000              1392 ns/op
 ok
 ```
 
-API Breaks
---
+## API Breaks
 
 While this library has very few cases which will ever result in an API break, it can (and [has](https://github.com/Knetic/govaluate/releases/tag/v2.0.0)) happened. If you are using this in production, vendor the commit you've tested against, or use gopkg.in to redirect your import (e.g., `import "gopkg.in/Knetic/govaluate.v2"`). Master branch (while infrequent) _may_ at some point contain API breaking changes, and the author will have no way to communicate these to downstreams, other than creating a new major release.
 
 Releases will explicitly state when an API break happens, and if they do not specify an API break it should be safe to upgrade.
 
-License
---
+## License
 
 This project is licensed under the MIT general use license. You're free to integrate, fork, and play with this code as you feel fit without consulting the author, as long as you provide proper credit to the author in your works.
