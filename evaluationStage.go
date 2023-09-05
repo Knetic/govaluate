@@ -3,7 +3,6 @@ package govaluate
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"reflect"
 	"regexp"
@@ -420,9 +419,9 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	log.Printf("in right: %v", right)
+	//log.Printf("in right: %v", right)
 	switch right.(type) {
-	case float64, string, int64:
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, string:
 		right = []interface{}{right}
 	}
 	for _, value := range right.([]interface{}) {
@@ -502,11 +501,10 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 }
 
 func isArray(value interface{}) bool {
-	log.Printf("isArray value: %v,kind: %v", value, reflect.TypeOf(value).Kind().String())
+	//log.Printf("isArray value: %v,kind: %v", value, reflect.TypeOf(value).Kind().String())
 	switch value.(type) {
-	case float64, string, int64:
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, string:
 		value = []interface{}{value}
-
 	}
 	switch value.(type) {
 	case []interface{}:
