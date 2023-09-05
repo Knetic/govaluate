@@ -9,7 +9,7 @@ import (
 )
 
 /*
-	Represents a test of expression evaluation
+Represents a test of expression evaluation
 */
 type EvaluationTest struct {
 	Name       string
@@ -501,6 +501,18 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Array membership literals",
+			Input:    "1 in (1)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Array membership literals",
+			Input:    "\"CDP\" in (\"CDP\")",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Array membership literal with inversion",
 			Input:    "!(1 in (1, 2, 3))",
 			Expected: false,
@@ -710,7 +722,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{
@@ -1425,7 +1437,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 }
 
 /*
-	Tests the behavior of a nil set of parameters.
+Tests the behavior of a nil set of parameters.
 */
 func TestNilParameters(test *testing.T) {
 
@@ -1438,8 +1450,8 @@ func TestNilParameters(test *testing.T) {
 }
 
 /*
-	Tests functionality related to using functions with a struct method receiver.
-	Created to test #54.
+Tests functionality related to using functions with a struct method receiver.
+Created to test #54.
 */
 func TestStructFunctions(test *testing.T) {
 
