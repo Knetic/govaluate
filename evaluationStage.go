@@ -404,6 +404,16 @@ func makeAccessorStage(pair []string) evaluationOperator {
 	}
 }
 
+func ensureSliceStage(op evaluationOperator) evaluationOperator {
+	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
+		orig, err := op(left, right, parameters)
+		if err != nil {
+			return orig, err
+		}
+		return []interface{}{orig}, nil
+	}
+}
+
 func separatorStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	var ret []interface{}

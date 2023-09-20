@@ -385,10 +385,20 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	switch token.Kind {
 
 	case CLAUSE:
+		var prev ExpressionToken
+		if stream.index > 1 {
+			prev = stream.tokens[stream.index-2]
+		}
 
 		ret, err = planTokens(stream)
 		if err != nil {
 			return nil, err
+		}
+
+		// clauses with single elements don't trigger SEPARATE stage planner
+		// this ensures that when used as part of an "in" comparison, the array requirement passes
+		if prev.Kind == COMPARATOR && prev.Value == "in" && ret.symbol == LITERAL {
+			ret.operator = ensureSliceStage(ret.operator)
 		}
 
 		// advance past the CLAUSE_CLOSE token. We know that it's a CLAUSE_CLOSE, because at parse-time we check for unbalanced parens.
