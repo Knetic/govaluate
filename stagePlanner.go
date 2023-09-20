@@ -385,7 +385,10 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 	switch token.Kind {
 
 	case CLAUSE:
-		prev := stream.tokens[stream.index-2] // todo guard against underflow
+		var prev ExpressionToken
+		if stream.index > 1 {
+			prev = stream.tokens[stream.index-2]
+		}
 
 		ret, err = planTokens(stream)
 		if err != nil {
