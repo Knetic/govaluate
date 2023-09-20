@@ -410,11 +410,7 @@ func ensureSliceStage(op evaluationOperator) evaluationOperator {
 		if err != nil {
 			return orig, err
 		}
-		slice, isSlice := orig.([]interface{})
-		if !isSlice {
-			slice = []interface{}{orig}
-		}
-		return slice, nil
+		return []interface{}{orig}, nil
 	}
 }
 
