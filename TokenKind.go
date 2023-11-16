@@ -27,6 +27,8 @@ const (
 	CLAUSE_CLOSE
 
 	TERNARY
+
+	MAP
 )
 
 /*
