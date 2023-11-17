@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 	"time"
 	"unicode"
@@ -1685,4 +1686,84 @@ func runTokenParsingTest(tokenParsingTests []TokenParsingTest, test *testing.T) 
 
 func noop(arguments ...interface{}) (interface{}, error) {
 	return nil, nil
+}
+
+func TestClauseIsComparable(t *testing.T) {
+	cases := []struct{
+		expression string
+		expected bool
+		index int // zero based
+		endIndex int
+	} {
+		{
+			expression: "a in (1, 2, 3) && b",
+			expected: true,
+			index: 2,
+			endIndex: 8,
+		},
+		{
+			expression: "a in (1, 'a') && b",
+			expected: true,
+			index: 2,
+			endIndex: 6,
+		},
+		{
+			expression: "a in (1, b, 3) && b",
+			expected: false,
+			index: 2,
+		},
+		{
+			expression: "a in (1, 1+1, 3) && b",
+			expected: false,
+			index: 2,
+		},
+	}
+
+	for _, c := range cases {
+		tokens, err := parseTokens(c.expression, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		isComparable, endIndex, err := clauseIsComparable(tokens, c.index)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if isComparable != c.expected {
+			t.Errorf("unexpected clause comparable result")
+		}
+		if !isComparable {
+			continue
+		}
+		if endIndex != c.endIndex {
+			t.Errorf("unexpected end index, expected %d, got %d", c.endIndex, endIndex)
+		}
+	}
+}
+
+func TestClauseToMap(t *testing.T) {
+	tokens, err := parseTokens("a in (1, 2, 3) && b", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mp := clauseToMap(tokens, 2)
+
+	keys := mapKeys(mp)
+	expected := []interface{}{1.0, 2.0, 3.0}
+
+	if !reflect.DeepEqual(keys, expected) {
+		t.Errorf("unexpected clause map, expected %v, got %v", expected, mp)
+	}
+}
+
+func mapKeys(mp map[interface{}]struct{}) []interface{} {
+	var keys []interface{}
+	for k, _ := range mp {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		a := keys[i]
+		b := keys[j]
+		return a.(float64) < b.(float64)
+	})
+	return keys
 }

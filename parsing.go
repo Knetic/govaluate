@@ -382,7 +382,10 @@ func optimizeTokens(tokens []ExpressionToken) ([]ExpressionToken, error) {
 				continue
 			}
 
-			isComp, endIndex := clauseIsComparable(tokens, index+1)
+			isComp, endIndex, err := clauseIsComparable(tokens, index+1)
+			if err != nil {
+				return nil, err
+			}
 			if !isComp {
 				break // switch
 			}
@@ -403,7 +406,10 @@ func optimizeTokens(tokens []ExpressionToken) ([]ExpressionToken, error) {
 	return tokens, nil
 }
 
-func clauseIsComparable(tokens []ExpressionToken, index int) (bool, int) {
+func clauseIsComparable(tokens []ExpressionToken, index int) (bool, int, error) {
+	if tokens[index].Kind != CLAUSE {
+		return false, 0, fmt.Errorf("token at index %d is %s, expected %s", index, tokens[index].Kind, CLAUSE)
+	}
 loop:
 	for {
 		index++
@@ -414,10 +420,10 @@ loop:
 		case SEPARATOR, STRING, NUMERIC:
 			continue
 		default:
-			return false, index
+			return false, index, nil
 		}
 	}
-	return true, index
+	return true, index, nil
 }
 
 func clauseToMap(tokens []ExpressionToken, index int) map[interface{}]struct{} {
