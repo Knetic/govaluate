@@ -421,6 +421,8 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		fallthrough
 	case PATTERN:
 		fallthrough
+	case MAP:
+		fallthrough
 	case BOOLEAN:
 		symbol = LITERAL
 		operator = makeLiteralStage(token.Value)
@@ -486,7 +488,7 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		}
 	case IN:
 		return typeChecks{
-			right: isArray,
+			right: isArrayOrMap,
 		}
 	case BITWISE_LSHIFT:
 		fallthrough

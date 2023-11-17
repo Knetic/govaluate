@@ -419,11 +419,16 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-
-	for _, value := range right.([]interface{}) {
-		if left == value {
-			return true, nil
+	switch t := right.(type) {
+	case []interface{}:
+		for _, value := range t {
+			if left == value {
+				return true, nil
+			}
 		}
+	case map[interface{}]struct{}:
+		_, hit := t[left]
+		return hit, nil
 	}
 	return false, nil
 }
@@ -496,9 +501,11 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 	return false
 }
 
-func isArray(value interface{}) bool {
+func isArrayOrMap(value interface{}) bool {
 	switch value.(type) {
 	case []interface{}:
+		return true
+	case map[interface{}]struct{}:
 		return true
 	}
 	return false
