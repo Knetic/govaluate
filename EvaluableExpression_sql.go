@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -157,7 +158,13 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 		ret = ")"
 	case SEPARATOR:
 		ret = ","
-
+	case MAP:
+		out := strings.Builder{}
+		for k, _ := range token.Value.(map[interface{}]struct{}) {
+			out.WriteString(fmt.Sprintf("%v", k))
+			out.WriteString(" , ")
+		}
+		return "( "+strings.TrimRight(out.String(), " , ")+" )", nil
 	default:
 		errorMsg := fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind)
 		return "", errors.New(errorMsg)

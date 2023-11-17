@@ -878,8 +878,54 @@ func TestComparatorParsing(test *testing.T) {
 			},
 		},
 		TokenParsingTest{
+			Name:  "Array membership complex entries", // this "in" lookup is not optimized via MAP
+			Input: "'foo' in ('foo', 1, 1 + 2)",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind:  COMPARATOR,
+					Value: "in",
+				},
+				ExpressionToken{
+					Kind: CLAUSE,
+				},
+				ExpressionToken{
+					Kind:  STRING,
+					Value: "foo",
+				},
+				ExpressionToken{
+					Kind: SEPARATOR,
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind: SEPARATOR,
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 1.0,
+				},
+				ExpressionToken{
+					Kind:  MODIFIER,
+					Value: "+",
+				},
+				ExpressionToken{
+					Kind:  NUMERIC,
+					Value: 2.0,
+				},
+				ExpressionToken{
+					Kind: CLAUSE_CLOSE,
+				},
+			},
+		},
+		TokenParsingTest{
 
-			Name:  "Array membership lowercase",
+			Name:  "Array membership lowercase", // "in" lookup optimized via MAP
 			Input: "'foo' in ('foo', 'bar')",
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -891,27 +937,13 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "in",
 				},
 				ExpressionToken{
-					Kind: CLAUSE,
-				},
-				ExpressionToken{
-					Kind:  STRING,
-					Value: "foo",
-				},
-				ExpressionToken{
-					Kind: SEPARATOR,
-				},
-				ExpressionToken{
-					Kind:  STRING,
-					Value: "bar",
-				},
-				ExpressionToken{
-					Kind: CLAUSE_CLOSE,
+					Kind: MAP,
 				},
 			},
 		},
 		TokenParsingTest{
 
-			Name:  "Array membership uppercase",
+			Name:  "Array membership uppercase", // "in" lookup optimized via MAP
 			Input: "'foo' IN ('foo', 'bar')",
 			Expected: []ExpressionToken{
 				ExpressionToken{
@@ -923,21 +955,7 @@ func TestComparatorParsing(test *testing.T) {
 					Value: "in",
 				},
 				ExpressionToken{
-					Kind: CLAUSE,
-				},
-				ExpressionToken{
-					Kind:  STRING,
-					Value: "foo",
-				},
-				ExpressionToken{
-					Kind: SEPARATOR,
-				},
-				ExpressionToken{
-					Kind:  STRING,
-					Value: "bar",
-				},
-				ExpressionToken{
-					Kind: CLAUSE_CLOSE,
+					Kind: MAP,
 				},
 			},
 		},
