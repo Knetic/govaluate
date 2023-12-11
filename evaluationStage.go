@@ -419,7 +419,9 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	//log.Printf("in right: %v", right)
+	if right == nil {
+		return false, nil
+	}
 	switch right.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, string:
 		right = []interface{}{right}
