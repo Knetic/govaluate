@@ -6,11 +6,11 @@ Some of this documentation may duplicate what's in README.md, but should never c
 
 # Types
 
-This library only officially deals with four types; `float64`, `bool`, `string`, and arrays.
+This library deals with four types; `json.Number`, `bool`, `string`, and arrays.
 
-All numeric literals, with or without a radix, will be converted to `float64` for evaluation. For instance; in practice, there is no difference between the literals "1.0" and "1", they both end up as `float64`. This matters to users because if you intend to return numeric values from your expressions, then the returned value will be `float64`, not any other numeric type.
+All numeric literals, with or without a radix, will be converted to `json.Number` for evaluation.
 
-Any string _literal_ (not parameter) which is interpretable as a date will be converted to a `float64` representation of that date's unix time. Any `time.Time` parameters will not be operable with these date literals; such parameters will need to use the `time.Time.Unix()` method to get a numeric representation.
+Any string _literal_ (not parameter) which is interpretable as a date will be converted to a `json.Number` representation of that date's unix time. Any `time.Time` parameters will not be operable with these date literals; such parameters will need to use the `time.Time.Unix()` method to get a numeric representation.
 
 Arrays are untyped, and can be mixed-type. Internally they're all just `interface{}`. Only two operators can interact with arrays, `IN` and `,`. All other operators will refuse to operate on arrays.
 
@@ -35,7 +35,7 @@ Any other case is invalid.
 ### Bitwise shifts, masks `>>` `<<` `|` `&` `^`
 
 All of these operators convert their `float64` left and right sides to `int64`, perform their operation, and then convert back.
-Given how this library assumes numeric are represented (as `float64`), it is unlikely that this behavior will change, even though it may cause havoc with extremely large or small numbers.
+Given how this library assumes numeric are represented (as `json.Number`), it is unlikely that this behavior will change, even though it may cause havoc with extremely large or small numbers.
 
 * _Left side_: numeric
 * _Right side_: numeric
@@ -139,7 +139,7 @@ Note that you can use a parameter for the array, but it must be an `[]interface{
 
 Parameters must be passed in every time the expression is evaluated. Parameters can be of any type, but will not cause errors unless actually used in an erroneous way. There is no difference in behavior for any of the above operators for parameters - they are type checked when used.
 
-All `int` and `float` values of any width will be converted to `float64` before use.
+All `int` and `float` values of any width will be converted to `json.Number` before use.
 
 At no point is the parameter structure, or any value thereof, modified by this library.
 
