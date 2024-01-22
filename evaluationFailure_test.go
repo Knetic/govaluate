@@ -1,7 +1,7 @@
 package govaluate
 
 /*
-  Tests to make sure evaluation fails in the expected ways.
+	Tests to make sure evaluation fails in the expected ways.
 */
 import (
 	"errors"
@@ -35,7 +35,7 @@ const (
 	INVALID_PARAMETER_CALL          = "No method or field"
 	TOO_FEW_ARGS                    = "Too few arguments to parameter call"
 	TOO_MANY_ARGS                   = "Too many arguments to parameter call"
-	MISMATCHED_PARAMETERS           = "Argument type conversion failed"
+	MISMATCHED_PARAMETERS           = "Call using json.Number as type string"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
