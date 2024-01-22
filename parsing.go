@@ -2,6 +2,7 @@ package govaluate
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -63,7 +64,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 	var character rune
 	var found bool
 	var completed bool
-	var err error
+	// var err error
 
 	// numeric is 0-9, or . or 0x followed by digits
 	// string starts with '
@@ -97,7 +98,8 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 					}
 
 					kind = NUMERIC
-					tokenValue = float64(tokenValueInt)
+					// tokenValue = float64(tokenValueInt)
+					tokenValue = json.Number(strconv.FormatInt(int64(tokenValueInt), 10))
 					break
 				} else {
 					stream.rewind(1)
@@ -105,12 +107,13 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			}
 
 			tokenString = readTokenUntilFalse(stream, isNumeric)
-			tokenValue, err = strconv.ParseFloat(tokenString, 64)
+			_, err := strconv.ParseFloat(tokenString, 64)
 
 			if err != nil {
-				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
+				errorMsg := fmt.Sprintf("Unable to parse numeric value: '%v'\n", tokenString)
 				return ExpressionToken{}, errors.New(errorMsg), false
 			}
+			tokenValue = json.Number(tokenString)
 			kind = NUMERIC
 			break
 		}
@@ -485,6 +488,8 @@ func tryParseTime(candidate string) (time.Time, bool) {
 		"2006-01-02",                         // RFC 3339
 		"2006-01-02 15:04",                   // RFC 3339 with minutes
 		"2006-01-02 15:04:05",                // RFC 3339 with seconds
+		"2006-01-02 15:04:05.000000",         // RFC 3339 with microseconds
+		"2006-01-02 15:04:05.000000000",      // RFC 3339 with nanoseconds
 		"2006-01-02 15:04:05-07:00",          // RFC 3339 with seconds and timezone
 		"2006-01-02T15Z0700",                 // ISO8601 with hour
 		"2006-01-02T15:04Z0700",              // ISO8601 with minutes
