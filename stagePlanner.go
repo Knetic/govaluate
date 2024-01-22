@@ -1,8 +1,10 @@
 package govaluate
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -426,7 +428,7 @@ func planValue(stream *tokenStream) (*evaluationStage, error) {
 		operator = makeLiteralStage(token.Value)
 	case TIME:
 		symbol = LITERAL
-		operator = makeLiteralStage(float64(token.Value.(time.Time).Unix()))
+		operator = makeLiteralStage(json.Number(strconv.FormatInt(token.Value.(time.Time).UnixNano(), 10)))
 
 	case PREFIX:
 		stream.rewind()
@@ -498,8 +500,8 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		fallthrough
 	case BITWISE_XOR:
 		return typeChecks{
-			left:  isFloat64,
-			right: isFloat64,
+			left:  isNumber,
+			right: isNumber,
 		}
 	case PLUS:
 		return typeChecks{
@@ -515,12 +517,12 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		fallthrough
 	case EXPONENT:
 		return typeChecks{
-			left:  isFloat64,
-			right: isFloat64,
+			left:  isNumber,
+			right: isNumber,
 		}
 	case NEGATE:
 		return typeChecks{
-			right: isFloat64,
+			right: isNumber,
 		}
 	case INVERT:
 		return typeChecks{
@@ -528,7 +530,7 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		}
 	case BITWISE_NOT:
 		return typeChecks{
-			right: isFloat64,
+			right: isNumber,
 		}
 	case TERNARY_TRUE:
 		return typeChecks{
