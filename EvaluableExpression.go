@@ -1,8 +1,10 @@
 package govaluate
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 const isoDateFormat string = "2006-01-02T15:04:05.999999999Z0700"
@@ -129,12 +131,27 @@ func NewEvaluableExpressionWithFunctions(expression string, functions map[string
 	Same as `Eval`, but automatically wraps a map of parameters into a `govalute.Parameters` structure.
 */
 func (this EvaluableExpression) Evaluate(parameters map[string]interface{}) (interface{}, error) {
-
+	var (
+		result interface{}
+		err    error
+	)
 	if parameters == nil {
-		return this.Eval(nil)
+		result, err = this.Eval(nil)
+	} else {
+		result, err = this.Eval(MapParameters(parameters))
 	}
 
-	return this.Eval(MapParameters(parameters))
+	if err != nil {
+		return result, err
+	}
+	if retNum, ok := result.(json.Number); ok {
+		retNumStr := retNum.String()
+		if strings.Contains(retNumStr, ".") {
+			return retNum.Float64()
+		}
+		return retNum.Int64()
+	}
+	return result, nil
 }
 
 /*
