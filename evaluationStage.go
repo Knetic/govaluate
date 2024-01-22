@@ -1,11 +1,13 @@
 package govaluate
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -92,47 +94,252 @@ func addStage(left interface{}, right interface{}, parameters Parameters) (inter
 	if isString(left) || isString(right) {
 		return fmt.Sprintf("%v%v", left, right), nil
 	}
-
-	return left.(float64) + right.(float64), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(leftNum+rightNum, 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum+rightNum, 10)), nil
 }
 func subtractStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return left.(float64) - right.(float64), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(leftNum-rightNum, 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum-rightNum, 10)), nil
 }
 func multiplyStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return left.(float64) * right.(float64), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(leftNum*rightNum, 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum*rightNum, 10)), nil
 }
 func divideStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return left.(float64) / right.(float64), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(leftNum/rightNum, 'f', 10, 64)), nil
+	}
+	leftNum, err := left.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := right.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	res := float64(leftNum) / float64(rightNum)
+	if float64(int64(res)) == res {
+		return json.Number(strconv.FormatInt(int64(res), 10)), nil
+	}
+	return json.Number(strconv.FormatFloat(res, 'f', 10, 64)), nil
 }
 func exponentStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return math.Pow(left.(float64), right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(math.Pow(leftNum, rightNum), 'f', 10, 64)), nil
+	}
+	leftNum, err := left.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := right.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(int64(math.Pow(float64(leftNum), float64(rightNum))), 10)), nil
 }
+
 func modulusStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return math.Mod(left.(float64), right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(math.Mod(leftNum, rightNum), 'f', 10, 64)), nil
+	}
+	leftNum, err := left.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := right.(json.Number).Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(int64(math.Mod(float64(leftNum), float64(rightNum))), 10)), nil
 }
+
 func gteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) >= right.(string)), nil
 	}
-	return boolIface(left.(float64) >= right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		return boolIface(leftNum > rightNum), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	return boolIface(leftNum >= rightNum), nil
 }
 func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) > right.(string)), nil
 	}
-	return boolIface(left.(float64) > right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		return boolIface(leftNum > rightNum), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	return boolIface(leftNum > rightNum), nil
 }
 func lteStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) <= right.(string)), nil
 	}
-	return boolIface(left.(float64) <= right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		return boolIface(leftNum <= rightNum), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	return boolIface(leftNum <= rightNum), nil
 }
 func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) < right.(string)), nil
 	}
-	return boolIface(left.(float64) < right.(float64)), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return boolIface(false), err
+		}
+		return boolIface(leftNum < rightNum), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return boolIface(false), err
+	}
+	return boolIface(leftNum < rightNum), nil
 }
 func equalStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(reflect.DeepEqual(left, right)), nil
@@ -147,13 +354,31 @@ func orStage(left interface{}, right interface{}, parameters Parameters) (interf
 	return boolIface(left.(bool) || right.(bool)), nil
 }
 func negateStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return -right.(float64), nil
+	rightNumStr := right.(json.Number).String()
+	if len(rightNumStr) <= 0 {
+		return json.Number("0"), errors.New("empty string")
+	} else if rightNumStr[0] == '-' {
+		return json.Number(rightNumStr[1:]), nil
+	}
+	return json.Number(fmt.Sprintf("-%s", rightNumStr)), nil
 }
 func invertStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	return boolIface(!right.(bool)), nil
 }
 func bitwiseNotStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(^int64(right.(float64))), nil
+	rightNumStr := right.(json.Number)
+	if strings.Contains(rightNumStr.String(), ".") {
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(^int64(rightNum)), 'f', 10, 64)), nil
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(^rightNum, 10)), nil
 }
 func ternaryIfStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if left.(bool) {
@@ -197,19 +422,119 @@ func notRegexStage(left interface{}, right interface{}, parameters Parameters) (
 }
 
 func bitwiseOrStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(int64(left.(float64)) | int64(right.(float64))), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(int64(leftNum)|int64(rightNum)), 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum|rightNum, 10)), nil
 }
 func bitwiseAndStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(int64(left.(float64)) & int64(right.(float64))), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(int64(leftNum)&int64(rightNum)), 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum&rightNum, 10)), nil
 }
 func bitwiseXORStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(int64(left.(float64)) ^ int64(right.(float64))), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(int64(leftNum)^int64(rightNum)), 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(leftNum^rightNum, 10)), nil
 }
 func leftShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(uint64(left.(float64)) << uint64(right.(float64))), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(uint64(leftNum)<<uint64(rightNum)), 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(int64(uint64(leftNum)<<uint64(rightNum)), 10)), nil
 }
 func rightShiftStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-	return float64(uint64(left.(float64)) >> uint64(right.(float64))), nil
+	leftNumStr, rightNumStr := left.(json.Number), right.(json.Number)
+	if strings.Contains(leftNumStr.String(), ".") || strings.Contains(rightNumStr.String(), ".") {
+		leftNum, err := leftNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		rightNum, err := rightNumStr.Float64()
+		if err != nil {
+			return json.Number("0"), err
+		}
+		return json.Number(strconv.FormatFloat(float64(uint64(leftNum)>>uint64(rightNum)), 'f', 10, 64)), nil
+	}
+	leftNum, err := leftNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	rightNum, err := rightNumStr.Int64()
+	if err != nil {
+		return json.Number("0"), err
+	}
+	return json.Number(strconv.FormatInt(int64(uint64(leftNum)>>uint64(rightNum)), 10)), nil
 }
 
 func makeParameterStage(parameterName string) evaluationOperator {
@@ -235,15 +560,21 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 		if right == nil {
-			return function()
+			val, err := function()
+			return castToNumber(val), err
 		}
+		var (
+			val interface{}
+			err error
+		)
 
 		switch right.(type) {
 		case []interface{}:
-			return function(right.([]interface{})...)
+			val, err = function(right.([]interface{})...)
 		default:
-			return function(right)
+			val, err = function(right)
 		}
+		return castToNumber(val), err
 	}
 }
 
@@ -278,6 +609,7 @@ func typeConvertParams(method reflect.Value, params []reflect.Value) ([]reflect.
 		pt := p.Type()
 
 		if t.Kind() != pt.Kind() {
+
 			np, err := typeConvertParam(p, t)
 			if err != nil {
 				return nil, err
@@ -350,8 +682,26 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 				givenParams := right.([]interface{})
 				params = make([]reflect.Value, len(givenParams))
-				for idx, _ := range givenParams {
-					params[idx] = reflect.ValueOf(givenParams[idx])
+				for idx, p := range givenParams {
+					val, ok := p.(json.Number)
+					if !ok {
+						params[idx] = reflect.ValueOf(givenParams[idx])
+						continue
+					}
+					valStr := val.String()
+					if strings.Contains(valStr, ".") {
+						valFloat, numErr := val.Float64()
+						if numErr != nil {
+							return nil, numErr
+						}
+						params[idx] = reflect.ValueOf(valFloat)
+					} else {
+						valInt, numErr := val.Int64()
+						if numErr != nil {
+							return nil, numErr
+						}
+						params[idx] = reflect.ValueOf(valInt)
+					}
 				}
 
 			default:
@@ -399,7 +749,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			return nil, errors.New("Method call '" + pair[0] + "." + pair[1] + "' did not return either one value, or a value and an error. Cannot interpret meaning.")
 		}
 
-		value = castToFloat64(value)
+		value = castToNumber(value)
 		return value, nil
 	}
 }
@@ -458,9 +808,9 @@ func isBool(value interface{}) bool {
 	return false
 }
 
-func isFloat64(value interface{}) bool {
+func isNumber(value interface{}) bool {
 	switch value.(type) {
-	case float64:
+	case json.Number:
 		return true
 	}
 	return false
@@ -472,7 +822,7 @@ func isFloat64(value interface{}) bool {
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
 
-	if isFloat64(left) && isFloat64(right) {
+	if isNumber(left) && isNumber(right) {
 		return true
 	}
 	if !isString(left) && !isString(right) {
@@ -487,7 +837,7 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 */
 func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
-	if isFloat64(left) && isFloat64(right) {
+	if isNumber(left) && isNumber(right) {
 		return true
 	}
 	if isString(left) && isString(right) {
