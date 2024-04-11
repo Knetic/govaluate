@@ -15,7 +15,10 @@ const (
 	UNCLOSED_BRACKETS               = "Unclosed parameter bracket"
 	UNBALANCED_PARENTHESIS          = "Unbalanced parenthesis"
 	INVALID_NUMERIC                 = "Unable to parse numeric value"
-	UNDEFINED_FUNCTION							= "Undefined function"
+	UNDEFINED_FUNCTION              = "Undefined function"
+	HANGING_ACCESSOR                = "Hanging accessor on token"
+	UNEXPORTED_ACCESSOR             = "Unable to access unexported"
+	INVALID_HEX                     = "Unable to parse hex value"
 )
 
 /*
@@ -165,9 +168,42 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
-			Name:			"Undefined function",
-			Input:		"foobar()",
-			Expected:	UNDEFINED_FUNCTION,
+			Name:     "Undefined function",
+			Input:    "foobar()",
+			Expected: UNDEFINED_FUNCTION,
+		},
+		ParsingFailureTest{
+
+			Name:     "Hanging accessor",
+			Input:    "foo.Bar.",
+			Expected: HANGING_ACCESSOR,
+		},
+		ParsingFailureTest{
+
+			// this is expected to change once there are structtags in place that allow aliasing of fields
+			Name:     "Unexported parameter access",
+			Input:    "foo.bar",
+			Expected: UNEXPORTED_ACCESSOR,
+		},
+		ParsingFailureTest{
+			Name:     "Incomplete Hex",
+			Input:    "0x",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+			Name:     "Invalid Hex literal",
+			Input:    "0x > 0",
+			Expected: INVALID_HEX,
+		},
+		ParsingFailureTest{
+			Name:     "Hex float (Unsupported)",
+			Input:    "0x1.1",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+			Name:     "Hex invalid letter",
+			Input:    "0x12g1",
+			Expected: INVALID_TOKEN_TRANSITION,
 		},
 	}
 

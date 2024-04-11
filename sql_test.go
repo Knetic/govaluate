@@ -163,31 +163,31 @@ func TestSQLSerialization(test *testing.T) {
 			Expected: "COALESCE([foo], [bar])",
 		},
 		/*
-		// Ternaries don't work yet, because the outputter is not yet sophisticated enough to produce them.
-		QueryTest{
+			// Ternaries don't work yet, because the outputter is not yet sophisticated enough to produce them.
+			QueryTest{
 
-			Name:     "Full ternary",
-			Input:    "[foo] == 5 ? 1 : 2",
-			Expected: "IF([foo] = 5, 1, 2)",
-		},
-		QueryTest{
+				Name:     "Full ternary",
+				Input:    "[foo] == 5 ? 1 : 2",
+				Expected: "IF([foo] = 5, 1, 2)",
+			},
+			QueryTest{
 
-			Name:     "Half ternary",
-			Input:    "[foo] == 5 ? 1",
-			Expected: "IF([foo] = 5, 1)",
-		},
-		QueryTest{
+				Name:     "Half ternary",
+				Input:    "[foo] == 5 ? 1",
+				Expected: "IF([foo] = 5, 1)",
+			},
+			QueryTest{
 
-			Name:     "Full ternary with implicit bool",
-			Input:    "[foo] ? 1 : 2",
-			Expected: "IF([foo] = 0, 1, 2)",
-		},
-		QueryTest{
+				Name:     "Full ternary with implicit bool",
+				Input:    "[foo] ? 1 : 2",
+				Expected: "IF([foo] = 0, 1, 2)",
+			},
+			QueryTest{
 
-			Name:     "Half ternary with implicit bool",
-			Input:    "[foo] ? 1",
-			Expected: "IF([foo] = 0, 1)",
-		},*/
+				Name:     "Half ternary with implicit bool",
+				Input:    "[foo] ? 1",
+				Expected: "IF([foo] = 0, 1)",
+			},*/
 		QueryTest{
 
 			Name:     "Regex equals",

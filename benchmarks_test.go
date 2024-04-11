@@ -83,6 +83,19 @@ func BenchmarkEvaluationLiteralModifiers(bench *testing.B) {
 	}
 }
 
+func BenchmarkEvaluationParameter(bench *testing.B) {
+
+	expression, _ := NewEvaluableExpression("requests_made")
+	parameters := map[string]interface{}{
+		"requests_made": 99.0,
+	}
+
+	bench.ResetTimer()
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(parameters)
+	}
+}
+
 /*
   Benchmarks evaluation times of parameters
 */
@@ -190,5 +203,49 @@ func BenchmarkConstantRegexExpression(bench *testing.B) {
 	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
 		expression.Evaluate(parameters)
+	}
+}
+
+func BenchmarkAccessors(bench *testing.B) {
+
+	expressionString := "foo.Int"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	bench.ResetTimer()
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(fooFailureParameters)
+	}
+}
+
+func BenchmarkAccessorMethod(bench *testing.B) {
+
+	expressionString := "foo.Func()"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	bench.ResetTimer()
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(fooFailureParameters)
+	}
+}
+
+func BenchmarkAccessorMethodParams(bench *testing.B) {
+
+	expressionString := "foo.FuncArgStr('bonk')"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	bench.ResetTimer()
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(fooFailureParameters)
+	}
+}
+
+func BenchmarkNestedAccessors(bench *testing.B) {
+
+	expressionString := "foo.Nested.Funk"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	bench.ResetTimer()
+	for i := 0; i < bench.N; i++ {
+		expression.Evaluate(fooFailureParameters)
 	}
 }

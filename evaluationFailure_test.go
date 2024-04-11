@@ -32,6 +32,10 @@ const (
 	INVALID_TERNARY_TYPES           = "cannot be used with the ternary operator"
 	ABSENT_PARAMETER                = "No parameter"
 	INVALID_REGEX                   = "Unable to compile regexp pattern"
+	INVALID_PARAMETER_CALL          = "No method or field"
+	TOO_FEW_ARGS                    = "Too few arguments to parameter call"
+	TOO_MANY_ARGS                   = "Too many arguments to parameter call"
+	MISMATCHED_PARAMETERS           = "Argument type conversion failed"
 )
 
 // preset parameter map of types that can be used in an evaluation failure test to check typing.
@@ -85,15 +89,13 @@ func TestStructParameter(t *testing.T) {
 
 func TestNilParameterUsage(test *testing.T) {
 
-	evaluationTests := []EvaluationFailureTest{
-		EvaluationFailureTest{
-			Name:     "Absent parameter used",
-			Input:    "foo > 1",
-			Expected: ABSENT_PARAMETER,
-		},
-	}
+	expression, err := NewEvaluableExpression("2 > 1")
+	_, err = expression.Evaluate(nil)
 
-	runEvaluationFailureTests(evaluationTests, test)
+	if err != nil {
+		test.Errorf("Expected no error from nil parameter evaluation, got %v\n", err)
+		return
+	}
 }
 
 func TestModifierTyping(test *testing.T) {
@@ -430,6 +432,63 @@ func TestFunctionExecution(test *testing.T) {
 				},
 			},
 			Expected: "Huge problems",
+		},
+	}
+
+	runEvaluationFailureTests(evaluationTests, test)
+}
+
+func TestInvalidParameterCalls(test *testing.T) {
+
+	evaluationTests := []EvaluationFailureTest{
+		EvaluationFailureTest{
+
+			Name:       "Missing parameter field reference",
+			Input:      "foo.NotExists",
+			Parameters: fooFailureParameters,
+			Expected:   INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:       "Parameter method call on missing function",
+			Input:      "foo.NotExist()",
+			Parameters: fooFailureParameters,
+			Expected:   INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:       "Nested missing parameter field reference",
+			Input:      "foo.Nested.NotExists",
+			Parameters: fooFailureParameters,
+			Expected:   INVALID_PARAMETER_CALL,
+		},
+		EvaluationFailureTest{
+
+			Name:       "Parameter method call returns error",
+			Input:      "foo.AlwaysFail()",
+			Parameters: fooFailureParameters,
+			Expected:   "function should always fail",
+		},
+		EvaluationFailureTest{
+
+			Name:       "Too few arguments to parameter call",
+			Input:      "foo.FuncArgStr()",
+			Parameters: fooFailureParameters,
+			Expected:   TOO_FEW_ARGS,
+		},
+		EvaluationFailureTest{
+
+			Name:       "Too many arguments to parameter call",
+			Input:      "foo.FuncArgStr('foo', 'bar', 15)",
+			Parameters: fooFailureParameters,
+			Expected:   TOO_MANY_ARGS,
+		},
+		EvaluationFailureTest{
+
+			Name:       "Mismatched parameters",
+			Input:      "foo.FuncArgStr(5)",
+			Parameters: fooFailureParameters,
+			Expected:   MISMATCHED_PARAMETERS,
 		},
 	}
 
