@@ -3,13 +3,14 @@ package govaluate
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 	"testing"
 	"time"
 )
 
 /*
-	Represents a test of expression evaluation
+Represents a test of expression evaluation
 */
 type EvaluationTest struct {
 	Name       string
@@ -710,7 +711,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{
@@ -1425,7 +1426,7 @@ func TestParameterizedEvaluation(test *testing.T) {
 }
 
 /*
-	Tests the behavior of a nil set of parameters.
+Tests the behavior of a nil set of parameters.
 */
 func TestNilParameters(test *testing.T) {
 
@@ -1438,8 +1439,8 @@ func TestNilParameters(test *testing.T) {
 }
 
 /*
-	Tests functionality related to using functions with a struct method receiver.
-	Created to test #54.
+Tests functionality related to using functions with a struct method receiver.
+Created to test #54.
 */
 func TestStructFunctions(test *testing.T) {
 
@@ -1461,6 +1462,23 @@ func TestStructFunctions(test *testing.T) {
 
 	if result != 4001.0 {
 		test.Logf("Function calling method did not return the right value. Got: %v, expected %d\n", result, 4001)
+		test.Fail()
+	}
+}
+
+func TestFuncArgs(test *testing.T) {
+	functions := map[string]ExpressionFunction{
+		"func1": func(args ...interface{}) (interface{}, error) {
+			return args, nil
+		},
+	}
+	exp, _ := NewEvaluableExpressionWithFunctions("func1(args, 1, 2, 3)", functions)
+	result, _ := exp.Evaluate(map[string]interface{}{
+		"args": []interface{}{1, 2, 3},
+	})
+	excepted := []interface{}{[]interface{}{1, 2, 3}, 1.0, 2.0, 3.0}
+	if !reflect.DeepEqual(result, excepted) {
+		test.Logf("Function calling method did not return the right value. Got: %v, expected %d\n", result, excepted)
 		test.Fail()
 	}
 }
