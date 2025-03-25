@@ -11,7 +11,7 @@ import (
 	"unicode"
 )
 
-func parseTokens(expression string, functions map[string]ExpressionFunction) ([]ExpressionToken, error) {
+func parseTokens(expression string, functions map[string]ExpressionFunction, opts options) ([]ExpressionToken, error) {
 
 	var ret []ExpressionToken
 	var token ExpressionToken
@@ -25,7 +25,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 
 	for stream.canRead() {
 
-		token, err, found = readToken(stream, state, functions)
+		token, err, found = readToken(stream, state, functions, opts)
 
 		if err != nil {
 			return ret, err
@@ -52,7 +52,7 @@ func parseTokens(expression string, functions map[string]ExpressionFunction) ([]
 	return ret, nil
 }
 
-func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction) (ExpressionToken, error, bool) {
+func readToken(stream *lexerStream, state lexerState, functions map[string]ExpressionFunction, opts options) (ExpressionToken, error, bool) {
 
 	var function ExpressionFunction
 	var ret ExpressionToken
@@ -214,12 +214,13 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 			stream.rewind(-1)
 
 			// check to see if this can be parsed as a time.
-			tokenTime, found = tryParseTime(tokenValue.(string))
-			if found {
-				kind = TIME
-				tokenValue = tokenTime
-			} else {
-				kind = STRING
+      kind = STRING
+      if !opts.skipDateParsing {
+        tokenTime, found = tryParseTime(tokenValue.(string))
+        if found {
+          kind = TIME
+          tokenValue = tokenTime
+        }
 			}
 			break
 		}
