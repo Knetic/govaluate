@@ -239,6 +239,8 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 		}
 
 		switch right.(type) {
+		case slice:
+			return function(right.(slice)...)
 		case []interface{}:
 			return function(right.([]interface{})...)
 		default:
@@ -346,6 +348,14 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			}
 
 			switch right.(type) {
+			case slice:
+
+				givenParams := right.(slice)
+				params = make([]reflect.Value, len(givenParams))
+				for idx, _ := range givenParams {
+					params[idx] = reflect.ValueOf(givenParams[idx])
+				}
+
 			case []interface{}:
 
 				givenParams := right.([]interface{})
@@ -404,25 +414,35 @@ func makeAccessorStage(pair []string) evaluationOperator {
 	}
 }
 
+// A type alise for a slice of interface{}, to indentation that this is a produced slice
+type slice []interface{}
+
 func separatorStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-	var ret []interface{}
+	var ret slice
 
 	switch left.(type) {
-	case []interface{}:
-		ret = append(left.([]interface{}), right)
+	case slice:
+		ret = append(left.(slice), right)
 	default:
-		ret = []interface{}{left, right}
+		ret = slice{left, right}
 	}
 
 	return ret, nil
 }
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
-
-	for _, value := range right.([]interface{}) {
-		if left == value {
-			return true, nil
+	if _, ok := right.(slice); ok {
+		for _, value := range right.(slice) {
+			if left == value {
+				return true, nil
+			}
+		}
+	} else {
+		for _, value := range right.([]interface{}) {
+			if left == value {
+				return true, nil
+			}
 		}
 	}
 	return false, nil
@@ -467,8 +487,8 @@ func isFloat64(value interface{}) bool {
 }
 
 /*
-	Addition usually means between numbers, but can also mean string concat.
-	String concat needs one (or both) of the sides to be a string.
+Addition usually means between numbers, but can also mean string concat.
+String concat needs one (or both) of the sides to be a string.
 */
 func additionTypeCheck(left interface{}, right interface{}) bool {
 
@@ -482,8 +502,8 @@ func additionTypeCheck(left interface{}, right interface{}) bool {
 }
 
 /*
-	Comparison can either be between numbers, or lexicographic between two strings,
-	but never between the two.
+Comparison can either be between numbers, or lexicographic between two strings,
+but never between the two.
 */
 func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
@@ -498,6 +518,8 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 
 func isArray(value interface{}) bool {
 	switch value.(type) {
+	case slice:
+		return true
 	case []interface{}:
 		return true
 	}
@@ -505,8 +527,8 @@ func isArray(value interface{}) bool {
 }
 
 /*
-	Converting a boolean to an interface{} requires an allocation.
-	We can use interned bools to avoid this cost.
+Converting a boolean to an interface{} requires an allocation.
+We can use interned bools to avoid this cost.
 */
 func boolIface(b bool) interface{} {
 	if b {
