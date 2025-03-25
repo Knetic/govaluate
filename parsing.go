@@ -139,7 +139,7 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 		}
 
 		// regular variable - or function?
-		if unicode.IsLetter(character) {
+		if isName(character) {
 
 			tokenString = readTokenUntilFalse(stream, isVariableName)
 
@@ -414,6 +414,10 @@ func checkBalance(tokens []ExpressionToken) error {
 	return nil
 }
 
+func isName(character rune) bool {
+	return unicode.IsLetter(character) || character == '$'
+}
+
 func isDigit(character rune) bool {
 	return unicode.IsDigit(character)
 }
@@ -444,7 +448,7 @@ func isNotQuote(character rune) bool {
 func isNotAlphanumeric(character rune) bool {
 
 	return !(unicode.IsDigit(character) ||
-		unicode.IsLetter(character) ||
+		isName(character) ||
 		character == '(' ||
 		character == ')' ||
 		character == '[' ||
@@ -454,7 +458,7 @@ func isNotAlphanumeric(character rune) bool {
 
 func isVariableName(character rune) bool {
 
-	return unicode.IsLetter(character) ||
+	return isName(character) ||
 		unicode.IsDigit(character) ||
 		character == '_' ||
 		character == '.'
