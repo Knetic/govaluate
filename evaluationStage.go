@@ -235,14 +235,14 @@ func makeFunctionStage(function ExpressionFunction) evaluationOperator {
 	return func(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 		if right == nil {
-			return function()
+			return function(parameters)
 		}
 
 		switch right.(type) {
 		case []interface{}:
-			return function(right.([]interface{})...)
+			return function(parameters, right.([]interface{})...)
 		default:
-			return function(right)
+			return function(parameters, right)
 		}
 	}
 }

@@ -221,7 +221,6 @@ var validLexerStates = []lexerState{
 			STRING,
 			TIME,
 			CLAUSE,
-			CLAUSE_CLOSE,
 		},
 	},
 	lexerState{

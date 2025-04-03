@@ -15,6 +15,10 @@ func (p sanitizedParameters) Get(key string) (interface{}, error) {
 	return castToFloat64(value), nil
 }
 
+func (p sanitizedParameters) Set(key string, value interface{}) {
+	p.orig.Set(key, value)
+}
+
 func castToFloat64(value interface{}) interface{} {
 	switch value.(type) {
 	case uint8:
