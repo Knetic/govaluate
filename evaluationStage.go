@@ -314,6 +314,13 @@ func makeAccessorStage(pair []string) evaluationOperator {
 		}()
 
 		for i := 1; i < len(pair); i++ {
+			if p, ok := value.(Parameters); ok {
+				value, err = p.Get(pair[i])
+				if err != nil {
+					return nil, err
+				}
+				continue
+			}
 
 			coreValue := reflect.ValueOf(value)
 
@@ -323,6 +330,11 @@ func makeAccessorStage(pair []string) evaluationOperator {
 			if coreValue.Kind() == reflect.Ptr {
 				corePtrVal = coreValue
 				coreValue = coreValue.Elem()
+			}
+
+			if field, ok := coreValue.Type().FieldByName(pair[i]); ok && len(field.PkgPath) > 0 {
+				// According to reflect docs, if len(PkgPath) > 0 then the field is unexported
+				return nil, fmt.Errorf("Unable to access unexported field '%s'", field.PkgPath)
 			}
 
 			if coreValue.Kind() != reflect.Struct {
