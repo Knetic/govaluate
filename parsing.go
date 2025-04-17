@@ -350,38 +350,96 @@ func readUntilFalse(stream *lexerStream, includeWhitespace bool, breakWhitespace
 */
 func optimizeTokens(tokens []ExpressionToken) ([]ExpressionToken, error) {
 
-	var token ExpressionToken
 	var symbol OperatorSymbol
 	var err error
-	var index int
 
-	for index, token = range tokens {
+	for index := 0; index < len(tokens); index++ {
+		token := tokens[index]
 
-		// if we find a regex operator, and the right-hand value is a constant, precompile and replace with a pattern.
 		if token.Kind != COMPARATOR {
 			continue
 		}
 
 		symbol = comparatorSymbols[token.Value.(string)]
-		if symbol != REQ && symbol != NREQ {
-			continue
-		}
+		switch symbol {
+		case REQ, NREQ: // if we find a regex operator, and the right-hand value is a constant, precompile and replace with a pattern.
+			nextToken := tokens[index+1]
+			if nextToken.Kind == STRING {
 
-		index++
-		token = tokens[index]
-		if token.Kind == STRING {
+				nextToken.Kind = PATTERN
+				nextToken.Value, err = regexp.Compile(nextToken.Value.(string))
 
-			token.Kind = PATTERN
-			token.Value, err = regexp.Compile(token.Value.(string))
+				if err != nil {
+					return tokens, err
+				}
 
-			if err != nil {
-				return tokens, err
+				tokens[index+1] = nextToken
+			}
+		case IN:
+			nextToken := tokens[index+1]
+
+			if nextToken.Kind != CLAUSE {
+				continue
 			}
 
-			tokens[index] = token
+			isComp, endIndex, err := clauseIsComparable(tokens, index+1)
+			if err != nil {
+				return nil, err
+			}
+			if !isComp {
+				break // switch
+			}
+
+			mp := clauseToMap(tokens, index)
+			nextToken.Kind = MAP
+			nextToken.Value = mp
+			tokens[index+1] = nextToken
+
+			// remove all tokens that have been condensed into map
+			newTokens := make([]ExpressionToken, 0, len(tokens)-(endIndex-index))
+			newTokens = append(newTokens, tokens[:index+2]...)
+			newTokens = append(newTokens, tokens[endIndex+1:]...)
+			tokens = newTokens
 		}
 	}
+
 	return tokens, nil
+}
+
+func clauseIsComparable(tokens []ExpressionToken, index int) (bool, int, error) {
+	if tokens[index].Kind != CLAUSE {
+		return false, 0, fmt.Errorf("token at index %d is %s, expected %s", index, tokens[index].Kind, CLAUSE)
+	}
+loop:
+	for {
+		index++
+		token := tokens[index]
+		switch token.Kind {
+		case CLAUSE_CLOSE:
+			break loop
+		case SEPARATOR, STRING, NUMERIC:
+			continue
+		default:
+			return false, index, nil
+		}
+	}
+	return true, index, nil
+}
+
+func clauseToMap(tokens []ExpressionToken, index int) map[interface{}]struct{} {
+	mp := make(map[interface{}]struct{})
+loop:
+	for {
+		index++
+		token := tokens[index]
+		switch token.Kind {
+		case CLAUSE_CLOSE:
+			break loop
+		case STRING, NUMERIC:
+			mp[token.Value] = struct{}{}
+		}
+	}
+	return mp
 }
 
 /*

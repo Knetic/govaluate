@@ -249,3 +249,20 @@ func BenchmarkNestedAccessors(bench *testing.B) {
 		expression.Evaluate(fooFailureParameters)
 	}
 }
+
+func BenchmarkIn(bench *testing.B) {
+
+	expressionString := "a in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)"
+	expression, _ := NewEvaluableExpression(expressionString)
+
+	bench.ResetTimer()
+	var val interface{}
+	for i := 0; i < bench.N; i++ {
+		val, _ = expression.Evaluate(map[string]interface{}{
+			"a": 4,
+		})
+	}
+	if val != true {
+		bench.Error("expected true")
+	}
+}

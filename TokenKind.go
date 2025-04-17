@@ -27,6 +27,8 @@ const (
 	CLAUSE_CLOSE
 
 	TERNARY
+
+	MAP
 )
 
 /*
@@ -47,6 +49,8 @@ func (kind TokenKind) String() string {
 		return "STRING"
 	case PATTERN:
 		return "PATTERN"
+	case MAP:
+		return "MAP"
 	case TIME:
 		return "TIME"
 	case VARIABLE:
