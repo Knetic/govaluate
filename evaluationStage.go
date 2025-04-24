@@ -315,6 +315,15 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 		for i := 1; i < len(pair); i++ {
 
+			// if this is another Parameters
+			if pv, ok := value.(Parameters); ok {
+				value, err = pv.Get(pair[i])
+				if err != nil {
+					return nil, err
+				}
+				continue
+			}
+
 			coreValue := reflect.ValueOf(value)
 
 			var corePtrVal reflect.Value
