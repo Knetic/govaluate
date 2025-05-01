@@ -35,6 +35,12 @@ type EvaluableExpression struct {
 	tokens           []ExpressionToken
 	evaluationStages *evaluationStage
 	inputExpression  string
+
+	/*
+		This flag will be used to set the case sensitivity of the expression.
+		If set to true, the expression will be evaluated using case insensitive comparison.
+	*/
+	CaseInsensitive bool
 }
 
 /*
@@ -229,7 +235,7 @@ func (this EvaluableExpression) evaluateStage(stage *evaluationStage, parameters
 		}
 	}
 
-	return stage.operator(left, right, parameters)
+	return stage.operator(left, right, parameters, this.CaseInsensitive)
 }
 
 func typeCheck(check stageTypeCheck, value interface{}, symbol OperatorSymbol, format string) error {
