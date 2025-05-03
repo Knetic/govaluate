@@ -486,6 +486,7 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 		}
 	case IN:
 		return typeChecks{
+			left: isSingle,
 			right: isArray,
 		}
 	case BITWISE_LSHIFT:

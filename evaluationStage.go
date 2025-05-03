@@ -466,6 +466,22 @@ func isFloat64(value interface{}) bool {
 	return false
 }
 
+func isSingle(value interface{}) bool {	
+	if value == nil {
+	    return false
+	}
+	rt := reflect.TypeOf(value)	
+	switch rt.Kind() {
+	case reflect.Slice:
+		return false
+	case reflect.Array:
+		return false
+	default:
+		return true
+	}
+}
+
+
 /*
 	Addition usually means between numbers, but can also mean string concat.
 	String concat needs one (or both) of the sides to be a string.
