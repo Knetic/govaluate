@@ -45,6 +45,47 @@ var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 	"bool":   true,
 }
 
+func TestFullCycle(test *testing.T) {
+	currentExpressionString := "2 > 1 && " +
+		"'something' != 'nothing' || (1,2,3) != (3,2,1) || " +
+		"func1(1337,'leet',sawce) < 'Wed Jul 8 23:07:35 MDT 2015' && " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName && " +
+		"modifierTest + 0xa3a2b3 / 2 > (80 * 100 % 2) && true ? true : false"
+	extraFuncs := map[string]ExpressionFunction{
+		"func1": func(args ...interface{}) (interface{}, error) {
+			return "2014-01-20", nil
+		},
+	}
+
+	var initialExpression, cycledExpression, finalExpression *EvaluableExpression
+	initialExpression, err := NewEvaluableExpressionWithFunctions(currentExpressionString, extraFuncs)
+	if err != nil {
+		test.Errorf("Failed to build expression from string... ERROR: %+v", err)
+	}
+	cycledExpression, err = NewEvaluableExpressionFromTokens(initialExpression.Tokens())
+	if err != nil {
+		test.Errorf("Failed to build expression from tokens, from string... ERROR: %+v", err)
+	}
+	temp2, err := NewEvaluableExpressionWithFunctions(cycledExpression.String(), extraFuncs)
+	if err != nil {
+		test.Errorf("Failed to build expression from string, from tokens, from string... ERROR: %+v", err)
+	}
+	finalExpression, err = NewEvaluableExpressionFromTokens(temp2.Tokens())
+	if err != nil {
+		test.Errorf("Failed to build expression from tokens, from string, from tokens, from string... ERROR: %+v", err)
+	}
+
+	if finalExpression.String() != cycledExpression.String() {
+		test.Errorf("The final result string was not synonymous with the initial's... FAILURE:\n\"%+v\"\n	!=\n\"%+v\"", finalExpression.String(), initialExpression.String())
+	}
+	if len(finalExpression.Vars()) != len(initialExpression.Vars()) {
+		test.Errorf("The final result variables were not synonymous with the initial's... FAILURE:\n\"%+v\"\n	!=\n\"%+v\"", finalExpression.Vars(), initialExpression.Vars())
+	}
+	if len(finalExpression.Tokens()) != len(initialExpression.Tokens()) {
+		test.Errorf("The final result tokens were not synonymous with the initial's... FAILURE:\n\"%+v\"\n	!=\n\"%+v\"", finalExpression.Tokens(), initialExpression.Tokens())
+	}
+}
+
 func TestComplexParameter(test *testing.T) {
 
 	var expression *EvaluableExpression
