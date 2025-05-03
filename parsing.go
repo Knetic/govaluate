@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"net"
 	"regexp"
 	"strconv"
 	"strings"
@@ -106,13 +107,34 @@ func readToken(stream *lexerStream, state lexerState, functions map[string]Expre
 
 			tokenString = readTokenUntilFalse(stream, isNumeric)
 			tokenValue, err = strconv.ParseFloat(tokenString, 64)
-
-			if err != nil {
-				errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64\n", tokenString)
-				return ExpressionToken{}, errors.New(errorMsg), false
+			if err == nil {
+				kind = NUMERIC
+				break
 			}
-			kind = NUMERIC
-			break
+
+			tokenValue = net.ParseIP(tokenString)
+
+			if tokenValue.(net.IP) != nil {
+				tokenValue.(net.IP).String()
+				//maybe it`s CIDR?
+				if stream.canRead() {
+					stream.readCharacter()
+					tokenTail := readTokenUntilFalse(stream, isCIDRTail)
+
+					if _, ipNet, err := net.ParseCIDR(tokenString + tokenTail); err == nil {
+						kind = IPNET
+						tokenValue = *ipNet
+						break
+					}
+				}
+
+				kind = IP
+				break
+			}
+
+			errorMsg := fmt.Sprintf("Unable to parse numeric value '%v' to float64, ip cidr\n", tokenString)
+			return ExpressionToken{}, errors.New(errorMsg), false
+
 		}
 
 		// comma, separator
@@ -414,10 +436,6 @@ func checkBalance(tokens []ExpressionToken) error {
 	return nil
 }
 
-func isDigit(character rune) bool {
-	return unicode.IsDigit(character)
-}
-
 func isHexDigit(character rune) bool {
 
 	character = unicode.ToLower(character)
@@ -434,6 +452,11 @@ func isHexDigit(character rune) bool {
 func isNumeric(character rune) bool {
 
 	return unicode.IsDigit(character) || character == '.'
+}
+
+func isCIDRTail(character rune) bool {
+
+	return unicode.IsDigit(character) || character == '/'
 }
 
 func isNotQuote(character rune) bool {

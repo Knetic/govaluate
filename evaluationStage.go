@@ -1,9 +1,11 @@
 package govaluate
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"math"
+	"net"
 	"reflect"
 	"regexp"
 	"strings"
@@ -114,11 +116,17 @@ func gteStage(left interface{}, right interface{}, parameters Parameters) (inter
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) >= right.(string)), nil
 	}
+	if isIp(left) && isIp(right) {
+		return boolIface(bytes.Compare(left.(net.IP).To4(), right.(net.IP).To4()) >= 0), nil
+	}
 	return boolIface(left.(float64) >= right.(float64)), nil
 }
 func gtStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) > right.(string)), nil
+	}
+	if isIp(left) && isIp(right) {
+		return boolIface(bytes.Compare(left.(net.IP).To4(), right.(net.IP).To4()) > 0), nil
 	}
 	return boolIface(left.(float64) > right.(float64)), nil
 }
@@ -126,11 +134,17 @@ func lteStage(left interface{}, right interface{}, parameters Parameters) (inter
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) <= right.(string)), nil
 	}
+	if isIp(left) && isIp(right) {
+		return boolIface(bytes.Compare(left.(net.IP).To4(), right.(net.IP).To4()) <= 0), nil
+	}
 	return boolIface(left.(float64) <= right.(float64)), nil
 }
 func ltStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 	if isString(left) && isString(right) {
 		return boolIface(left.(string) < right.(string)), nil
+	}
+	if isIp(left) && isIp(right) {
+		return boolIface(bytes.Compare(left.(net.IP).To4(), right.(net.IP).To4()) == 0), nil
 	}
 	return boolIface(left.(float64) < right.(float64)), nil
 }
@@ -421,7 +435,7 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
 	for _, value := range right.([]interface{}) {
-		if left == value {
+		if reflect.DeepEqual(left, value) {
 			return true, nil
 		}
 	}
@@ -437,6 +451,11 @@ func isString(value interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func isIp(value interface{}) bool {
+	_, ok := value.(net.IP)
+	return ok
 }
 
 func isRegexOrString(value interface{}) bool {
@@ -493,6 +512,10 @@ func comparatorTypeCheck(left interface{}, right interface{}) bool {
 	if isString(left) && isString(right) {
 		return true
 	}
+	if isIp(left) && isIp(right) {
+		return true
+	}
+
 	return false
 }
 

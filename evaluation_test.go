@@ -710,7 +710,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{
@@ -1417,6 +1417,87 @@ func TestParameterizedEvaluation(test *testing.T) {
 			Name:       "Null coalesce nested parameter",
 			Input:      "foo.Nil ?? false",
 			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "IP equal",
+			Input:      "foo.IP1 == foo.IP1",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "IP not equal",
+			Input:      "foo.IP1 != foo.IP1",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "IP greater than equal",
+			Input:      "foo.IP2 >= foo.IP1",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "IP greater than equal false result",
+			Input:      "foo.IP1 >= foo.IP2",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "IP in",
+			Input:      "foo.IP1 in (foo.IP2, 127.0.0.2, foo.IP1)",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "IP not in",
+			Input:      "foo.IP1 in (foo.IP2, 127.0.0.2)",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "CIDR in Network",
+			Input:      "InNetwork(foo.IP1, foo.CIDR1)",
+			Parameters: []EvaluationParameter{fooParameter},
+			Functions:  CIDRTestFunction,
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "CIDR not in Network",
+			Input:      "InNetwork(foo.IP1, foo.CIDR2)",
+			Parameters: []EvaluationParameter{fooParameter},
+			Functions:  CIDRTestFunction,
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "nil IP equal",
+			Input:      "foo.IP1 == 127.0.0.1",
+			Parameters: []EvaluationParameter{fooParameterEmptyIP},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "nil IP not equal",
+			Input:      "foo.IP1 != 127.0.0.1",
+			Parameters: []EvaluationParameter{fooParameterEmptyIP},
+			Expected:   true,
+		},
+		EvaluationTest{
+			Name:       "nil IP greater than equal false result",
+			Input:      "foo.IP1 >= 127.0.0.1",
+			Parameters: []EvaluationParameter{fooParameterEmptyIP},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "nil IP in",
+			Input:      "foo.IP1 in (127.0.0.1, 127.0.0.2,  127.0.0.3)",
+			Parameters: []EvaluationParameter{fooParameterEmptyIP},
+			Expected:   false,
+		},
+		EvaluationTest{
+			Name:       "nil CIDR in Network",
+			Input:      "InNetwork(foo.IP1, foo.CIDR1)",
+			Parameters: []EvaluationParameter{fooParameterEmptyIP},
+			Functions:  CIDRTestFunction,
 			Expected:   false,
 		},
 	}

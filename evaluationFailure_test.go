@@ -6,6 +6,7 @@ package govaluate
 import (
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 	"testing"
 )
@@ -43,6 +44,8 @@ var EVALUATION_FAILURE_PARAMETERS = map[string]interface{}{
 	"number": 1,
 	"string": "foo",
 	"bool":   true,
+	"ip":     net.ParseIP("127.0.0.1"),
+	"ipnet":  mustParseCIDR("127.0.0.1/12"),
 }
 
 func TestComplexParameter(test *testing.T) {
@@ -185,6 +188,42 @@ func TestModifierTyping(test *testing.T) {
 			Input:    "number >> bool",
 			Expected: INVALID_MODIFIER_TYPES,
 		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_RSHIFT bool to IP",
+			Input:    "bool >> ip",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_OR string to ip",
+			Input:    "string | ip",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_RSHIFT bool to ipnet",
+			Input:    "bool >> ipnet",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_OR string to ipnet",
+			Input:    "string | ipnet",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_RSHIFT number to ipnet",
+			Input:    "number >> ipnet",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "BITWISE_OR number to ipnet",
+			Input:    "number | ipnet",
+			Expected: INVALID_MODIFIER_TYPES,
+		},
 	}
 
 	runEvaluationFailureTests(evaluationTests, test)
@@ -239,6 +278,42 @@ func TestLogicalOperatorTyping(test *testing.T) {
 
 			Name:     "OR string to bool",
 			Input:    "string || bool",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "AND bool to IP",
+			Input:    "bool && ip",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR string to ip",
+			Input:    "string || ip",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "AND bool to ipnet",
+			Input:    "bool && ipnet",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR string to ipnet",
+			Input:    "string || ipnet",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "AND number to ipnet",
+			Input:    "number && ipnet",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR number to ipnet",
+			Input:    "number || ipnet",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 	}
@@ -368,6 +443,18 @@ func TestComparatorTyping(test *testing.T) {
 			Input:    "1 in true",
 			Expected: INVALID_COMPARATOR_TYPES,
 		},
+		EvaluationFailureTest{
+
+			Name:     "NREQ bool to ipnet",
+			Input:    "bool !~ ipnet",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "IN string to ipnet",
+			Input:    "string in ipnet",
+			Expected: INVALID_COMPARATOR_TYPES,
+		},
 	}
 
 	runEvaluationFailureTests(evaluationTests, test)
@@ -386,6 +473,12 @@ func TestTernaryTyping(test *testing.T) {
 
 			Name:     "Ternary with string",
 			Input:    "'foo' ? true",
+			Expected: INVALID_TERNARY_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "Ternary with ip",
+			Input:    "'foo' ? ip",
 			Expected: INVALID_TERNARY_TYPES,
 		},
 	}

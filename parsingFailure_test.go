@@ -161,9 +161,8 @@ func TestParsingFailure(test *testing.T) {
 			Expected: UNBALANCED_PARENTHESIS,
 		},
 		ParsingFailureTest{
-
 			Name:     "Multiple radix",
-			Input:    "127.0.0.1",
+			Input:    "127.0.0.1.1.1.1.",
 			Expected: INVALID_NUMERIC,
 		},
 		ParsingFailureTest{

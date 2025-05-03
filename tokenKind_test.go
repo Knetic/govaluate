@@ -28,6 +28,8 @@ func TestTokenKindStrings(test *testing.T) {
 		CLAUSE,
 		CLAUSE_CLOSE,
 		TERNARY,
+		IP,
+		IPNET,
 	}
 
 	for _, kind := range kinds {
