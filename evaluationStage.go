@@ -64,21 +64,20 @@ func (this *evaluationStage) setToNonStage(other evaluationStage) {
 	this.typeErrorFormat = other.typeErrorFormat
 }
 
-func (this *evaluationStage) isShortCircuitable() bool {
+// test
+var symbolMap = map[OperatorSymbol]bool{
+	AND:		true,
+	OR:		true,
+	TERNARY_TRUE:	true,
+	TERNARY_FALSE:	true,
+	COALESCE:	true,
+}
 
-	switch this.symbol {
-	case AND:
-		fallthrough
-	case OR:
-		fallthrough
-	case TERNARY_TRUE:
-		fallthrough
-	case TERNARY_FALSE:
-		fallthrough
-	case COALESCE:
+func (this *evaluationStage) isShortCircuitable() bool {
+	var symbolE = this.symbol
+	if symbolMap[symbolE] {
 		return true
 	}
-
 	return false
 }
 
@@ -350,7 +349,7 @@ func makeAccessorStage(pair []string) evaluationOperator {
 
 				givenParams := right.([]interface{})
 				params = make([]reflect.Value, len(givenParams))
-				for idx, _ := range givenParams {
+				for idx := range givenParams {
 					params[idx] = reflect.ValueOf(givenParams[idx])
 				}
 
@@ -420,15 +419,15 @@ func separatorStage(left interface{}, right interface{}, parameters Parameters) 
 
 func inStage(left interface{}, right interface{}, parameters Parameters) (interface{}, error) {
 
-	for _, value := range right.([]interface{}) {
-		if left == value {
-			return true, nil
+	if (right.(type) == []interface{}) {
+		for _, value := range right.([]interface{}) {
+			if left == value {
+				return true, nil
+			}
 		}
 	}
 	return false, nil
 }
-
-//
 
 func isString(value interface{}) bool {
 

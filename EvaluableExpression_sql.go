@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var findMap map[TokenKind]func(EvaluableExpression, parsableInput) (string, error)
+
 /*
 	Returns a string representing this expression as if it were written in SQL.
 	This function assumes that all parameters exist within the same table, and that the table essentially represents
@@ -41,127 +43,141 @@ func (this EvaluableExpression) ToSQLQuery() (string, error) {
 	return transactions.createString(" "), nil
 }
 
+type parsableInput struct {
+	thisProxy    EvaluableExpression
+	token        ExpressionToken
+	stream       *tokenStream
+	transactions *expressionOutputStream
+}
+
+var findNextSQLSubstringMap = map[TokenKind]func(EvaluableExpression, parsableInput) (string, error){
+	STRING:       String,
+	PATTERN:      Pattern,
+	TIME:         Time,
+	LOGICALOP:    LogicalOP,
+	BOOLEAN:      Boolean,
+	VARIABLE:     Variable,
+	NUMERIC:      Numeric,
+	COMPARATOR:   Comparator,
+	TERNARY:      Ternary,
+	PREFIX:       Prefix,
+	MODIFIER:     Modifier,
+	CLAUSE:       Clause,
+	CLAUSE_CLOSE: Clause_Close,
+	SEPARATOR:    Separator,
+}
+
+func init() {
+	findMap = findNextSQLSubstringMap
+}
+
 func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transactions *expressionOutputStream) (string, error) {
 
-	var token ExpressionToken
-	var ret string
+	token := stream.next()
+	sqlSubstringFunc, found := findMap[token.Kind]
+	if found {
+		return sqlSubstringFunc(this, parsableInput{token: token, stream: stream, transactions: transactions})
+	}
+	return "", errors.New(fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind))
+}
 
-	token = stream.next()
+func String(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return fmt.Sprintf("'%v'", parsable.token.Value), nil
+}
+func Pattern(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return fmt.Sprintf("'%s'", parsable.token.Value.(*regexp.Regexp).String()), nil
+}
+func Time(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return fmt.Sprintf("'%s'", parsable.token.Value.(time.Time).Format(this.QueryDateFormat)), nil
+}
+func LogicalOP(this EvaluableExpression, parsable parsableInput) (string, error) {
+	if logicalSymbols[parsable.token.Value.(string)] == AND {
+		return "AND", nil
+	}
+	return "OR", nil
+}
+func Boolean(this EvaluableExpression, parsable parsableInput) (string, error) {
+	if parsable.token.Value.(bool) {
+		return "1", nil
+	}
+	return "0", nil
+}
+func Variable(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return fmt.Sprintf("[%s]", parsable.token.Value.(string)), nil
+}
+func Numeric(g EvaluableExpression, parsable parsableInput) (string, error) {
+	return fmt.Sprintf("%g", parsable.token.Value.(float64)), nil
+}
+func Comparator(this EvaluableExpression, parsable parsableInput) (string, error) {
+	comparatorSymbol := comparatorSymbols[parsable.token.Value.(string)]
+	symbol, found := comparatorSymbolsReverse[comparatorSymbol]
+	if found {
+		return symbol, nil
+	}
+	return fmt.Sprintf("%s", parsable.token.Value.(string)), nil
+}
+func Ternary(this EvaluableExpression, parsable parsableInput) (string, error) {
 
-	switch token.Kind {
+	ternarySymbol := ternarySymbols[parsable.token.Value.(string)]
+	if ternarySymbol == COALESCE {
 
-	case STRING:
-		ret = fmt.Sprintf("'%v'", token.Value)
-	case PATTERN:
-		ret = fmt.Sprintf("'%s'", token.Value.(*regexp.Regexp).String())
-	case TIME:
-		ret = fmt.Sprintf("'%s'", token.Value.(time.Time).Format(this.QueryDateFormat))
-
-	case LOGICALOP:
-		switch logicalSymbols[token.Value.(string)] {
-
-		case AND:
-			ret = "AND"
-		case OR:
-			ret = "OR"
+		left := parsable.transactions.rollback()
+		right, err := this.findNextSQLString(parsable.stream, parsable.transactions)
+		if err != nil {
+			return "", err
 		}
 
-	case BOOLEAN:
-		if token.Value.(bool) {
-			ret = "1"
-		} else {
-			ret = "0"
-		}
-
-	case VARIABLE:
-		ret = fmt.Sprintf("[%s]", token.Value.(string))
-
-	case NUMERIC:
-		ret = fmt.Sprintf("%g", token.Value.(float64))
-
-	case COMPARATOR:
-		switch comparatorSymbols[token.Value.(string)] {
-
-		case EQ:
-			ret = "="
-		case NEQ:
-			ret = "<>"
-		case REQ:
-			ret = "RLIKE"
-		case NREQ:
-			ret = "NOT RLIKE"
-		default:
-			ret = fmt.Sprintf("%s", token.Value.(string))
-		}
-
-	case TERNARY:
-
-		switch ternarySymbols[token.Value.(string)] {
-
-		case COALESCE:
-
-			left := transactions.rollback()
-			right, err := this.findNextSQLString(stream, transactions)
-			if err != nil {
-				return "", err
-			}
-
-			ret = fmt.Sprintf("COALESCE(%v, %v)", left, right)
-		case TERNARY_TRUE:
-			fallthrough
-		case TERNARY_FALSE:
-			return "", errors.New("Ternary operators are unsupported in SQL output")
-		}
-	case PREFIX:
-		switch prefixSymbols[token.Value.(string)] {
-
-		case INVERT:
-			ret = fmt.Sprintf("NOT")
-		default:
-
-			right, err := this.findNextSQLString(stream, transactions)
-			if err != nil {
-				return "", err
-			}
-
-			ret = fmt.Sprintf("%s%s", token.Value.(string), right)
-		}
-	case MODIFIER:
-
-		switch modifierSymbols[token.Value.(string)] {
-
-		case EXPONENT:
-
-			left := transactions.rollback()
-			right, err := this.findNextSQLString(stream, transactions)
-			if err != nil {
-				return "", err
-			}
-
-			ret = fmt.Sprintf("POW(%s, %s)", left, right)
-		case MODULUS:
-
-			left := transactions.rollback()
-			right, err := this.findNextSQLString(stream, transactions)
-			if err != nil {
-				return "", err
-			}
-
-			ret = fmt.Sprintf("MOD(%s, %s)", left, right)
-		default:
-			ret = fmt.Sprintf("%s", token.Value.(string))
-		}
-	case CLAUSE:
-		ret = "("
-	case CLAUSE_CLOSE:
-		ret = ")"
-	case SEPARATOR:
-		ret = ","
-
-	default:
-		errorMsg := fmt.Sprintf("Unrecognized query token '%s' of kind '%s'", token.Value, token.Kind)
-		return "", errors.New(errorMsg)
+		return fmt.Sprintf("COALESCE(%v, %v)", left, right), nil
+	}
+	return "", errors.New("Ternary operators are unsupported in SQL output")
+}
+func Prefix(this EvaluableExpression, parsable parsableInput) (string, error) {
+	prefixSymbol := prefixSymbols[parsable.token.Value.(string)]
+	if prefixSymbol == INVERT {
+		return fmt.Sprintf("NOT"), nil
 	}
 
-	return ret, nil
+	right, err := this.findNextSQLString(parsable.stream, parsable.transactions)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s%s", parsable.token.Value.(string), right), nil
+}
+func Modifier(this EvaluableExpression, parsable parsableInput) (string, error) {
+	modifierSymbol := modifierSymbols[parsable.token.Value.(string)]
+	if modifierSymbol == EXPONENT {
+		left := parsable.transactions.rollback()
+		right, err := this.findNextSQLString(parsable.stream, parsable.transactions)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("POW(%s, %s)", left, right), nil
+	}
+
+	if modifierSymbol == MODULUS {
+		left := parsable.transactions.rollback()
+		right, err := this.findNextSQLString(parsable.stream, parsable.transactions)
+		if err != nil {
+			return "", err
+		}
+
+		return fmt.Sprintf("MOD(%s, %s)", left, right), nil
+	}
+	return fmt.Sprintf("%s", parsable.token.Value.(string)), nil
+}
+func Clause(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return "(", nil
+}
+func Clause_Close(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return ")", nil
+}
+func Separator(this EvaluableExpression, parsable parsableInput) (string, error) {
+	return ",", nil
+}
+
+var comparatorSymbolsReverse = map[OperatorSymbol]string{
+	EQ:   "=",
+	NEQ:  "<>",
+	REQ:  "RLIKE",
+	NREQ: "NOT RLIKE",
 }
