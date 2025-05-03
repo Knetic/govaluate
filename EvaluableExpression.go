@@ -37,6 +37,32 @@ type EvaluableExpression struct {
 	inputExpression  string
 }
 
+// An Option is used to define the behavior of the expression parser.
+type Option func(*options)
+
+type options struct {
+  skipDateParsing bool
+}
+
+func getOpts(o ...Option) (res options) {
+  for _, f := range o {
+    f(&res)
+  }
+  return
+}
+
+var (
+  // The SkipDateParsing disables the automatic attempt to parse strings as dates.
+  // By default, date parsing is automatically tried with any string constant
+  SkipDateParsing Option = skipDateParsing
+)
+
+var (
+  skipDateParsing = func(o *options) {
+    o.skipDateParsing = true
+  }
+)
+
 /*
 	Parses a new EvaluableExpression from the given [expression] string.
 	Returns an error if the given expression has invalid syntax.
@@ -87,16 +113,17 @@ func NewEvaluableExpressionFromTokens(tokens []ExpressionToken) (*EvaluableExpre
 	Similar to [NewEvaluableExpression], except enables the use of user-defined functions.
 	Functions passed into this will be available to the expression.
 */
-func NewEvaluableExpressionWithFunctions(expression string, functions map[string]ExpressionFunction) (*EvaluableExpression, error) {
+func NewEvaluableExpressionWithFunctions(expression string, functions map[string]ExpressionFunction, opts ...Option) (*EvaluableExpression, error) {
 
 	var ret *EvaluableExpression
 	var err error
 
+  o := getOpts(opts...)
 	ret = new(EvaluableExpression)
 	ret.QueryDateFormat = isoDateFormat
 	ret.inputExpression = expression
 
-	ret.tokens, err = parseTokens(expression, functions)
+	ret.tokens, err = parseTokens(expression, functions, o)
 	if err != nil {
 		return nil, err
 	}
