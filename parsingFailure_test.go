@@ -78,6 +78,12 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
+			Name:     "Hanging logical operation, followed by clause-close (#92)",
+			Input:    "(amount > '100' &&) == false",
+			Expected: INVALID_TOKEN_TRANSITION,
+		},
+		ParsingFailureTest{
+
 			Name:     "Premature end to expression, via ternary operator",
 			Input:    "true ?",
 			Expected: UNEXPECTED_END,
